@@ -77,6 +77,27 @@ HTTP 请求数据格式
 - DNS 缓存和页面资源缓存这两块数据是会被浏览器缓存的。DNS 缓存主要就是在浏览器本地把对应的 IP 和域名关联起来
 - 缓存查找流程示意图
   ![展示示意图](images/browser-principles-and-practice/h-5.jpg)
+  sequenceDiagram
+    participant User as 用户
+    participant Browser as 浏览器
+    participant Server as 服务器
+
+    User->>Browser: 输入账号密码并提交
+    Browser->>Server: POST /login (账号, 密码)
+    
+    Note over Server: 验证通过，生成 Session/Token
+    Server-->>Browser: 响应 200 OK
+    Note right of Server: Set-Cookie: UID=3431uad;
+    
+    Note over Browser: 浏览器将 Cookie 存入本地
+    
+    User->>Browser: 再次访问页面
+    Browser->>Server: GET /profile
+    Note left of Browser: 自动携带 Cookie: UID=3431uad;
+    
+    Note over Server: 解析 Cookie，识别用户身份
+    Server-->>Browser: 返回用户专属页面数据
+  
 - 从上图的第一次请求可以看出，当服务器返回 HTTP 响应头给浏览器时，浏览器是**通过响应头中的 Cache-Control 字段来设置是否缓存该资源**。通常，我们还需要为这个资源设置一个缓存过期时长，而这个时长是通过 `Cache-Control` 中的 `Max-age` 参数来设置的，比如上图设置的缓存过期时间是 2000 秒。
 `Cache-Control:Max-age=2000`
 - 这也就意味着，在该缓存资源还未过期的情况下, 如果再次请求该资源，会直接返回缓存中的资源给浏览器。但如果缓存过期了，浏览器则会继续发起网络请求，并且在 **HTTP 请求头**中带上：
