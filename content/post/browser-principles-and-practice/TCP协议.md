@@ -1,5 +1,5 @@
 ---
-title: "深入理解 TCP 协议：一个数据包的旅程"
+title: "深入理解 TCP 协议"
 author: "常香玉"
 description: "从 IP 到 UDP 再到 TCP，解析数据包在网络中的传输机制与浏览器工作原理。"
 date: 2023-06-18T14:05:18+08:00
