@@ -99,28 +99,7 @@ HTTP 请求数据格式
 - 服务器在收到 HTTP 请求头数据之后，就会查找请求头里面的“Cookie”字段信息，当查找到包含UID=3431uad的信息时，服务器查询后台，并判断该用户是已登录状态，然后生成含有该用户信息的页面数据，并把生成的数据发送给浏览器。
 - 浏览器在接收到该含有当前用户的页面数据后，就可以正确展示用户登录的状态信息了。
 - Cookie 流程图
-  
-  ```mermaid
-  sequenceDiagram
-        participant User as 用户
-        participant Browser as 浏览器
-        participant Server as 服务器
-    
-        User->>Browser: 输入账号密码并提交
-        Browser->>Server: POST /login (账号, 密码)
-        
-        Note over Server: 验证通过，生成 Session/Token
-        Server-->>Browser: 响应 200 OK
-        Note right of Server: Set-Cookie: UID=3431uad;
-        
-        Note over Browser: 浏览器将 Cookie 存入本地
-        
-        User->>Browser: 再次访问页面
-        Browser->>Server: GET /profile
-        Note left of Browser: 自动携带 Cookie: UID=3431uad;
-        
-        Note over Server: 解析 Cookie，识别用户身份
-        Server-->>Browser: 返回用户专属页面数据
+  ![展示示意图](images/browser-principles-and-practice/h-6.jpg)
 
 ## 总结
 HTTP 请求流程示意图
