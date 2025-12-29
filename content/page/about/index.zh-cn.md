@@ -155,3 +155,6 @@ _2019.10 - 2020.01_
 
 - 优秀学生二等奖学金
 - 优秀学生三等奖学金
+
+![毕业证书](images/credential/biyezhengshu.jpg)
+![学位证书](images/credential/xueweizhengshu.jpg)
