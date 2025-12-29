@@ -37,7 +37,7 @@ params:
         - post
     featuredImageField: image
     rssFullContent: true
-    favicon: https://changxiangyu.cn/images/bitbug_favicon.ico
+    favicon: img/bitbug_favicon.ico
 
     footer:
         since: 2020
