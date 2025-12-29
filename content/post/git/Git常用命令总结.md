@@ -20,9 +20,8 @@ categories : [              # 文章所属标签
 ### 用户名与邮箱配置
 **全局配置** (适用于所有项目):
 Mac 下可通过终端输入 `cat ~/.gitconfig` 查看。
-`
-git config --global user.name "name"
-git config --global user.email "email"`
+`git config --global user.name "name"`
+`git config --global user.email "email"`
 
 **单个仓库配置** (仅适用于当前项目): 进入项目根目录，输入 cat .git/config 查看。
 `git config user.name "name"
