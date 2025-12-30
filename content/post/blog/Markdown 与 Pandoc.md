@@ -1,8 +1,19 @@
 ---
-title: 打造高效写作流：Markdown 与 Pandoc 的完美结合
-date: 2023-10-27
-author: 技术博主
-tags: [效率工具, Markdown, Pandoc, 写作]
+title: "Markdown 与 Pandoc 的完美结合"
+author: "常香玉"              # 文章作者
+description : "打造高效写作流：Markdown 与 Pandoc 的完美结合"    # 文章描述信息
+lastmod: 2023-10-27T20:46:00+08:00     # 文章修改日期
+date: 2023-10-27T20:46:00+08:00
+
+tags : [                    # 文章所属标签
+    "效率工具",
+    "Markdown",
+    "Pandoc"
+]
+categories : [              # 文章所属标签
+    "Pandoc",
+]
+
 ---
 
 # 打造高效写作流：Markdown 与 Pandoc 的完美结合
