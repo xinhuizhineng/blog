@@ -2,8 +2,8 @@
 title: "HTTP请求流程"
 author: "常香玉"
 description : "详解浏览器发起 HTTP 请求的全过程，包括 TCP 连接、缓存策略、重定向机制及 Cookie 状态保持。"
-date: 2023-04-08T13:06:18+08:00
-lastmod: 2023-04-08
+date: 2025-04-08T13:06:18+08:00
+lastmod: 2025-04-08
 tags : [
     "浏览器工作原理与实践",
     "HTTP协议",
