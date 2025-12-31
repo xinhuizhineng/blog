@@ -2,8 +2,8 @@
 title: "Docker容器占用大量存储"
 author: "常香玉"
 description: "Docker容器占用大量存储"
-date: 2023-01-09T10:00:00+08:00
-lastmod: 2022-01-09         # 文章修改日期
+date: 2023-01-17T11:02:00+08:00
+lastmod: 2022-01-17         # 文章修改日期
 tags : [                    # 文章所属标签
     "Docker"
 ]
