@@ -118,9 +118,20 @@ router.beforeEach(async (to, from, next) => {
 
     // 动态路由加载逻辑
     if (store.state.menus.routers.length === 0 && to.path !== '/login') {
-       // ... 获取菜单并 addRoute
-       // 省略部分代码，确保 next({ ...to, replace: true })
-       next(); // 示例简化
+       // 处理菜单基合菜单列表
+      const res = await store.dispatch('menus/getMenus');
+      res.forEach((route) => {
+        if (router.hasRoute('Main')) {
+          router.addRoute('Main', route);
+        }
+      });
+      const routers = router.getRoutes();
+      // Tips不检查门禁监控菜单
+      if (routers.find((item) => item.path === to.path || /\/monitor\/mj\//.test(to.path))) {
+        next({ ...to, replace: true });
+      } else {
+        next({ path: '/not-find' });
+      }
     } else {
        // 404 检测
        const routers = router.getRoutes();
