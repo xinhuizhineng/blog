@@ -5,13 +5,13 @@ description: "本文详细介绍了 Vue 项目构建后的 Nginx 部署流程，
 date: 2023-04-27T13:05:18+08:00
 lastmod: 2023-04-27         # 文章修改日期
 categories: [
-   "运维部署"
+   "运维部署",
    "Vue"
 ]
 tags: [
-   "Nginx"
-   "Vue.js"
-   "Vite"
+   "Nginx",
+   "Vue.js",
+   "Vite",
    "Windows"
 ]
 ---
