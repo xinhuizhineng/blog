@@ -68,8 +68,8 @@ export class ModalDragModule { }
   1. 将 `ModalDragModule` 导入到需要使用弹窗拖拽的功能模块中。
   2. 在 `<nz-modal>` 标签中增加一个模板引用变量（例如 `#modal`）。
   3. 将该变量传递给 `dragModal` 指令。
-图1
-图2
+![](images/web/popupdrag-1.png)
+![](images/web/popupdrag-2.png)
 
 ## 通过NzModalService服务创建的弹窗
 实现步骤：
@@ -151,8 +151,8 @@ export class ModalDragService {
 } 
 ```
 在初始化`modal`时，使用`modalDragService`的`enableModalDrag`方法激活拖拽功能；
-图3
+![](images/web/popupdrag-3.png)
 使用方法：
-图4
+![](images/web/popupdrag-4.png)
 
 
