@@ -1,0 +1,245 @@
+---
+title: "Uniapp H5端解决图片拍照旋转与压缩上传方案"
+author: "常香玉"
+description: "基于Exif.js和Canvas解决移动端H5拍照后图片旋转90度的问题，并实现图片压缩上传功能。"
+date: 2023-10-27T10:00:00+08:00
+tags: 
+    - Uniapp
+    - H5
+    - 图片处理
+    - Exif.js
+categories: 
+    - 前端开发
+    - 移动端兼容
+---
+
+在 Uniapp 开发 H5 应用时，涉及到手机拍照上传的功能往往会遇到两个棘手的问题：
+1.  **图片方向不对**：不同厂商的手机（尤其是 iOS 和部分 Android）在拍照时，图片实际上是“横着”保存的，通过 EXIF 信息标记了方向。直接在 `img` 标签显示可能正常，但一旦绘制到 Canvas 或上传到服务器，图片就会歪掉（通常是旋转了 90 度）。
+2.  **图片体积过大**：手机原图动辄 5MB+，直接上传消耗流量且速度慢，需要在前端进行压缩。
+
+本文将分享一个基于 `Exif.js` 和 `Canvas` 的完整解决方案。
+
+## 准备工作
+
+我们需要引入两个核心工具库：
+1.  **Exif.js**：用于读取图片的元数据（Metadata），核心是获取 `Orientation`（方向）标识。
+2.  **Mobile-detect**（可选）：用于辅助判断设备类型，处理特定机型的兼容性差异。
+
+### 1. 引入 Exif.js
+由于 `exif.js` 是一个较老的库，建议将其源码保存到项目中，例如 `common/js/toolJs/exif.js`。
+*(注：由于源码较长，此处不贴出完整库代码，请直接下载官方版本或使用 npm 安装)*
+
+### 2. 核心组件实现
+
+我们将功能封装在一个 Vue 组件中。主要流程如下：
+`选择图片` -> `读取EXIF方向` -> `Canvas重绘(旋转+压缩)` -> `获取Base64` -> `上传`。
+
+#### HTML 结构
+简单的界面，包含预览图、拍照按钮和上传按钮。
+
+```
+html
+<template>
+    <view class="container">
+        <image :src="photoSrc" mode="aspectFit" style="width: 100%; height: 300px;"></image>
+        <button type="primary" @click="takePhoto">拍照/选图</button>
+        <button type="primary" @click="uploadPhoto" :disabled="!photoSrc">上传</button>
+    </view>
+</template>
+```
+### 核心 JS 逻辑
+首先引入必要的库：
+```
+import EXIF from '../../common/js/toolJs/exif.js';
+import MobileDetect from 'mobile-detect';
+
+export default {
+    data() {
+        return {
+            photoSrc: '',
+        }
+    },
+    methods: {
+        // ...后续方法
+    }
+}
+```
+### 关键步骤解析
+1. 获取图片并开启处理流程
+使用 `uni.chooseImage` 获取图片，然后调用 `detail` 方法进行处理。
+```
+takePhoto() {
+    uni.chooseImage({
+        count: 1,
+        success: async (res) => {
+            // 开启异步处理流程
+            this.photoSrc = await this.detail(res.tempFilePaths[0])
+        },
+        fail: (res) => {
+            console.error(res)
+        }
+    })
+},
+```
+2. 读取 EXIF Orientation 信息
+这是修正方向的关键。我们需要封装一个 Promise 方法来读取图片的 Orientation 标签。
+
+- 1: 正常
+- 6: 顺时针旋转90度
+- 8: 逆时针旋转90度
+- 3: 旋转180度
+```
+getImageTag(file, tag, suc) {
+    if (!file) return 0;
+    return new Promise((resolve, reject) => {
+        let imgObj = new Image()
+        imgObj.src = file
+        uni.getImageInfo({
+            src: file,
+            success(res) {
+                EXIF.getData(imgObj, function() {
+                    EXIF.getAllTags(this);
+                    // 获取方向标记
+                    let or = EXIF.getTag(this, 'Orientation'); 
+                    resolve(suc(or))
+                });
+            }
+        })
+    });
+},
+```
+3. Canvas 旋转与压缩
+这是最复杂的环节。我们需要根据 `Orientation` 的值，利用 `Canvas` 的 `rotate` 方法将图片“扳正”。同时，通过控制 `Canvas` 的尺寸来实现压缩。
+
+注意：代码中加入了一个 `getPlat()` 判断，这是因为在实际测试中发现，部分 Android 环境下 Canvas 的旋转行为可能与 iOS 不一致，需要做特殊处理。
+```
+// 判断是否为 Android 终端
+getPlat() {
+    let u = navigator.userAgent;
+    return u.indexOf('Android') > -1 || u.indexOf('Adr') > -1;
+},
+
+async detail(url) {
+    let maxWidth = 800; // 设置最大宽度进行压缩
+    let Orientation = 1;
+    
+    // 1. 获取方向
+    await this.getImageTag(url, 'Orientation', function(e) {
+        if (e != undefined) Orientation = e;
+    })
+
+    var img = null;
+    var canvas = null;
+    
+    // 2. 加载图片资源
+    await this.comprossImage(url, maxWidth, function(e) {
+        img = e.img;
+        canvas = e.canvas;
+    })
+
+    console.log("图片方向角:", Orientation)
+    let baseStr = '';
+
+    // 3. 根据方向角进行旋转修正
+    // 注意：这里针对不同平台做了一些特定逻辑处理（根据实际调试情况调整）
+    switch (Orientation) {
+        case 6: // 需要顺时针（向右）90度
+            baseStr = this.getPlat() ? 
+                this.rotateImg(img, 'right', canvas) : 
+                this.rotateImg(img, '', canvas); // 某些安卓机型可能不需要手动旋，视具体Webview内核而定
+            break;
+        case 8: // 需要逆时针（向左）90度
+            baseStr = this.getPlat() ? 
+                this.rotateImg(img, 'left', canvas) : 
+                this.rotateImg(img, '', canvas);
+            break;
+        case 3: // 180度
+            baseStr = this.rotateImg(img, 'right', canvas, 2);
+            break;
+        default:
+            baseStr = this.rotateImg(img, '', canvas);
+            break;
+    }
+    return baseStr;
+},
+```
+
+4. 旋转的具体实现 (rotateImg)
+利用 `Canvas` 上下文的 `rotate` 和 `drawImage`。
+```
+rotateImg(img, direction, canvas, times = 1) {
+    // ...初始化参数，计算宽高...
+    var width = img.width;
+    var height = img.height;
+    
+    // 压缩逻辑：限制最大宽度
+    let maxWidth = 800; 
+    if (width > maxWidth) {
+        height = Math.floor(height * (maxWidth / width));
+        width = maxWidth;
+    }
+
+    // 旋转角度计算
+    var step = 0;
+    if (direction == 'right') step += times;
+    else if (direction == 'left') step -= times;
+    
+    var degree = step * 90 * Math.PI / 180;
+    var ctx = canvas.getContext('2d');
+
+    switch (step) {
+        case 1: // 旋转90度
+            canvas.width = height;
+            canvas.height = width;
+            ctx.rotate(degree);
+            ctx.drawImage(img, 0, -height, width, height);
+            break;
+        case 2: // 旋转180度
+            canvas.width = width;
+            canvas.height = height;
+            ctx.rotate(degree);
+            ctx.drawImage(img, -width, -height, width, height);
+            break;
+        case 3: // 旋转270度（-90度）
+            canvas.width = height;
+            canvas.height = width;
+            ctx.rotate(degree);
+            ctx.drawImage(img, -width, 0, width, height);
+            break;
+        default: // 不旋转
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
+            break;
+    }
+
+    // 输出压缩后的 Base64，quality 设置为 0.8
+    return canvas.toDataURL("image/jpeg", 0.8);
+}
+```
+5. 上传逻辑
+最后，将获取到的 Base64 字符串（去除头部信息后）发送给后端。
+```
+uploadPhoto() {
+    if (!this.photoSrc) {
+        return;
+    }
+    
+    let obj = {
+        // 去除 base64 头部，后端通常只需要内容
+        Photo: this.photoSrc.split(';base64,')[1], 
+        TimeStamp: new Date().getTime(),
+        // ...其他业务参数
+    };
+    
+    // 发起请求
+    // this.$http.baseRequest(...) 
+}
+```
+## 遇到的坑与总结
+- Canvas 宽高混淆：当图片旋转 90 度时，Canvas 的 width 和 height 必须互换，否则图片会被裁剪或拉伸。
+- Android 兼容性：代码中 this.getPlat() 的判断非常重要。部分 Android 手机的 WebView 或者浏览器在上传图片时会自动修正方向，如果我们再手动旋转一次，图片反而会歪掉。建议在真机上多测试几款主流机型。
+- 内存溢出：对于超大分辨率的图片（如 4000x3000），Canvas 绘制可能会导致 iOS Webview 崩溃（OOM）。解决方案是在绘制前先大幅度压缩图片尺寸（如限制 maxWidth）。  
+
+通过以上方案，我们不仅解决了图片“歪脖子”的问题，还实现了前端压缩，大大减轻了服务器带宽压力。  
+
