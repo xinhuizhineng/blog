@@ -2,15 +2,18 @@
 title: "Uniapp H5端解决图片拍照旋转与压缩上传方案"
 author: "常香玉"
 description: "基于Exif.js和Canvas解决移动端H5拍照后图片旋转90度的问题，并实现图片压缩上传功能。"
-date: 2023-10-27T10:00:00+08:00
-tags: 
-    - Uniapp
-    - H5
-    - 图片处理
-    - Exif.js
-categories: 
-    - 前端开发
-    - 移动端兼容
+date: 2023-01-09T10:00:00+08:00
+lastmod: 2022-01-09         # 文章修改日期
+tags : [                    # 文章所属标签
+    "Web前端",
+    "uniapp",
+    "h5",
+    "图片处理"
+]
+categories : [              # 文章所属标签
+    "Web前端",
+    "移动端兼容"
+]
 ---
 
 在 Uniapp 开发 H5 应用时，涉及到手机拍照上传的功能往往会遇到两个棘手的问题：
