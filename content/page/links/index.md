@@ -13,10 +13,6 @@ links:
     description: TypeScript is a typed superset of JavaScript that compiles to plain JavaScript.
     website: https://www.typescriptlang.org
     image: ts-logo-128.jpg
-  - title: kubernetes
-    description: kubernetes学习笔记。
-    website: https://mkbooks.github.io/k8s-mengfanjie/
-    image: kubernetes.png
 menu:
     main: 
         weight: -50
