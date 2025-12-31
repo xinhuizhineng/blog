@@ -13,11 +13,11 @@ menu:
 ## 基本信息
 
 - 手机：17111124608
-- 邮箱：changxiangyu888@gmail.com
+- 邮箱：changxiangyu@changxiangyu.cn
 - GitHub 主页：https://github.com/changxiangyu666
 - 作品组织：https://github.com/jinyumantangcjx，https://github.com/xinhuizhineng
 - 毕业院校及专业：黑河学院 | 20届 | 计算机科学与技术专业（本科）
-- 我的博客: https://github.com/xinhuizhineng/blog
+- 我的博客: https://changxiangyu.cn
 
 ## 核心技能
 - 编程语言: HTML、CSS、JavaScript、Typescript、HTML5、CSS3、DOM、BOM、ES6、JQuery、dart、python、Java、Ajax，数据结构与算法。
