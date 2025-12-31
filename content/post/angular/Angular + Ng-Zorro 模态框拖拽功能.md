@@ -1,3 +1,18 @@
+---
+title: "Angular + Ng-Zorro 模态框拖拽功能"
+author: "常香玉"              # 文章作者
+description: "Angular + Ng-Zorro 模态框拖拽功能"
+date: 2024-01-22T10:05:18+08:00
+lastmod: 2024-01-22         # 文章修改日期
+categories: [
+   "Web前端"
+]
+tags: [
+   "Web前端",
+   "Angular"
+]
+---
+
 ## 基本原理
 通过监听鼠标的按下（mousedown），弹起（mouseup），移动（mousemove）三个事件来计算移动的距离，从而调整模态框的新位置。
 - 鼠标按下（mousedown）：
