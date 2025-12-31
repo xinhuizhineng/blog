@@ -22,6 +22,6 @@ categories : [              # 文章所属标签
     ulimits:
         core: 0
 ```
-图1
+![](images/web/docker-1.png)
 5. 启动docker容器
 `docker-compose up -d`
