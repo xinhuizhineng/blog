@@ -280,7 +280,7 @@ _2019.10 - 2020.01_
     font-size: 1.6rem;
     color: #333;
     margin-top: 25px;
-    margin-bottom: 5px;
+    margin-bottom: 15px;
     background-color: var(--bg-header);
     padding: 10px 15px;
     border-left: 4px solid var(--primary-color);
@@ -304,7 +304,7 @@ _2019.10 - 2020.01_
     margin-bottom: 15px;
     font-style: normal;
     color: var(--text-sub);
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     text-align: right;
     margin-top: -40px; /* 调整位置与标题同行或紧随其后 */
     padding-right: 15px;
@@ -375,8 +375,6 @@ _2019.10 - 2020.01_
     
     /* 隐藏网页端特有的元素 */
     .resume-wrapper a { border-bottom: none; color: #000; text-decoration: none; }
-    /* 可选：在链接后显示 URL，但通常简历不需要 */
-    /* .resume-wrapper a::after { content: " (" attr(href) ")"; font-size: 0.8em; } */
 
     /* 关键：分页控制 */
     h2, h3, h4 { page-break-after: avoid; } /* 标题后不分页 */
@@ -390,6 +388,7 @@ _2019.10 - 2020.01_
     
     /* 移除不必要的装饰 */
     .resume-wrapper img { display: none; } /* 简历通常不打印装饰图片，除非是作品集 */
+    .sidebar,.right-sidebar,.sticky { display: none; }
 }
 
 /* ==========================================================================
