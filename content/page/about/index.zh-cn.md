@@ -158,11 +158,10 @@ _2019.10 - 2020.01_
 
 - 优秀学生二等奖学金
 - 优秀学生三等奖学金
-</div>
 
 ![毕业证书](images/credential/biyezhengshu.jpg)
 ![学位证书](images/credential/xueweizhengshu.jpg)
-
+</div>
 
 <style>
 /* 简历容器 - 模拟 A4 纸质感或干净的网页布局 */
@@ -299,7 +298,7 @@ _2019.10 - 2020.01_
 
 /* ---------------- 图片展示 ---------------- */
 .resume-wrapper img {
-    max-width: 45%;
+    max-width: 100%;
     height: auto;
     margin: 10px;
     border: 1px solid #ddd;
