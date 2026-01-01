@@ -180,7 +180,7 @@ _2019.10 - 2020.01_
 
 /* ---------------- 头部信息 ---------------- */
 .resume-wrapper h1 {
-    font-size: 2.2rem;
+    font-size: 2.5rem;
     color: #2c3e50;
     border-bottom: none;
     margin-bottom: 0.5rem;
@@ -219,7 +219,7 @@ _2019.10 - 2020.01_
 
 /* ---------------- 标题通用样式 ---------------- */
 .resume-wrapper h2 {
-    font-size: 1.5rem;
+    font-size: 2rem;
     color: #2c3e50;
     border-bottom: 2px solid #eaeaea;
     padding-bottom: 10px;
@@ -252,7 +252,7 @@ _2019.10 - 2020.01_
 
 /* ---------------- 工作经历 ---------------- */
 .resume-wrapper h3 {
-    font-size: 1.25rem;
+    font-size: 1.8rem;
     color: #333;
     margin-top: 25px;
     margin-bottom: 5px;
@@ -272,15 +272,15 @@ _2019.10 - 2020.01_
     margin-bottom: 15px;
     font-style: normal;
     color: #666;
-    font-size: 1rem;
+    font-size: 1.3rem;
     text-align: right;
-    margin-top: -35px; /* 调整位置与标题同行或紧随其后 */
+    margin-top: -40px; /* 调整位置与标题同行或紧随其后 */
     padding-right: 15px;
 }
 
 /* 项目名称 */
 .resume-wrapper h4 {
-    font-size: 1.1rem;
+    font-size: 1.5rem;
     color: #444;
     margin-top: 20px;
     margin-bottom: 10px;
