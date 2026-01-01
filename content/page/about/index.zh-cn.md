@@ -389,7 +389,20 @@ _2019.10 - 2020.01_
     .resume-wrapper h1 { font-size: 18pt; margin-bottom: 5pt; }
     .resume-wrapper h1 + ul { font-size: 9pt; margin-bottom: 15pt; gap: 10pt; }
     .resume-wrapper h2 { font-size: 14pt; margin-top: 15pt; margin-bottom: 8pt; padding-bottom: 3pt; }
-    .resume-wrapper h3 { font-size: 11pt; margin-top: 10pt; padding: 4pt 8pt 4pt 30px;border-left: 4px solid #007bff; }
+    .resume-wrapper h3 {
+        font-size: 11pt;
+        margin-top: 10pt;
+        padding: 4pt 8pt 4pt 30px; /* 调整了左内边距，让文字离边框近一点，更美观 */
+        
+        /* 核心修复代码 START */
+        border-left: 4px solid #007bff !important; /* 1. 加上 !important */
+        -webkit-print-color-adjust: exact;         /* 2. 强制该元素打印背景/边框颜色 */
+        print-color-adjust: exact;                 /* 3. Firefox 兼容 */
+        background-color: rgba(0, 123, 255, 0.05) !important; /* 4. 可选：加个极淡的背景色增强存在感 */
+        /* 核心修复代码 END */
+        
+        page-break-after: avoid;
+    }
     .resume-wrapper h4 { font-size: 11pt; margin-top: 8pt; }
     
     /* 隐藏网页端特有的元素 */
