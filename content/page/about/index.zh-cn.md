@@ -347,7 +347,15 @@ _2019.10 - 2020.01_
         margin: 1cm; /* 标准 A4 边距 */
         size: A4 portrait;
     }
-    
+     /* 1. 全局净化：隐藏所有无关元素 */
+    body * {
+        visibility: hidden; 
+    }
+
+    /* 2. 独显主角：只显示简历容器及其子元素 */
+    .resume-wrapper, .resume-wrapper * {
+        visibility: visible;
+    }
     /* 同时也建议去掉页面的默认边距，防止产生额外线条 */
     body, html {
         margin: 0;
@@ -360,6 +368,9 @@ _2019.10 - 2020.01_
     }
 
     .resume-wrapper {
+        position: absolute;
+        left: 0;
+        top: 0;
         width: 100%;
         max-width: none;
         margin: 0;
