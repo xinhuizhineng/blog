@@ -351,8 +351,8 @@ _2019.10 - 2020.01_
 
     body {
         background: #fff;
-        -webkit-print-color-adjust: exact; /* 强制打印背景色 (Chrome/Safari) */
-        print-color-adjust: exact;         /* 强制打印背景色 (Firefox) */
+        /* -webkit-print-color-adjust: exact; /* 强制打印背景色 (Chrome/Safari) */
+        /* print-color-adjust: exact;         /* 强制打印背景色 (Firefox) */ */ */
     }
 
     .resume-wrapper {
@@ -360,7 +360,6 @@ _2019.10 - 2020.01_
         max-width: none;
         margin: 0;
         padding: 0;
-        box-shadow: none;
         border: none;
     }
 
