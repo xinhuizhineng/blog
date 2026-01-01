@@ -190,7 +190,6 @@ _2019.10 - 2020.01_
     color: #333;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     line-height: var(--line-height);
-    border-radius: 8px;
 }
 
 /* ---------------- 头部信息 ---------------- */
@@ -351,8 +350,8 @@ _2019.10 - 2020.01_
 
     body {
         background: #fff;
-        /* -webkit-print-color-adjust: exact; /* 强制打印背景色 (Chrome/Safari) */
-        /* print-color-adjust: exact;         /* 强制打印背景色 (Firefox) */ */ */
+        -webkit-print-color-adjust: exact; /* 强制打印背景色 (Chrome/Safari) */
+        print-color-adjust: exact;         /* 强制打印背景色 (Firefox) */
     }
 
     .resume-wrapper {
