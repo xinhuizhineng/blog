@@ -190,7 +190,6 @@ _2019.10 - 2020.01_
     color: #333;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     line-height: var(--line-height);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05); /* 网页端显示的轻微阴影 */
     border-radius: 8px;
 }
 
@@ -361,8 +360,8 @@ _2019.10 - 2020.01_
         max-width: none;
         margin: 0;
         padding: 0;
-        box-shadow: none !important;
-        border: none !important;
+        box-shadow: none;
+        border: none;
     }
 
     /* 字体调整：使用 pt 单位更适合打印 */
@@ -388,7 +387,7 @@ _2019.10 - 2020.01_
     
     /* 移除不必要的装饰 */
     .resume-wrapper img { display: none; } /* 简历通常不打印装饰图片，除非是作品集 */
-    .sidebar,.right-sidebar,.left-sidebar,.sticky,.article-details,.site-footer,.disqus-container,.article-copyright { display: none; }
+    .sidebar,.right-sidebar,.left-sidebar,.sticky,.article-details,.site-footer,.disqus-container,.article-footer { display: none; }
     
 }
 
