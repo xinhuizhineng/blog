@@ -347,7 +347,12 @@ _2019.10 - 2020.01_
         margin: 1cm; /* 标准 A4 边距 */
         size: A4 portrait;
     }
-
+    
+    /* 同时也建议去掉页面的默认边距，防止产生额外线条 */
+    body, html {
+        margin: 0;
+        padding: 0;
+    }
     body {
         background: #fff;
         -webkit-print-color-adjust: exact; /* 强制打印背景色 (Chrome/Safari) */
@@ -363,6 +368,7 @@ _2019.10 - 2020.01_
         /* 关键：去除所有可能产生边框的样式 */
         border: none !important;
         box-shadow: none !important; 
+        outline: none !important; /* 有时候是轮廓线 */
         border-radius: 0 !important;
         background: transparent !important; /* 防止背景色形成色块 */
     }
