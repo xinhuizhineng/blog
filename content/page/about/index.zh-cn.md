@@ -389,7 +389,7 @@ _2019.10 - 2020.01_
     .resume-wrapper h1 { font-size: 18pt; margin-bottom: 5pt; }
     .resume-wrapper h1 + ul { font-size: 9pt; margin-bottom: 15pt; gap: 10pt; }
     .resume-wrapper h2 { font-size: 14pt; margin-top: 15pt; margin-bottom: 8pt; padding-bottom: 3pt; }
-    .resume-wrapper h3 { font-size: 11pt; margin-top: 10pt; padding: 4pt 8pt 4pt 30px; }
+    .resume-wrapper h3 { font-size: 11pt; margin-top: 10pt; padding: 4pt 8pt 4pt 30px;border-left: 4px solid var(--primary-color); }
     .resume-wrapper h4 { font-size: 11pt; margin-top: 8pt; }
     
     /* 隐藏网页端特有的元素 */
