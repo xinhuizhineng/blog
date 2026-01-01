@@ -192,12 +192,12 @@ body {
 .resume-wrapper {
     max-width: 820px; /* A4 宽度约为 210mm，800-850px 视觉最接近 */
     margin: 40px auto;
-    padding: 40px 50px;
+    padding: 40px;
     background: #fff;
     color: #333;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     line-height: var(--line-height);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.08); /* 更柔和的投影 */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05); /* 网页端显示的轻微阴影 */
     border-radius: 4px;
     box-sizing: border-box;
 }
@@ -220,9 +220,10 @@ body {
 
 /* --- 头部信息 --- */
 .resume-wrapper h1 {
-    font-size: 2.2rem;
+    font-size: 2.5rem;
     color: var(--text-main);
-    margin: 0 0 10px 0;
+    border-bottom: none;
+    margin-bottom: 0.5rem;
     text-align: center;
     font-weight: 700;
     letter-spacing: 1px;
@@ -243,7 +244,7 @@ body {
 
 /* --- 一级标题 (教育背景、工作经历) --- */
 .resume-wrapper h2 {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     color: var(--text-main);
     border-bottom: 1px solid #eee;
     padding-bottom: 8px;
@@ -287,10 +288,12 @@ body {
 */
 
 .resume-wrapper h3 {
-    font-size: 1.1rem;
+    font-size: 1.6rem;
     color: #000;
     background-color: var(--bg-header);
-    padding: 8px 12px;
+    margin-top: 25px;
+    margin-bottom: 5px;
+    padding: 10px 15px;
     border-left: 4px solid var(--primary-color);
     border-radius: 2px;
     margin-top: 25px;
@@ -299,7 +302,7 @@ body {
     /* Flex 布局实现两端对齐 */
     display: flex; 
     justify-content: space-between;
-    align-items: center;
+    align-items: baseline;
     flex-wrap: wrap;
 }
 
@@ -312,14 +315,18 @@ body {
 .resume-wrapper h3 + p em {
     font-style: normal;
     color: var(--text-sub);
-    font-size: 0.9rem;
+    font-size: 1.3rem;
     background: var(--bg-header); /* 遮挡背景防止文字重叠 */
-    padding-left: 10px;
+    display: block;
+    margin-bottom: 15px;
+    text-align: right;
+    margin-top: -40px; /* 调整位置与标题同行或紧随其后 */
+    padding-right: 15px;
 }
 
 /* 项目名称 */
 .resume-wrapper h4 {
-    font-size: 1.05rem;
+    font-size: 1.5rem;
     color: #444;
     margin: 15px 0 8px 0;
     font-weight: 700;
