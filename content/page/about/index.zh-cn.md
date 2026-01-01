@@ -8,6 +8,7 @@ menu:
             icon: user
 ---
 
+<div class="resume-wrapper">
 # 常香玉 | 前端开发工程师 | 6 年+
 
 ## 基本信息
@@ -157,6 +158,197 @@ _2019.10 - 2020.01_
 
 - 优秀学生二等奖学金
 - 优秀学生三等奖学金
+</div>
 
 ![毕业证书](images/credential/biyezhengshu.jpg)
 ![学位证书](images/credential/xueweizhengshu.jpg)
+
+
+<style>
+/* 简历容器 - 模拟 A4 纸质感或干净的网页布局 */
+.resume-wrapper {
+    max-width: 850px;
+    margin: 40px auto;
+    padding: 40px;
+    background: #fff;
+    color: #333;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.6;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05); /* 网页端显示的轻微阴影 */
+    border-radius: 8px;
+}
+
+/* ---------------- 头部信息 ---------------- */
+.resume-wrapper h1 {
+    font-size: 2.2rem;
+    color: #2c3e50;
+    border-bottom: none;
+    margin-bottom: 0.5rem;
+    text-align: center;
+    font-weight: 700;
+}
+
+/* 基本信息列表转横排 */
+.resume-wrapper h1 + ul {
+    list-style: none;
+    padding: 0;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 0.95rem;
+    color: #555;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+}
+
+.resume-wrapper h1 + ul li {
+    display: inline-block;
+}
+
+/* 链接样式 */
+.resume-wrapper a {
+    color: #0366d6;
+    text-decoration: none;
+    border-bottom: 1px dashed #0366d6;
+}
+.resume-wrapper a:hover {
+    color: #0056b3;
+    border-bottom-style: solid;
+}
+
+/* ---------------- 标题通用样式 ---------------- */
+.resume-wrapper h2 {
+    font-size: 1.5rem;
+    color: #2c3e50;
+    border-bottom: 2px solid #eaeaea;
+    padding-bottom: 10px;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.resume-wrapper h2::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 60px;
+    height: 2px;
+    background-color: #007bff; /* 强调色条 */
+}
+
+/* ---------------- 核心技能 ---------------- */
+/* 针对技能列表的样式优化 */
+.resume-wrapper h2 + ul li {
+    margin-bottom: 8px;
+}
+.resume-wrapper h2 + ul li strong {
+    color: #2c3e50;
+    font-weight: 600;
+    display: inline-block;
+    min-width: 100px; /* 让技能分类对齐 */
+}
+
+/* ---------------- 工作经历 ---------------- */
+.resume-wrapper h3 {
+    font-size: 1.25rem;
+    color: #333;
+    margin-top: 25px;
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between; /* 公司名和职位两端对齐 */
+    align-items: baseline;
+    flex-wrap: wrap;
+    background-color: #f8f9fa;
+    padding: 10px 15px;
+    border-left: 4px solid #007bff;
+    border-radius: 0 4px 4px 0;
+}
+
+/* 处理时间段 */
+.resume-wrapper h3 + p em {
+    display: block;
+    margin-bottom: 15px;
+    font-style: normal;
+    color: #666;
+    font-size: 0.9rem;
+    text-align: right;
+    margin-top: -35px; /* 调整位置与标题同行或紧随其后 */
+    padding-right: 15px;
+}
+
+/* 项目名称 */
+.resume-wrapper h4 {
+    font-size: 1.1rem;
+    color: #444;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+/* 项目详情列表 */
+.resume-wrapper ul {
+    padding-left: 20px;
+}
+
+.resume-wrapper li {
+    margin-bottom: 6px;
+    color: #444;
+}
+
+/* ---------------- 图片展示 ---------------- */
+.resume-wrapper img {
+    max-width: 45%;
+    height: auto;
+    margin: 10px;
+    border: 1px solid #ddd;
+    padding: 5px;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* ---------------- 打印适配 (Ctrl+P) ---------------- */
+@media print {
+    body { background: #fff; }
+    .resume-wrapper {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+    }
+    .resume-wrapper a {
+        text-decoration: none;
+        color: #000;
+        border: none;
+    }
+    /* 打印时隐藏不必要的元素（根据您博客的实际类名调整） */
+    header, footer, .sidebar, .menu {
+        display: none !important;
+    }
+    /* 强制分页控制 */
+    h2 { page-break-before: auto; }
+    h3 { page-break-inside: avoid; }
+}
+
+/* ---------------- 移动端适配 ---------------- */
+@media (max-width: 600px) {
+    .resume-wrapper {
+        padding: 20px;
+    }
+    .resume-wrapper h3 {
+        flex-direction: column;
+    }
+    .resume-wrapper h3 + p em {
+        text-align: left;
+        margin-top: 0;
+        padding-left: 15px;
+        margin-bottom: 10px;
+    }
+    .resume-wrapper img {
+        max-width: 100%;
+    }
+}
+</style>
+
