@@ -361,8 +361,8 @@ _2019.10 - 2020.01_
         max-width: none;
         margin: 0;
         padding: 0;
-        box-shadow: none;
-        border: none;
+        box-shadow: none !important;
+        border: none !important;
     }
 
     /* 字体调整：使用 pt 单位更适合打印 */
