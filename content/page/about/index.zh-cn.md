@@ -361,6 +361,11 @@ _2019.10 - 2020.01_
         margin: 0;
         padding: 0;
         border: none;
+        /* 关键：去除所有可能产生边框的样式 */
+        border: none !important;
+        box-shadow: none !important; 
+        border-radius: 0 !important;
+        background: transparent !important; /* 防止背景色形成色块 */
     }
 
     /* 字体调整：使用 pt 单位更适合打印 */
