@@ -388,7 +388,8 @@ _2019.10 - 2020.01_
     
     /* 移除不必要的装饰 */
     .resume-wrapper img { display: none; } /* 简历通常不打印装饰图片，除非是作品集 */
-    .sidebar,.right-sidebar,.sticky { display: none; }
+    .sidebar,.right-sidebar,.left-sidebar,.sticky,.article-details,.site-footer,.disqus-container,.article-copyright { display: none; }
+    
 }
 
 /* ==========================================================================
