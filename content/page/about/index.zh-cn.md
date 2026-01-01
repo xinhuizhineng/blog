@@ -165,190 +165,257 @@ _2019.10 - 2020.01_
 </div>
 
 <style>
-/* 简历容器 - 模拟 A4 纸质感或干净的网页布局 */
+/* ==========================================================================
+   1. 全局变量定义 (方便统一调整)
+   ========================================================================== */
+:root {
+    /* 核心配色 */
+    --primary-color: #007bff;      /* 主色调：蓝色 */
+    --text-main: #2c3e50;          /* 主要文字颜色 */
+    --text-sub: #666666;           /* 次要文字颜色 */
+    --bg-header: #f8f9fa;          /* 标题背景色 */
+    
+    /* 间距与字体 */
+    --spacing-base: 20px;
+    --font-base: 16px;             /* 网页浏览字体大小 */
+    --line-height: 1.6;
+}
+
+/* ==========================================================================
+   2. 基础容器与通用样式 (网页端视图)
+   ========================================================================== */
+body {
+    background-color: #f0f2f5; /* 网页背景稍微带点灰，突出简历纸张感 */
+    margin: 0;
+}
+
 .resume-wrapper {
-    max-width: 850px;
+    max-width: 820px; /* A4 宽度约为 210mm，800-850px 视觉最接近 */
     margin: 40px auto;
-    padding: 40px;
+    padding: 40px 50px;
     background: #fff;
     color: #333;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    line-height: 1.6;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05); /* 网页端显示的轻微阴影 */
-    border-radius: 8px;
-}
-
-/* ---------------- 头部信息 ---------------- */
-.resume-wrapper h1 {
-    font-size: 2.5rem;
-    color: #2c3e50;
-    border-bottom: none;
-    margin-bottom: 0.5rem;
-    text-align: center;
-    font-weight: 700;
-}
-
-/* 基本信息列表转横排 */
-.resume-wrapper h1 + ul {
-    list-style: none;
-    padding: 0;
-    text-align: center;
-    margin-bottom: 30px;
-    font-size: 0.95rem;
-    color: #555;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 15px;
-}
-
-.resume-wrapper h1 + ul li {
-    display: inline-block;
+    line-height: var(--line-height);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08); /* 更柔和的投影 */
+    border-radius: 4px;
+    box-sizing: border-box;
 }
 
 /* 链接样式 */
 .resume-wrapper a {
-    color: #0366d6;
+    color: var(--primary-color);
     text-decoration: none;
-    border-bottom: 1px dashed #0366d6;
+    border-bottom: 1px dashed var(--primary-color);
+    transition: all 0.2s;
 }
 .resume-wrapper a:hover {
     color: #0056b3;
     border-bottom-style: solid;
 }
 
-/* ---------------- 标题通用样式 ---------------- */
+/* ==========================================================================
+   3. 排版细节优化
+   ========================================================================== */
+
+/* --- 头部信息 --- */
+.resume-wrapper h1 {
+    font-size: 2.2rem;
+    color: var(--text-main);
+    margin: 0 0 10px 0;
+    text-align: center;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+/* 基本信息列表 (Flex布局自动居中) */
+.resume-wrapper h1 + ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 35px 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px 25px; /* 行间距15px，列间距25px */
+    font-size: 0.95rem;
+    color: var(--text-sub);
+}
+
+/* --- 一级标题 (教育背景、工作经历) --- */
 .resume-wrapper h2 {
-    font-size: 2rem;
-    color: #2c3e50;
-    border-bottom: 2px solid #eaeaea;
-    padding-bottom: 10px;
-    margin-top: 40px;
-    margin-bottom: 20px;
+    font-size: 1.5rem;
+    color: var(--text-main);
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+    margin: 35px 0 20px 0;
     position: relative;
+    text-transform: uppercase; /* 大写更有质感 */
 }
 
 .resume-wrapper h2::after {
     content: '';
     position: absolute;
-    bottom: -2px;
+    bottom: -1px;
     left: 0;
-    width: 60px;
-    height: 2px;
-    background-color: #007bff; /* 强调色条 */
+    width: 50px;
+    height: 3px;
+    background-color: var(--primary-color);
 }
 
-/* ---------------- 核心技能 ---------------- */
-/* 针对技能列表的样式优化 */
+/* --- 核心技能列表 --- */
+.resume-wrapper h2 + ul {
+    margin-top: 10px;
+}
 .resume-wrapper h2 + ul li {
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 .resume-wrapper h2 + ul li strong {
-    color: #2c3e50;
+    color: var(--text-main);
     font-weight: 600;
     display: inline-block;
-    min-width: 100px; /* 让技能分类对齐 */
+    width: 110px; /* 固定宽度确保冒号对齐 */
 }
 
-/* ---------------- 工作经历 ---------------- */
+/* --- 工作经历 (核心优化点) --- */
+/* 建议 HTML 结构：
+   <h3>
+     <span>公司名称</span>
+     <span class="job-title">职位名称</span>
+     <span class="job-date">2020.01 - 至今</span>
+   </h3>
+   如果无法修改HTML，以下CSS依然兼容您的 h3 + p 结构
+*/
+
 .resume-wrapper h3 {
-    font-size: 1.8rem;
-    color: #333;
+    font-size: 1.1rem;
+    color: #000;
+    background-color: var(--bg-header);
+    padding: 8px 12px;
+    border-left: 4px solid var(--primary-color);
+    border-radius: 2px;
     margin-top: 25px;
-    margin-bottom: 5px;
-    display: flex;
-    justify-content: space-between; /* 公司名和职位两端对齐 */
-    align-items: baseline;
+    margin-bottom: 10px;
+    
+    /* Flex 布局实现两端对齐 */
+    display: flex; 
+    justify-content: space-between;
+    align-items: center;
     flex-wrap: wrap;
-    background-color: #f8f9fa;
-    padding: 10px 15px;
-    border-left: 4px solid #007bff;
-    border-radius: 0 4px 4px 0;
 }
 
-/* 处理时间段 */
-.resume-wrapper h3 + p em {
-    display: block;
-    margin-bottom: 15px;
-    font-style: normal;
-    color: #666;
-    font-size: 1.3rem;
+/* 针对原结构的补丁：如果时间写在 h3 外面的 p 标签里 */
+.resume-wrapper h3 + p {
+    margin: -38px 15px 15px 0; /* 负边距拉上去 */
     text-align: right;
-    margin-top: -40px; /* 调整位置与标题同行或紧随其后 */
-    padding-right: 15px;
+    pointer-events: none; /* 防止遮挡点击 */
+}
+.resume-wrapper h3 + p em {
+    font-style: normal;
+    color: var(--text-sub);
+    font-size: 0.9rem;
+    background: var(--bg-header); /* 遮挡背景防止文字重叠 */
+    padding-left: 10px;
 }
 
 /* 项目名称 */
 .resume-wrapper h4 {
-    font-size: 1.5rem;
+    font-size: 1.05rem;
     color: #444;
-    margin-top: 20px;
-    margin-bottom: 10px;
-    font-weight: 600;
+    margin: 15px 0 8px 0;
+    font-weight: 700;
 }
 
-/* 项目详情列表 */
+/* 项目详情 */
 .resume-wrapper ul {
-    padding-left: 20px;
+    padding-left: 1.2em;
 }
-
 .resume-wrapper li {
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     color: #444;
+    text-align: justify; /* 文本两端对齐，看起来更整齐 */
 }
 
-/* ---------------- 图片展示 ---------------- */
-.resume-wrapper img {
-    max-width: 100%;
-    height: auto;
-    margin: 10px;
-    border: 1px solid #ddd;
-    padding: 5px;
-    border-radius: 4px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-/* ---------------- 打印适配 (Ctrl+P) ---------------- */
+/* ==========================================================================
+   4. 打印专用样式 (Ctrl+P 触发)
+   ========================================================================== */
 @media print {
-    body { background: #fff; }
+    @page {
+        margin: 1cm; /* 标准 A4 边距 */
+        size: A4 portrait;
+    }
+
+    body {
+        background: #fff;
+        -webkit-print-color-adjust: exact; /* 强制打印背景色 (Chrome/Safari) */
+        print-color-adjust: exact;         /* 强制打印背景色 (Firefox) */
+    }
+
     .resume-wrapper {
         width: 100%;
-        max-width: 100%;
+        max-width: none;
         margin: 0;
         padding: 0;
         box-shadow: none;
-    }
-    .resume-wrapper a {
-        text-decoration: none;
-        color: #000;
         border: none;
     }
-    /* 打印时隐藏不必要的元素（根据您博客的实际类名调整） */
-    header, footer, .sidebar, .menu {
-        display: none !important;
+
+    /* 字体调整：使用 pt 单位更适合打印 */
+    .resume-wrapper { font-size: 10.5pt; line-height: 1.4; }
+    .resume-wrapper h1 { font-size: 18pt; margin-bottom: 5pt; }
+    .resume-wrapper h1 + ul { font-size: 9pt; margin-bottom: 15pt; gap: 10pt; }
+    .resume-wrapper h2 { font-size: 14pt; margin-top: 15pt; margin-bottom: 8pt; padding-bottom: 3pt; }
+    .resume-wrapper h3 { font-size: 11pt; margin-top: 10pt; padding: 4pt 8pt; }
+    .resume-wrapper h4 { font-size: 11pt; margin-top: 8pt; }
+    
+    /* 隐藏网页端特有的元素 */
+    .resume-wrapper a { border-bottom: none; color: #000; text-decoration: none; }
+    /* 可选：在链接后显示 URL，但通常简历不需要 */
+    /* .resume-wrapper a::after { content: " (" attr(href) ")"; font-size: 0.8em; } */
+
+    /* 关键：分页控制 */
+    h2, h3, h4 { page-break-after: avoid; } /* 标题后不分页 */
+    li { page-break-inside: avoid; }        /* 列表项内部不分页 */
+    section, div { page-break-inside: auto; }
+
+    /* 打印时的布局微调 */
+    .resume-wrapper h3 + p {
+        margin-top: -32px; /* 打印时微调位置 */
     }
-    /* 强制分页控制 */
-    h2 { page-break-before: auto; }
-    h3 { page-break-inside: avoid; }
+    
+    /* 移除不必要的装饰 */
+    .resume-wrapper img { display: none; } /* 简历通常不打印装饰图片，除非是作品集 */
 }
 
-/* ---------------- 移动端适配 ---------------- */
+/* ==========================================================================
+   5. 移动端适配
+   ========================================================================== */
 @media (max-width: 600px) {
     .resume-wrapper {
         padding: 20px;
+        margin: 0;
+        border-radius: 0;
     }
+    
+    /* 移动端取消负边距，改为流式布局 */
     .resume-wrapper h3 {
         flex-direction: column;
+        align-items: flex-start;
     }
-    .resume-wrapper h3 + p em {
+    
+    .resume-wrapper h3 + p {
+        margin: 0 0 10px 0;
         text-align: left;
-        margin-top: 0;
-        padding-left: 15px;
-        margin-bottom: 10px;
     }
-    .resume-wrapper img {
-        max-width: 100%;
+    
+    .resume-wrapper h3 + p em {
+        background: none;
+        padding-left: 0;
+        display: block;
+        margin-bottom: 5px;
+        color: #888;
+        font-size: 0.85rem;
     }
 }
 </style>
+
 
