@@ -189,15 +189,15 @@ _2019.10 - 2020.01_
     background: #fff;
     color: #333;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    line-height: 1.6;
+    line-height: var(--line-height);
     box-shadow: 0 4px 15px rgba(0,0,0,0.05); /* 网页端显示的轻微阴影 */
     border-radius: 8px;
 }
 
 /* ---------------- 头部信息 ---------------- */
 .resume-wrapper h1 {
-    font-size: 2.2rem;
-    color: #2c3e50;
+    font-size: 2.5rem;
+    color: var(--text-main);
     border-bottom: none;
     margin-bottom: 0.5rem;
     text-align: center;
@@ -211,7 +211,7 @@ _2019.10 - 2020.01_
     text-align: center;
     margin-bottom: 30px;
     font-size: 0.95rem;
-    color: #555;
+    color: var(--text-sub);
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -224,9 +224,10 @@ _2019.10 - 2020.01_
 
 /* 链接样式 */
 .resume-wrapper a {
-    color: #0366d6;
+    color: var(--primary-color);
     text-decoration: none;
-    border-bottom: 1px dashed #0366d6;
+    border-bottom: 1px dashed var(--primary-color);
+    transition: all 0.2s;
 }
 .resume-wrapper a:hover {
     color: #0056b3;
@@ -235,8 +236,8 @@ _2019.10 - 2020.01_
 
 /* ---------------- 标题通用样式 ---------------- */
 .resume-wrapper h2 {
-    font-size: 1.5rem;
-    color: #2c3e50;
+    font-size: 1.8rem;
+    color: var(--text-main);
     border-bottom: 2px solid #eaeaea;
     padding-bottom: 10px;
     margin-top: 40px;
@@ -260,43 +261,59 @@ _2019.10 - 2020.01_
     margin-bottom: 8px;
 }
 .resume-wrapper h2 + ul li strong {
-    color: #2c3e50;
+    color: var(--text-main);
     font-weight: 600;
     display: inline-block;
     min-width: 100px; /* 让技能分类对齐 */
 }
 
 /* ---------------- 工作经历 ---------------- */
+/* 建议 HTML 结构：
+   <h3>
+     <span>公司名称</span>
+     <span class="job-title">职位名称</span>
+     <span class="job-date">2020.01 - 至今</span>
+   </h3>
+   如果无法修改HTML，以下CSS依然兼容您的 h3 + p 结构
+*/
 .resume-wrapper h3 {
-    font-size: 1.25rem;
+    font-size: 1.6rem;
     color: #333;
     margin-top: 25px;
     margin-bottom: 5px;
-    display: flex;
-    justify-content: space-between; /* 公司名和职位两端对齐 */
-    align-items: baseline;
-    flex-wrap: wrap;
-    background-color: #f8f9fa;
+    background-color: var(--bg-header);
     padding: 10px 15px;
-    border-left: 4px solid #007bff;
+    border-left: 4px solid var(--primary-color);
     border-radius: 0 4px 4px 0;
-}
 
+    /* Flex 布局实现两端对齐 */
+    display: flex; 
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+/* 针对原结构的补丁：如果时间写在 h3 外面的 p 标签里 */
+.resume-wrapper h3 + p {
+    margin: -38px 15px 15px 0; /* 负边距拉上去 */
+    text-align: right;
+    pointer-events: none; /* 防止遮挡点击 */
+}
 /* 处理时间段 */
 .resume-wrapper h3 + p em {
     display: block;
     margin-bottom: 15px;
     font-style: normal;
-    color: #666;
-    font-size: 0.9rem;
+    color: var(--text-sub);
+    font-size: 1.3rem;
     text-align: right;
-    margin-top: -35px; /* 调整位置与标题同行或紧随其后 */
+    margin-top: -40px; /* 调整位置与标题同行或紧随其后 */
     padding-right: 15px;
+    background: var(--bg-header); /* 遮挡背景防止文字重叠 */
 }
 
 /* 项目名称 */
 .resume-wrapper h4 {
-    font-size: 1.1rem;
+    font-size: 1.5rem;
     color: #444;
     margin-top: 20px;
     margin-bottom: 10px;
@@ -315,7 +332,7 @@ _2019.10 - 2020.01_
 
 /* ---------------- 图片展示 ---------------- */
 .resume-wrapper img {
-    max-width: 45%;
+    max-width: 100%;
     height: auto;
     margin: 10px;
     border: 1px solid #ddd;
