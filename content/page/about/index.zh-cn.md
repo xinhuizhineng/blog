@@ -280,7 +280,7 @@ _2019.10 - 2020.01_
     margin-top: 25px;
     margin-bottom: 15px;
     background-color: var(--bg-header);
-    padding: 10px 15px;
+    padding: 10px 0 10px 26px;
     border-left: 4px solid var(--primary-color);
     border-radius: 0 4px 4px 0;
 
@@ -393,7 +393,8 @@ _2019.10 - 2020.01_
         font-size: 11pt;
         margin-top: 10pt;
         padding: 4pt 8pt 4pt 30px; /* 调整了左内边距，让文字离边框近一点，更美观 */
-        
+    }
+    .resume-wrapper h3 + p {
         /* 核心修复代码 START */
         border-left: 4px solid #007bff !important; /* 1. 加上 !important */
         -webkit-print-color-adjust: exact;         /* 2. 强制该元素打印背景/边框颜色 */
