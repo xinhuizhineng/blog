@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>h5 on 我的空间</title><link>https://changxiangyu.cn/tags/h5/</link><description>Recent content in h5 on 我的空间</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Mon, 09 Jan 2023 10:00:00 +0800</lastBuildDate><atom:link href="https://changxiangyu.cn/tags/h5/index.xml" rel="self" type="application/rss+xml"/><item><title>Uniapp H5端解决图片拍照旋转与压缩上传方案</title><link>https://changxiangyu.cn/p/uniapp-h5%E7%AB%AF%E8%A7%A3%E5%86%B3%E5%9B%BE%E7%89%87%E6%8B%8D%E7%85%A7%E6%97%8B%E8%BD%AC%E4%B8%8E%E5%8E%8B%E7%BC%A9%E4%B8%8A%E4%BC%A0%E6%96%B9%E6%A1%88/</link><pubDate>Mon, 09 Jan 2023 10:00:00 +0800</pubDate><guid>https://changxiangyu.cn/p/uniapp-h5%E7%AB%AF%E8%A7%A3%E5%86%B3%E5%9B%BE%E7%89%87%E6%8B%8D%E7%85%A7%E6%97%8B%E8%BD%AC%E4%B8%8E%E5%8E%8B%E7%BC%A9%E4%B8%8A%E4%BC%A0%E6%96%B9%E6%A1%88/</guid><description>&lt;p>在 Uniapp 开发 H5 应用时，涉及到手机拍照上传的功能往往会遇到两个棘手的问题：&lt;/p>
+&lt;ol>
+&lt;li>&lt;strong>图片方向不对&lt;/strong>：不同厂商的手机（尤其是 iOS 和部分 Android）在拍照时，图片实际上是“横着”保存的，通过 EXIF 信息标记了方向。直接在 &lt;code>img&lt;/code> 标签显示可能正常，但一旦绘制到 Canvas 或上传到服务器，图片就会歪掉（通常是旋转了 90 度）。&lt;/li>
+&lt;li>&lt;strong>图片体积过大&lt;/strong>：手机原图动辄 5MB+，直接上传消耗流量且速度慢，需要在前端进行压缩。&lt;/li>
+&lt;/ol>
+&lt;p>本文将分享一个基于 &lt;code>Exif.js&lt;/code> 和 &lt;code>Canvas&lt;/code> 的完整解决方案。&lt;/p>
+&lt;h2 id="准备工作">准备工作&lt;/h2>
+&lt;p>我们需要引入两个核心工具库：&lt;/p>
+&lt;ol>
+&lt;li>&lt;strong>Exif.js&lt;/strong>：用于读取图片的元数据（Metadata），核心是获取 &lt;code>Orientation&lt;/code>（方向）标识。&lt;/li>
+&lt;li>&lt;strong>Mobile-detect&lt;/strong>（可选）：用于辅助判断设备类型，处理特定机型的兼容性差异。&lt;/li>
+&lt;/ol>
+&lt;h3 id="1-引入-exifjs">1. 引入 Exif.js&lt;/h3>
+&lt;p>由于 &lt;code>exif.js&lt;/code> 是一个较老的库，建议将其源码保存到项目中，例如 &lt;code>common/js/toolJs/exif.js&lt;/code>。
+&lt;em>(注：由于源码较长，此处不贴出完整库代码，请直接下载官方版本或使用 npm 安装)&lt;/em>&lt;/p>
+&lt;h3 id="2-核心组件实现">2. 核心组件实现&lt;/h3>
+&lt;p>我们将功能封装在一个 Vue 组件中。主要流程如下：
+&lt;code>选择图片&lt;/code> -&amp;gt; &lt;code>读取EXIF方向&lt;/code> -&amp;gt; &lt;code>Canvas重绘(旋转+压缩)&lt;/code> -&amp;gt; &lt;code>获取Base64&lt;/code> -&amp;gt; &lt;code>上传&lt;/code>。&lt;/p>
+&lt;h4 id="html-结构">HTML 结构&lt;/h4>
+&lt;p>简单的界面，包含预览图、拍照按钮和上传按钮。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">html
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&amp;lt;template&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;view class=&amp;#34;container&amp;#34;&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;image :src=&amp;#34;photoSrc&amp;#34; mode=&amp;#34;aspectFit&amp;#34; style=&amp;#34;width: 100%; height: 300px;&amp;#34;&amp;gt;&amp;lt;/image&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;button type=&amp;#34;primary&amp;#34; @click=&amp;#34;takePhoto&amp;#34;&amp;gt;拍照/选图&amp;lt;/button&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;button type=&amp;#34;primary&amp;#34; @click=&amp;#34;uploadPhoto&amp;#34; :disabled=&amp;#34;!photoSrc&amp;#34;&amp;gt;上传&amp;lt;/button&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;/view&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&amp;lt;/template&amp;gt;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="核心-js-逻辑">核心 JS 逻辑&lt;/h3>
+&lt;p>首先引入必要的库：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">import EXIF from &amp;#39;../../common/js/toolJs/exif.js&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">import MobileDetect from &amp;#39;mobile-detect&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">export default {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> data() {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> return {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> photoSrc: &amp;#39;&amp;#39;,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> },
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> methods: {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // ...后续方法
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="关键步骤解析">关键步骤解析&lt;/h3>
+&lt;ol>
+&lt;li>获取图片并开启处理流程
+使用 &lt;code>uni.chooseImage&lt;/code> 获取图片，然后调用 &lt;code>detail&lt;/code> 方法进行处理。&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">takePhoto() {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> uni.chooseImage({
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> count: 1,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> success: async (res) =&amp;gt; {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 开启异步处理流程
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.photoSrc = await this.detail(res.tempFilePaths[0])
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> },
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> fail: (res) =&amp;gt; {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> console.error(res)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> })
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">},
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ol start="2">
+&lt;li>读取 EXIF Orientation 信息
+这是修正方向的关键。我们需要封装一个 Promise 方法来读取图片的 Orientation 标签。&lt;/li>
+&lt;/ol>
+&lt;ul>
+&lt;li>1: 正常&lt;/li>
+&lt;li>6: 顺时针旋转90度&lt;/li>
+&lt;li>8: 逆时针旋转90度&lt;/li>
+&lt;li>3: 旋转180度&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">getImageTag(file, tag, suc) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (!file) return 0;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> return new Promise((resolve, reject) =&amp;gt; {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> let imgObj = new Image()
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> imgObj.src = file
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> uni.getImageInfo({
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> src: file,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> success(res) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> EXIF.getData(imgObj, function() {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> EXIF.getAllTags(this);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 获取方向标记
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> let or = EXIF.getTag(this, &amp;#39;Orientation&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> resolve(suc(or))
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> });
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> })
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> });
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">},
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ol start="3">
+&lt;li>Canvas 旋转与压缩
+这是最复杂的环节。我们需要根据 &lt;code>Orientation&lt;/code> 的值，利用 &lt;code>Canvas&lt;/code> 的 &lt;code>rotate&lt;/code> 方法将图片“扳正”。同时，通过控制 &lt;code>Canvas&lt;/code> 的尺寸来实现压缩。&lt;/li>
+&lt;/ol>
+&lt;p>注意：代码中加入了一个 &lt;code>getPlat()&lt;/code> 判断，这是因为在实际测试中发现，部分 Android 环境下 Canvas 的旋转行为可能与 iOS 不一致，需要做特殊处理。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;span class="lnt">43
+&lt;/span>&lt;span class="lnt">44
+&lt;/span>&lt;span class="lnt">45
+&lt;/span>&lt;span class="lnt">46
+&lt;/span>&lt;span class="lnt">47
+&lt;/span>&lt;span class="lnt">48
+&lt;/span>&lt;span class="lnt">49
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">// 判断是否为 Android 终端
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">getPlat() {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> let u = navigator.userAgent;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> return u.indexOf(&amp;#39;Android&amp;#39;) &amp;gt; -1 || u.indexOf(&amp;#39;Adr&amp;#39;) &amp;gt; -1;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">},
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">async detail(url) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> let maxWidth = 800; // 设置最大宽度进行压缩
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> let Orientation = 1;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 1. 获取方向
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> await this.getImageTag(url, &amp;#39;Orientation&amp;#39;, function(e) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (e != undefined) Orientation = e;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> })
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> var img = null;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> var canvas = null;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 2. 加载图片资源
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> await this.comprossImage(url, maxWidth, function(e) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> img = e.img;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> canvas = e.canvas;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> })
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> console.log(&amp;#34;图片方向角:&amp;#34;, Orientation)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> let baseStr = &amp;#39;&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 3. 根据方向角进行旋转修正
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 注意：这里针对不同平台做了一些特定逻辑处理（根据实际调试情况调整）
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> switch (Orientation) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> case 6: // 需要顺时针（向右）90度
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> baseStr = this.getPlat() ?
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.rotateImg(img, &amp;#39;right&amp;#39;, canvas) :
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.rotateImg(img, &amp;#39;&amp;#39;, canvas); // 某些安卓机型可能不需要手动旋，视具体Webview内核而定
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> break;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> case 8: // 需要逆时针（向左）90度
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> baseStr = this.getPlat() ?
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.rotateImg(img, &amp;#39;left&amp;#39;, canvas) :
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.rotateImg(img, &amp;#39;&amp;#39;, canvas);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> break;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> case 3: // 180度
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> baseStr = this.rotateImg(img, &amp;#39;right&amp;#39;, canvas, 2);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> break;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> default:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> baseStr = this.rotateImg(img, &amp;#39;&amp;#39;, canvas);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> break;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> return baseStr;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">},
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ol start="4">
+&lt;li>旋转的具体实现 (rotateImg)
+利用 &lt;code>Canvas&lt;/code> 上下文的 &lt;code>rotate&lt;/code> 和 &lt;code>drawImage&lt;/code>。&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;span class="lnt">43
+&lt;/span>&lt;span class="lnt">44
+&lt;/span>&lt;span class="lnt">45
+&lt;/span>&lt;span class="lnt">46
+&lt;/span>&lt;span class="lnt">47
+&lt;/span>&lt;span class="lnt">48
+&lt;/span>&lt;span class="lnt">49
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">rotateImg(img, direction, canvas, times = 1) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // ...初始化参数，计算宽高...
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> var width = img.width;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> var height = img.height;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 压缩逻辑：限制最大宽度
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> let maxWidth = 800;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (width &amp;gt; maxWidth) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> height = Math.floor(height * (maxWidth / width));
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> width = maxWidth;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 旋转角度计算
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> var step = 0;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (direction == &amp;#39;right&amp;#39;) step += times;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> else if (direction == &amp;#39;left&amp;#39;) step -= times;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> var degree = step * 90 * Math.PI / 180;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> var ctx = canvas.getContext(&amp;#39;2d&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> switch (step) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> case 1: // 旋转90度
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> canvas.width = height;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> canvas.height = width;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ctx.rotate(degree);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ctx.drawImage(img, 0, -height, width, height);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> break;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> case 2: // 旋转180度
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> canvas.width = width;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> canvas.height = height;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ctx.rotate(degree);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ctx.drawImage(img, -width, -height, width, height);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> break;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> case 3: // 旋转270度（-90度）
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> canvas.width = height;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> canvas.height = width;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ctx.rotate(degree);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ctx.drawImage(img, -width, 0, width, height);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> break;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> default: // 不旋转
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> canvas.width = width;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> canvas.height = height;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ctx.drawImage(img, 0, 0, width, height);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> break;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 输出压缩后的 Base64，quality 设置为 0.8
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> return canvas.toDataURL(&amp;#34;image/jpeg&amp;#34;, 0.8);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ol start="5">
+&lt;li>上传逻辑
+最后，将获取到的 Base64 字符串（去除头部信息后）发送给后端。&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">uploadPhoto() {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (!this.photoSrc) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> return;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> let obj = {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 去除 base64 头部，后端通常只需要内容
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> Photo: this.photoSrc.split(&amp;#39;;base64,&amp;#39;)[1],
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> TimeStamp: new Date().getTime(),
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // ...其他业务参数
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> };
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 发起请求
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // this.$http.baseRequest(...)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="遇到的坑与总结">遇到的坑与总结&lt;/h2>
+&lt;ul>
+&lt;li>Canvas 宽高混淆：当图片旋转 90 度时，Canvas 的 width 和 height 必须互换，否则图片会被裁剪或拉伸。&lt;/li>
+&lt;li>Android 兼容性：代码中 this.getPlat() 的判断非常重要。部分 Android 手机的 WebView 或者浏览器在上传图片时会自动修正方向，如果我们再手动旋转一次，图片反而会歪掉。建议在真机上多测试几款主流机型。&lt;/li>
+&lt;li>内存溢出：对于超大分辨率的图片（如 4000x3000），Canvas 绘制可能会导致 iOS Webview 崩溃（OOM）。解决方案是在绘制前先大幅度压缩图片尺寸（如限制 maxWidth）。&lt;/li>
+&lt;/ul>
+&lt;p>通过以上方案，我们不仅解决了图片“歪脖子”的问题，还实现了前端压缩，大大减轻了服务器带宽压力。&lt;/p></description></item></channel></rss>

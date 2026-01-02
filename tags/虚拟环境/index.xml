@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>虚拟环境 on 我的空间</title><link>https://changxiangyu.cn/tags/%E8%99%9A%E6%8B%9F%E7%8E%AF%E5%A2%83/</link><description>Recent content in 虚拟环境 on 我的空间</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Fri, 26 Aug 2022 15:04:18 +0800</lastBuildDate><atom:link href="https://changxiangyu.cn/tags/%E8%99%9A%E6%8B%9F%E7%8E%AF%E5%A2%83/index.xml" rel="self" type="application/rss+xml"/><item><title>pycharm 项目配置虚拟环境</title><link>https://changxiangyu.cn/p/pycharm-%E9%A1%B9%E7%9B%AE%E9%85%8D%E7%BD%AE%E8%99%9A%E6%8B%9F%E7%8E%AF%E5%A2%83/</link><pubDate>Fri, 26 Aug 2022 15:04:18 +0800</pubDate><guid>https://changxiangyu.cn/p/pycharm-%E9%A1%B9%E7%9B%AE%E9%85%8D%E7%BD%AE%E8%99%9A%E6%8B%9F%E7%8E%AF%E5%A2%83/</guid><description>&lt;p>File -&amp;gt; Settings -&amp;gt; Project: project_name -&amp;gt; Project Interpreter -&amp;gt; Add&amp;hellip; -&amp;gt; Virtualenv Environment -&amp;gt; (配置) -&amp;gt; OK&lt;/p>
+&lt;p>source project_path/venv/bin/activate&lt;/p>
+&lt;h3 id="命令行">命令行&lt;/h3>
+&lt;p>Installation&lt;/p>
+&lt;p>To install virtualenv via pip run:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">$ pip3 install virtualenv
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>Usage&lt;/p>
+&lt;p>Creation of virtualenv:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">$ virtualenv -p python3 &amp;lt;desired-path&amp;gt;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>Activate the virtualenv:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">$ source &amp;lt;desired-path&amp;gt;/bin/activate
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>Deactivate the virtualenv:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">$ deactivate
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item></channel></rss>

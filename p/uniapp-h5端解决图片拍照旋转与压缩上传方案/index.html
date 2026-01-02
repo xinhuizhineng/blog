@@ -1,0 +1,349 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="基于Exif.js和Canvas解决移动端H5拍照后图片旋转90度的问题，并实现图片压缩上传功能。"><title>Uniapp H5端解决图片拍照旋转与压缩上传方案</title><link rel=canonical href=https://changxiangyu.cn/p/uniapp-h5%E7%AB%AF%E8%A7%A3%E5%86%B3%E5%9B%BE%E7%89%87%E6%8B%8D%E7%85%A7%E6%97%8B%E8%BD%AC%E4%B8%8E%E5%8E%8B%E7%BC%A9%E4%B8%8A%E4%BC%A0%E6%96%B9%E6%A1%88/><link rel=stylesheet href=/scss/style.min.ac77dcf8b111b51da39a92990f431923f210f3876d85798a2125667f96dc33a4.css><meta property="og:title" content="Uniapp H5端解决图片拍照旋转与压缩上传方案"><meta property="og:description" content="基于Exif.js和Canvas解决移动端H5拍照后图片旋转90度的问题，并实现图片压缩上传功能。"><meta property="og:url" content="https://changxiangyu.cn/p/uniapp-h5%E7%AB%AF%E8%A7%A3%E5%86%B3%E5%9B%BE%E7%89%87%E6%8B%8D%E7%85%A7%E6%97%8B%E8%BD%AC%E4%B8%8E%E5%8E%8B%E7%BC%A9%E4%B8%8A%E4%BC%A0%E6%96%B9%E6%A1%88/"><meta property="og:site_name" content="我的空间"><meta property="og:type" content="article"><meta property="article:section" content="Post"><meta property="article:tag" content="Web前端"><meta property="article:tag" content="uniapp"><meta property="article:tag" content="h5"><meta property="article:tag" content="图片处理"><meta property="article:published_time" content="2023-01-09T10:00:00+08:00"><meta property="article:modified_time" content="2022-01-09T00:00:00+00:00"><meta name=twitter:title content="Uniapp H5端解决图片拍照旋转与压缩上传方案"><meta name=twitter:description content="基于Exif.js和Canvas解决移动端H5拍照后图片旋转90度的问题，并实现图片压缩上传功能。"><link rel="shortcut icon" href=/images/favicon.ico></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=/img/1_hu8b5a3db4a21c8e092ed8817bbbdf793a_61250_300x0_resize_q75_box.jpg width=300 height=300 class=site-logo loading=lazy alt=Avatar></a>
+<span class=emoji>🍥</span></figure><div class=site-meta><h1 class=site-name><a href=/>我的空间</a></h1><h2 class=site-description>常香玉&陈金鑫.</h2></div></header><ol class=social-menu><li><a href=https://github.com/changxiangyu666 target=_blank title=GitHub><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://twitter.com target=_blank title=Twitter><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M22 4.01c-1 .49-1.98.689-3 .99-1.121-1.265-2.783-1.335-4.38-.737S11.977 6.323 12 8v1c-3.245.083-6.135-1.395-8-4 0 0-4.182 7.433 4 11-1.872 1.247-3.739 2.088-6 2 3.308 1.803 6.913 2.423 10.034 1.517 3.58-1.04 6.522-3.723 7.651-7.742a13.84 13.84.0 00.497-3.753C20.18 7.773 21.692 5.25 22 4.009z"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg><span>主页</span></a></li><li><a href=/%E5%85%B3%E4%BA%8E/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg><span>关于</span></a></li><li><a href=/archives/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg><span>Archives</span></a></li><li><a href=/search/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg><span>Search</span></a></li><li><a href=/links/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg><span>Links</span></a></li><div class=menu-bottom-section><li id=i18n-switch><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 5h7"/><path d="M9 3v2c0 4.418-2.239 8-5 8"/><path d="M5 9c-.003 2.144 2.952 3.908 6.7 4"/><path d="M12 20l4-9 4 9"/><path d="M19.1 18h-6.2"/></svg><select name=language onchange="window.location.href=this.selectedOptions[0].value"><option value=https://changxiangyu.cn/en/>English</option><option value=https://changxiangyu.cn/ selected>中文</option></select></li><li id=dark-mode-toggle><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg><span>暗色模式</span></li></div></ol></aside><main class="main full-width"><article class=main-article><header class=article-header><div class=article-details><header class=article-category><a href=/categories/web%E5%89%8D%E7%AB%AF/ style=background-color:#2a9d8f;color:#fff>Web前端</a>
+<a href=/categories/%E7%A7%BB%E5%8A%A8%E7%AB%AF%E5%85%BC%E5%AE%B9/>移动端兼容</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/p/uniapp-h5%E7%AB%AF%E8%A7%A3%E5%86%B3%E5%9B%BE%E7%89%87%E6%8B%8D%E7%85%A7%E6%97%8B%E8%BD%AC%E4%B8%8E%E5%8E%8B%E7%BC%A9%E4%B8%8A%E4%BC%A0%E6%96%B9%E6%A1%88/>Uniapp H5端解决图片拍照旋转与压缩上传方案</a></h2><h3 class=article-subtitle>基于Exif.js和Canvas解决移动端H5拍照后图片旋转90度的问题，并实现图片压缩上传功能。</h3></div><footer class=article-time><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg><time class=article-time--published>Jan 09, 2023</time></div><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg><time class=article-time--reading>阅读时长: 4 分钟</time></div></footer></div></header><section class=article-content><p>在 Uniapp 开发 H5 应用时，涉及到手机拍照上传的功能往往会遇到两个棘手的问题：</p><ol><li><strong>图片方向不对</strong>：不同厂商的手机（尤其是 iOS 和部分 Android）在拍照时，图片实际上是“横着”保存的，通过 EXIF 信息标记了方向。直接在 <code>img</code> 标签显示可能正常，但一旦绘制到 Canvas 或上传到服务器，图片就会歪掉（通常是旋转了 90 度）。</li><li><strong>图片体积过大</strong>：手机原图动辄 5MB+，直接上传消耗流量且速度慢，需要在前端进行压缩。</li></ol><p>本文将分享一个基于 <code>Exif.js</code> 和 <code>Canvas</code> 的完整解决方案。</p><h2 id=准备工作>准备工作</h2><p>我们需要引入两个核心工具库：</p><ol><li><strong>Exif.js</strong>：用于读取图片的元数据（Metadata），核心是获取 <code>Orientation</code>（方向）标识。</li><li><strong>Mobile-detect</strong>（可选）：用于辅助判断设备类型，处理特定机型的兼容性差异。</li></ol><h3 id=1-引入-exifjs>1. 引入 Exif.js</h3><p>由于 <code>exif.js</code> 是一个较老的库，建议将其源码保存到项目中，例如 <code>common/js/toolJs/exif.js</code>。
+<em>(注：由于源码较长，此处不贴出完整库代码，请直接下载官方版本或使用 npm 安装)</em></p><h3 id=2-核心组件实现>2. 核心组件实现</h3><p>我们将功能封装在一个 Vue 组件中。主要流程如下：
+<code>选择图片</code> -> <code>读取EXIF方向</code> -> <code>Canvas重绘(旋转+压缩)</code> -> <code>获取Base64</code> -> <code>上传</code>。</p><h4 id=html-结构>HTML 结构</h4><p>简单的界面，包含预览图、拍照按钮和上传按钮。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>html
+</span></span><span class=line><span class=cl>&lt;template&gt;
+</span></span><span class=line><span class=cl>    &lt;view class=&#34;container&#34;&gt;
+</span></span><span class=line><span class=cl>        &lt;image :src=&#34;photoSrc&#34; mode=&#34;aspectFit&#34; style=&#34;width: 100%; height: 300px;&#34;&gt;&lt;/image&gt;
+</span></span><span class=line><span class=cl>        &lt;button type=&#34;primary&#34; @click=&#34;takePhoto&#34;&gt;拍照/选图&lt;/button&gt;
+</span></span><span class=line><span class=cl>        &lt;button type=&#34;primary&#34; @click=&#34;uploadPhoto&#34; :disabled=&#34;!photoSrc&#34;&gt;上传&lt;/button&gt;
+</span></span><span class=line><span class=cl>    &lt;/view&gt;
+</span></span><span class=line><span class=cl>&lt;/template&gt;
+</span></span></code></pre></td></tr></table></div></div><h3 id=核心-js-逻辑>核心 JS 逻辑</h3><p>首先引入必要的库：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>import EXIF from &#39;../../common/js/toolJs/exif.js&#39;;
+</span></span><span class=line><span class=cl>import MobileDetect from &#39;mobile-detect&#39;;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>export default {
+</span></span><span class=line><span class=cl>    data() {
+</span></span><span class=line><span class=cl>        return {
+</span></span><span class=line><span class=cl>            photoSrc: &#39;&#39;,
+</span></span><span class=line><span class=cl>        }
+</span></span><span class=line><span class=cl>    },
+</span></span><span class=line><span class=cl>    methods: {
+</span></span><span class=line><span class=cl>        // ...后续方法
+</span></span><span class=line><span class=cl>    }
+</span></span><span class=line><span class=cl>}
+</span></span></code></pre></td></tr></table></div></div><h3 id=关键步骤解析>关键步骤解析</h3><ol><li>获取图片并开启处理流程
+使用 <code>uni.chooseImage</code> 获取图片，然后调用 <code>detail</code> 方法进行处理。</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>takePhoto() {
+</span></span><span class=line><span class=cl>    uni.chooseImage({
+</span></span><span class=line><span class=cl>        count: 1,
+</span></span><span class=line><span class=cl>        success: async (res) =&gt; {
+</span></span><span class=line><span class=cl>            // 开启异步处理流程
+</span></span><span class=line><span class=cl>            this.photoSrc = await this.detail(res.tempFilePaths[0])
+</span></span><span class=line><span class=cl>        },
+</span></span><span class=line><span class=cl>        fail: (res) =&gt; {
+</span></span><span class=line><span class=cl>            console.error(res)
+</span></span><span class=line><span class=cl>        }
+</span></span><span class=line><span class=cl>    })
+</span></span><span class=line><span class=cl>},
+</span></span></code></pre></td></tr></table></div></div><ol start=2><li>读取 EXIF Orientation 信息
+这是修正方向的关键。我们需要封装一个 Promise 方法来读取图片的 Orientation 标签。</li></ol><ul><li>1: 正常</li><li>6: 顺时针旋转90度</li><li>8: 逆时针旋转90度</li><li>3: 旋转180度</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>getImageTag(file, tag, suc) {
+</span></span><span class=line><span class=cl>    if (!file) return 0;
+</span></span><span class=line><span class=cl>    return new Promise((resolve, reject) =&gt; {
+</span></span><span class=line><span class=cl>        let imgObj = new Image()
+</span></span><span class=line><span class=cl>        imgObj.src = file
+</span></span><span class=line><span class=cl>        uni.getImageInfo({
+</span></span><span class=line><span class=cl>            src: file,
+</span></span><span class=line><span class=cl>            success(res) {
+</span></span><span class=line><span class=cl>                EXIF.getData(imgObj, function() {
+</span></span><span class=line><span class=cl>                    EXIF.getAllTags(this);
+</span></span><span class=line><span class=cl>                    // 获取方向标记
+</span></span><span class=line><span class=cl>                    let or = EXIF.getTag(this, &#39;Orientation&#39;); 
+</span></span><span class=line><span class=cl>                    resolve(suc(or))
+</span></span><span class=line><span class=cl>                });
+</span></span><span class=line><span class=cl>            }
+</span></span><span class=line><span class=cl>        })
+</span></span><span class=line><span class=cl>    });
+</span></span><span class=line><span class=cl>},
+</span></span></code></pre></td></tr></table></div></div><ol start=3><li>Canvas 旋转与压缩
+这是最复杂的环节。我们需要根据 <code>Orientation</code> 的值，利用 <code>Canvas</code> 的 <code>rotate</code> 方法将图片“扳正”。同时，通过控制 <code>Canvas</code> 的尺寸来实现压缩。</li></ol><p>注意：代码中加入了一个 <code>getPlat()</code> 判断，这是因为在实际测试中发现，部分 Android 环境下 Canvas 的旋转行为可能与 iOS 不一致，需要做特殊处理。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>// 判断是否为 Android 终端
+</span></span><span class=line><span class=cl>getPlat() {
+</span></span><span class=line><span class=cl>    let u = navigator.userAgent;
+</span></span><span class=line><span class=cl>    return u.indexOf(&#39;Android&#39;) &gt; -1 || u.indexOf(&#39;Adr&#39;) &gt; -1;
+</span></span><span class=line><span class=cl>},
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>async detail(url) {
+</span></span><span class=line><span class=cl>    let maxWidth = 800; // 设置最大宽度进行压缩
+</span></span><span class=line><span class=cl>    let Orientation = 1;
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    // 1. 获取方向
+</span></span><span class=line><span class=cl>    await this.getImageTag(url, &#39;Orientation&#39;, function(e) {
+</span></span><span class=line><span class=cl>        if (e != undefined) Orientation = e;
+</span></span><span class=line><span class=cl>    })
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    var img = null;
+</span></span><span class=line><span class=cl>    var canvas = null;
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    // 2. 加载图片资源
+</span></span><span class=line><span class=cl>    await this.comprossImage(url, maxWidth, function(e) {
+</span></span><span class=line><span class=cl>        img = e.img;
+</span></span><span class=line><span class=cl>        canvas = e.canvas;
+</span></span><span class=line><span class=cl>    })
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    console.log(&#34;图片方向角:&#34;, Orientation)
+</span></span><span class=line><span class=cl>    let baseStr = &#39;&#39;;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    // 3. 根据方向角进行旋转修正
+</span></span><span class=line><span class=cl>    // 注意：这里针对不同平台做了一些特定逻辑处理（根据实际调试情况调整）
+</span></span><span class=line><span class=cl>    switch (Orientation) {
+</span></span><span class=line><span class=cl>        case 6: // 需要顺时针（向右）90度
+</span></span><span class=line><span class=cl>            baseStr = this.getPlat() ? 
+</span></span><span class=line><span class=cl>                this.rotateImg(img, &#39;right&#39;, canvas) : 
+</span></span><span class=line><span class=cl>                this.rotateImg(img, &#39;&#39;, canvas); // 某些安卓机型可能不需要手动旋，视具体Webview内核而定
+</span></span><span class=line><span class=cl>            break;
+</span></span><span class=line><span class=cl>        case 8: // 需要逆时针（向左）90度
+</span></span><span class=line><span class=cl>            baseStr = this.getPlat() ? 
+</span></span><span class=line><span class=cl>                this.rotateImg(img, &#39;left&#39;, canvas) : 
+</span></span><span class=line><span class=cl>                this.rotateImg(img, &#39;&#39;, canvas);
+</span></span><span class=line><span class=cl>            break;
+</span></span><span class=line><span class=cl>        case 3: // 180度
+</span></span><span class=line><span class=cl>            baseStr = this.rotateImg(img, &#39;right&#39;, canvas, 2);
+</span></span><span class=line><span class=cl>            break;
+</span></span><span class=line><span class=cl>        default:
+</span></span><span class=line><span class=cl>            baseStr = this.rotateImg(img, &#39;&#39;, canvas);
+</span></span><span class=line><span class=cl>            break;
+</span></span><span class=line><span class=cl>    }
+</span></span><span class=line><span class=cl>    return baseStr;
+</span></span><span class=line><span class=cl>},
+</span></span></code></pre></td></tr></table></div></div><ol start=4><li>旋转的具体实现 (rotateImg)
+利用 <code>Canvas</code> 上下文的 <code>rotate</code> 和 <code>drawImage</code>。</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>rotateImg(img, direction, canvas, times = 1) {
+</span></span><span class=line><span class=cl>    // ...初始化参数，计算宽高...
+</span></span><span class=line><span class=cl>    var width = img.width;
+</span></span><span class=line><span class=cl>    var height = img.height;
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    // 压缩逻辑：限制最大宽度
+</span></span><span class=line><span class=cl>    let maxWidth = 800; 
+</span></span><span class=line><span class=cl>    if (width &gt; maxWidth) {
+</span></span><span class=line><span class=cl>        height = Math.floor(height * (maxWidth / width));
+</span></span><span class=line><span class=cl>        width = maxWidth;
+</span></span><span class=line><span class=cl>    }
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    // 旋转角度计算
+</span></span><span class=line><span class=cl>    var step = 0;
+</span></span><span class=line><span class=cl>    if (direction == &#39;right&#39;) step += times;
+</span></span><span class=line><span class=cl>    else if (direction == &#39;left&#39;) step -= times;
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    var degree = step * 90 * Math.PI / 180;
+</span></span><span class=line><span class=cl>    var ctx = canvas.getContext(&#39;2d&#39;);
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    switch (step) {
+</span></span><span class=line><span class=cl>        case 1: // 旋转90度
+</span></span><span class=line><span class=cl>            canvas.width = height;
+</span></span><span class=line><span class=cl>            canvas.height = width;
+</span></span><span class=line><span class=cl>            ctx.rotate(degree);
+</span></span><span class=line><span class=cl>            ctx.drawImage(img, 0, -height, width, height);
+</span></span><span class=line><span class=cl>            break;
+</span></span><span class=line><span class=cl>        case 2: // 旋转180度
+</span></span><span class=line><span class=cl>            canvas.width = width;
+</span></span><span class=line><span class=cl>            canvas.height = height;
+</span></span><span class=line><span class=cl>            ctx.rotate(degree);
+</span></span><span class=line><span class=cl>            ctx.drawImage(img, -width, -height, width, height);
+</span></span><span class=line><span class=cl>            break;
+</span></span><span class=line><span class=cl>        case 3: // 旋转270度（-90度）
+</span></span><span class=line><span class=cl>            canvas.width = height;
+</span></span><span class=line><span class=cl>            canvas.height = width;
+</span></span><span class=line><span class=cl>            ctx.rotate(degree);
+</span></span><span class=line><span class=cl>            ctx.drawImage(img, -width, 0, width, height);
+</span></span><span class=line><span class=cl>            break;
+</span></span><span class=line><span class=cl>        default: // 不旋转
+</span></span><span class=line><span class=cl>            canvas.width = width;
+</span></span><span class=line><span class=cl>            canvas.height = height;
+</span></span><span class=line><span class=cl>            ctx.drawImage(img, 0, 0, width, height);
+</span></span><span class=line><span class=cl>            break;
+</span></span><span class=line><span class=cl>    }
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    // 输出压缩后的 Base64，quality 设置为 0.8
+</span></span><span class=line><span class=cl>    return canvas.toDataURL(&#34;image/jpeg&#34;, 0.8);
+</span></span><span class=line><span class=cl>}
+</span></span></code></pre></td></tr></table></div></div><ol start=5><li>上传逻辑
+最后，将获取到的 Base64 字符串（去除头部信息后）发送给后端。</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>uploadPhoto() {
+</span></span><span class=line><span class=cl>    if (!this.photoSrc) {
+</span></span><span class=line><span class=cl>        return;
+</span></span><span class=line><span class=cl>    }
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    let obj = {
+</span></span><span class=line><span class=cl>        // 去除 base64 头部，后端通常只需要内容
+</span></span><span class=line><span class=cl>        Photo: this.photoSrc.split(&#39;;base64,&#39;)[1], 
+</span></span><span class=line><span class=cl>        TimeStamp: new Date().getTime(),
+</span></span><span class=line><span class=cl>        // ...其他业务参数
+</span></span><span class=line><span class=cl>    };
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    // 发起请求
+</span></span><span class=line><span class=cl>    // this.$http.baseRequest(...) 
+</span></span><span class=line><span class=cl>}
+</span></span></code></pre></td></tr></table></div></div><h2 id=遇到的坑与总结>遇到的坑与总结</h2><ul><li>Canvas 宽高混淆：当图片旋转 90 度时，Canvas 的 width 和 height 必须互换，否则图片会被裁剪或拉伸。</li><li>Android 兼容性：代码中 this.getPlat() 的判断非常重要。部分 Android 手机的 WebView 或者浏览器在上传图片时会自动修正方向，如果我们再手动旋转一次，图片反而会歪掉。建议在真机上多测试几款主流机型。</li><li>内存溢出：对于超大分辨率的图片（如 4000x3000），Canvas 绘制可能会导致 iOS Webview 崩溃（OOM）。解决方案是在绘制前先大幅度压缩图片尺寸（如限制 maxWidth）。</li></ul><p>通过以上方案，我们不仅解决了图片“歪脖子”的问题，还实现了前端压缩，大大减轻了服务器带宽压力。</p></section><footer class=article-footer><section class=article-tags><a href=/tags/web%E5%89%8D%E7%AB%AF/>Web前端</a>
+<a href=/tags/uniapp/>uniapp</a>
+<a href=/tags/h5/>h5</a>
+<a href=/tags/%E5%9B%BE%E7%89%87%E5%A4%84%E7%90%86/>图片处理</a></section><section class=article-copyright><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg><span>Licensed under CC BY-NC-SA 4.0</span></section><section class=article-lastmod><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg><span>最后更新于 Jan 09, 2022 00:00 UTC</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article><a href=/p/%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97jsapih5%E4%B8%8E%E5%B0%8F%E7%A8%8B%E5%BA%8F/><div class=article-details><h2 class=article-title>微信支付接入指南：JSAPI、H5与小程序</h2></div></a></article><article><a href=/p/uniapp-h5%E8%87%AA%E5%AE%9A%E4%B9%89%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/><div class=article-details><h2 class=article-title>uniapp-h5自定义配置文件</h2></div></a></article><article><a href=/p/uniapp%E6%8B%8D%E7%85%A7%E4%B8%8A%E4%BC%A0%E5%9B%BE%E7%89%87h5/><div class=article-details><h2 class=article-title>uniapp拍照上传图片h5</h2></div></a></article><article><a href=/p/angular--ng-zorro-%E6%A8%A1%E6%80%81%E6%A1%86%E6%8B%96%E6%8B%BD%E5%8A%9F%E8%83%BD/><div class=article-details><h2 class=article-title>Angular + Ng-Zorro 模态框拖拽功能</h2></div></a></article><article><a href=/p/%E4%B9%BE%E5%9D%A4qiankun%E5%BE%AE%E5%89%8D%E7%AB%AF%E8%B7%AF%E7%94%B1/><div class=article-details><h2 class=article-title>乾坤(Qiankun)微前端路由</h2></div></a></article></div></div></aside><div class=disqus-container><div id=disqus_thread></div><script type=application/javascript>window.disqus_config=function(){},function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById("disqus_thread").innerHTML="Disqus comments not available by default when the website is previewed locally.";return}var t=document,e=t.createElement("script");e.async=!0,e.src="//hugo-theme-stack.disqus.com/embed.js",e.setAttribute("data-timestamp",+new Date),(t.head||t.body).appendChild(e)}()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></div><style>.disqus-container{background-color:var(--card-background);border-radius:var(--card-border-radius);box-shadow:var(--shadow-l1);padding:var(--card-padding)}</style><script>window.addEventListener("onColorSchemeChange",e=>{typeof DISQUS=="object"&&DISQUS.reset({reload:!0})})</script><footer class=site-footer><section class=copyright>&copy;
+2020 -
+2026 我的空间</section><section class=powerby>Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a><br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.13.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计<br><a href=https://beian.miit.gov.cn/ target=_blank>粤ICP备19123935号</a></section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#准备工作>准备工作</a><ol><li><a href=#1-引入-exifjs>1. 引入 Exif.js</a></li><li><a href=#2-核心组件实现>2. 核心组件实现</a><ol><li><a href=#html-结构>HTML 结构</a></li></ol></li><li><a href=#核心-js-逻辑>核心 JS 逻辑</a></li><li><a href=#关键步骤解析>关键步骤解析</a></li></ol></li><li><a href=#遇到的坑与总结>遇到的坑与总结</a></li></ol></nav></div></section></aside></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.js defer></script>
+<script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>
