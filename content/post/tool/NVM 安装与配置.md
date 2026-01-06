@@ -131,14 +131,14 @@ npm config get registry
 # 预期输出: https://registry.npmmirror.com/
 ```
 ## 常用命令速查表
-|命令	|说明 |
-|nvm install <version>	|安装指定版本 (如 nvm install 20.10.0)|
-|nvm use <version>	|切换到指定版本|
-|nvm list	|列出本地已安装的所有版本|
-|nvm uninstall <version>	|卸载指定版本|
-|nvm alias default <version>	|(Mac/Linux) 设置默认版本，新开终端自动生效|
-|node -v	|查看当前正在使用的 Node 版本|
-|npm -v	|查看当前正在使用的 NPM 版本|
+| 命令 | 说明 |
+| nvm install <version>	| 安装指定版本 (如 nvm install 20.10.0) |
+| nvm use <version>	| 切换到指定版本 |
+| nvm list | 列出本地已安装的所有版本 |
+| nvm uninstall <version> | 卸载指定版本 |
+| nvm alias default <version> | (Mac/Linux) 设置默认版本，新开终端自动生效 |
+| node -v |查看当前正在使用的 Node 版本 |
+| npm -v |查看当前正在使用的 NPM 版本 |
 
 ## 💡 常见问题提示
 权限问题：Windows 用户在执行 nvm use 切换版本时，必须使用管理员身份运行 CMD 或 PowerShell，否则无法创建软链接。
