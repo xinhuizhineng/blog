@@ -89,14 +89,14 @@ npm config set cache "D:\nodejs\node_cache"
 如果不配置此项，安装的全局命令（如 vue）将无法识别。  
 
 操作路径：右键“此电脑” -> 属性 -> 高级系统设置 -> 环境变量。  
-    - 配置 Path 变量 (系统变量/用户变量)：
-        - 找到 `Path` 变量 -> 编辑 -> 新建。
-        - 添加路径：`D:\nodejs\node_global`
-    - 配置 NODE_PATH (系统变量)，在“系统变量”区域，点击“新建”：
-        - 新建变量名：`NODE_PATH`
-        - 变量值：`D:\nodejs\node_global\node_modules`
-        - 注意：必须多加一层 `node_modules`，否则 require 无法找到模块。
-    - 验证： 重启终端后，运行 `npm install express -g`，检查是否安装到了新目录。
+- 配置 Path 变量 (系统变量/用户变量)：
+    - 找到 `Path` 变量 -> 编辑 -> 新建。
+    - 添加路径：`D:\nodejs\node_global`
+- 配置 NODE_PATH (系统变量)，在“系统变量”区域，点击“新建”：
+    - 新建变量名：`NODE_PATH`
+    - 变量值：`D:\nodejs\node_global\node_modules`
+    - 注意：必须多加一层 `node_modules`，否则 require 无法找到模块。
+- 验证： 重启终端后，运行 `npm install express -g`，检查是否安装到了新目录。
 
 特别提示（如果您正在使用 NVM）
 如果您是配合 NVM 使用此配置，这意味着所有 Node 版本都会共用这个 node_global。  
