@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Shell on 我的空间</title><link>https://changxiangyu.cn/tags/shell/</link><description>Recent content in Shell on 我的空间</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Wed, 17 Aug 2022 17:38:18 +0800</lastBuildDate><atom:link href="https://changxiangyu.cn/tags/shell/index.xml" rel="self" type="application/rss+xml"/><item><title>替换文件夹中所有文件内容的特定字符串</title><link>https://changxiangyu.cn/p/%E6%9B%BF%E6%8D%A2%E6%96%87%E4%BB%B6%E5%A4%B9%E4%B8%AD%E6%89%80%E6%9C%89%E6%96%87%E4%BB%B6%E5%86%85%E5%AE%B9%E7%9A%84%E7%89%B9%E5%AE%9A%E5%AD%97%E7%AC%A6%E4%B8%B2/</link><pubDate>Wed, 17 Aug 2022 17:38:18 +0800</pubDate><guid>https://changxiangyu.cn/p/%E6%9B%BF%E6%8D%A2%E6%96%87%E4%BB%B6%E5%A4%B9%E4%B8%AD%E6%89%80%E6%9C%89%E6%96%87%E4%BB%B6%E5%86%85%E5%AE%B9%E7%9A%84%E7%89%B9%E5%AE%9A%E5%AD%97%E7%AC%A6%E4%B8%B2/</guid><description>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">find . -type f -name &amp;#34;*.yaml&amp;#34; | xargs sed -i &amp;#34;s#host_path#$host_path#g&amp;#34;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item></channel></rss>

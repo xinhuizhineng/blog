@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>网盘 on 我的空间</title><link>https://changxiangyu.cn/tags/%E7%BD%91%E7%9B%98/</link><description>Recent content in 网盘 on 我的空间</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Wed, 07 Sep 2022 14:18:00 +0800</lastBuildDate><atom:link href="https://changxiangyu.cn/tags/%E7%BD%91%E7%9B%98/index.xml" rel="self" type="application/rss+xml"/><item><title>Linux命令行上传文件到百度网盘</title><link>https://changxiangyu.cn/p/linux%E5%91%BD%E4%BB%A4%E8%A1%8C%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6%E5%88%B0%E7%99%BE%E5%BA%A6%E7%BD%91%E7%9B%98/</link><pubDate>Wed, 07 Sep 2022 14:18:00 +0800</pubDate><guid>https://changxiangyu.cn/p/linux%E5%91%BD%E4%BB%A4%E8%A1%8C%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6%E5%88%B0%E7%99%BE%E5%BA%A6%E7%BD%91%E7%9B%98/</guid><description>&lt;blockquote>
+&lt;p>参考: &lt;a class="link" href="https://www.jianshu.com/p/dc7e86b171cb" target="_blank" rel="noopener"
+>https://www.jianshu.com/p/dc7e86b171cb&lt;/a>&lt;/p>
+&lt;/blockquote>
+&lt;h2 id="安装软件工具">安装软件工具&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">pip install requests
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">pip install bypy
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="授权登陆">授权登陆&lt;/h2>
+&lt;p>执行 bypy info，显示下边信息，根据提示，通过浏览器访问下边灰色的https链接，如果此时百度网盘账号正在登陆，会出现长串授权码，复制。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">[root@yu~]# bypy info
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Please visit: # 访问下边这个连接，复制授权码
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">https://openapi.baidu.com/oauth/2.0/authorize?scope=basic+netdisk&amp;amp;redirect_uri=oob&amp;amp;response_type=code&amp;amp;client_id=q8WE4EpCsau1oS0MplgMKNBn
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">And authorize this app
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Paste the Authorization Code here within 10 minutes.
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Press [Enter] when you are done # 提示在下边粘贴授权码
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>在下边图示位置粘贴授权码，耐心等待一会即可&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">Press [Enter] when you are done
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">2d2416c9e27c5b19f14da97c82daf18e
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Authorizing, please be patient, it may take upto 300 seconds...
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Quota: 14.020TB
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Used: 5.497TB
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>授权成功。&lt;/p>
+&lt;h2 id="测试上传和同步本地文件到云盘">测试上传和同步本地文件到云盘&lt;/h2>
+&lt;p>由于百度PCS API权限限制，程序只能存取百度云端/apps/bypy目录下面的文件和目录。我们可以通过：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">[root@yu~]# bypy list
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">/apps/bypy ($t $f $s $m $d):
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>把本地当前目录下的文件同步到百度云盘：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">bypy upload
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>把云盘上的内容同步到本地:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">bypy downdir
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>比较本地当前目录和云盘根目录，看是否一致，来判断是否同步成功：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">bypy compare
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item></channel></rss>

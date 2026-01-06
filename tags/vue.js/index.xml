@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Vue.js on 我的空间</title><link>https://changxiangyu.cn/tags/vue.js/</link><description>Recent content in Vue.js on 我的空间</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Thu, 27 Apr 2023 13:05:18 +0800</lastBuildDate><atom:link href="https://changxiangyu.cn/tags/vue.js/index.xml" rel="self" type="application/rss+xml"/><item><title>Vue 项目 Nginx 生产环境部署与配置全指南</title><link>https://changxiangyu.cn/p/vue-%E9%A1%B9%E7%9B%AE-nginx-%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83%E9%83%A8%E7%BD%B2%E4%B8%8E%E9%85%8D%E7%BD%AE%E5%85%A8%E6%8C%87%E5%8D%97/</link><pubDate>Thu, 27 Apr 2023 13:05:18 +0800</pubDate><guid>https://changxiangyu.cn/p/vue-%E9%A1%B9%E7%9B%AE-nginx-%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83%E9%83%A8%E7%BD%B2%E4%B8%8E%E9%85%8D%E7%BD%AE%E5%85%A8%E6%8C%87%E5%8D%97/</guid><description>&lt;h2 id="概述">概述&lt;/h2>
+&lt;p>本文档旨在介绍 Vue 项目（包括 Vue CLI、Vite 及 UniApp H5）构建完成后，如何使用 Nginx 进行生产环境的部署与配置。内容涵盖 Nginx 的核心配置、前端路由与路径设置、环境变量管理以及在 Windows 环境下的特殊操作指南。&lt;/p>
+&lt;h2 id="1-前置要求">1. 前置要求&lt;/h2>
+&lt;p>在开始部署前，请确保满足以下条件：&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>构建完成&lt;/strong>：Vue 项目已完成开发，并通过流水线或本地构建命令打包生成了静态资源（通常为 &lt;code>dist&lt;/code> 目录）。&lt;/li>
+&lt;li>&lt;strong>环境准备&lt;/strong>：服务器已安装 Nginx。&lt;/li>
+&lt;li>&lt;strong>文件部署&lt;/strong>：构建好的静态文件已上传至服务器指定目录。&lt;/li>
+&lt;/ul>
+&lt;hr>
+&lt;h2 id="2-nginx-核心配置">2. Nginx 核心配置&lt;/h2>
+&lt;p>以下是一个标准的 Nginx &lt;code>server&lt;/code> 配置块，适用于单页应用（SPA）的部署。&lt;/p>
+&lt;h3 id="配置文件示例-nginxconf">配置文件示例 (&lt;code>nginx.conf&lt;/code>)&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-nginx" data-lang="nginx">&lt;span class="line">&lt;span class="cl">&lt;span class="k">server&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kn">listen&lt;/span> &lt;span class="mi">80&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kn">server_name&lt;/span> &lt;span class="s">test.wxy.cn&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="c1"># 请替换为实际域名
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 1. 开启 Gzip 压缩（优化加载速度）
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kn">gzip&lt;/span> &lt;span class="no">on&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kn">gzip_min_length&lt;/span> &lt;span class="mi">1k&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kn">gzip_comp_level&lt;/span> &lt;span class="mi">6&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kn">gzip_types&lt;/span> &lt;span class="s">text/plain&lt;/span> &lt;span class="s">text/css&lt;/span> &lt;span class="s">text/javascript&lt;/span> &lt;span class="s">application/json&lt;/span> &lt;span class="s">application/javascript&lt;/span> &lt;span class="s">application/xml+rss&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kn">gzip_vary&lt;/span> &lt;span class="no">on&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kn">gzip_disable&lt;/span> &lt;span class="s">&amp;#34;MSIE&lt;/span> &lt;span class="s">[1-6]\.&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 2. 前端静态资源托管
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kn">location&lt;/span> &lt;span class="s">/&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kn">root&lt;/span> &lt;span class="s">/usr/share/nginx/html&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="c1"># 静态资源存放路径
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kn">index&lt;/span> &lt;span class="s">index.html&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 核心配置：解决 History 模式路由刷新 404 问题
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kn">try_files&lt;/span> &lt;span class="nv">$uri&lt;/span> &lt;span class="nv">$uri/&lt;/span> &lt;span class="s">/index.html&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 3. 接口反向代理配置
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kn">location&lt;/span> &lt;span class="s">/vpsmobileh5&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 如果需要重写路径，可取消注释下面这行
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1"># rewrite ^/vpsmobileh5(.*)$ \$1 break;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># ⚠️ 注意：proxy_pass 结尾带 / 表示去除匹配路径
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kn">proxy_pass&lt;/span> &lt;span class="s">http://172.168.50.77:16690/&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kn">proxy_redirect&lt;/span> &lt;span class="no">off&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kn">proxy_set_header&lt;/span> &lt;span class="s">Host&lt;/span> &lt;span class="nv">$host&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kn">proxy_set_header&lt;/span> &lt;span class="s">X-Real-IP&lt;/span> &lt;span class="nv">$remote_addr&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kn">proxy_set_header&lt;/span> &lt;span class="s">X-Forwarded-For&lt;/span> &lt;span class="nv">$proxy_add_x_forwarded_for&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 支持 WebSocket
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kn">proxy_set_header&lt;/span> &lt;span class="s">Upgrade&lt;/span> &lt;span class="nv">$http_upgrade&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kn">proxy_set_header&lt;/span> &lt;span class="s">Connection&lt;/span> &lt;span class="s">&amp;#34;upgrade&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kn">client_max_body_size&lt;/span> &lt;span class="mi">200m&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kn">expires&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="-关键注意事项">⚠️ 关键注意事项&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>proxy_pass 的斜杠&lt;/strong>：
+&lt;ul>
+&lt;li>&lt;code>proxy_pass http://ip:port/;&lt;/code>（带斜杠）：会将 &lt;code>/vpsmobileh5/api&lt;/code> 转发为 &lt;code>/api&lt;/code>（去除了前缀）。&lt;/li>
+&lt;li>&lt;code>proxy_pass http://ip:port;&lt;/code>（不带斜杠）：会将 &lt;code>/vpsmobileh5/api&lt;/code> 转发为 &lt;code>/vpsmobileh5/api&lt;/code>（保留前缀）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="3-前端项目配置详解">3. 前端项目配置详解&lt;/h2>
+&lt;p>为了配合 Nginx 部署，前端代码层面也需要进行相应的适配。&lt;/p>
+&lt;h3 id="31-路由模式与基础路径">3.1 路由模式与基础路径&lt;/h3>
+&lt;p>Vue Router 主要有两种模式：&lt;code>hash&lt;/code> 和 &lt;code>history&lt;/code>。&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>推荐配置&lt;/strong>：虽然 History 模式 URL 更美观，但若为了简化服务器配置或兼容性，&lt;strong>Hash 模式&lt;/strong>通常更省心。&lt;/li>
+&lt;li>&lt;strong>路径配置&lt;/strong>：建议设置 &lt;code>base&lt;/code> 为相对路径 &lt;code>./&lt;/code>，使静态资源能自动适应部署的子目录。
+配置示例 (manifest.json 或 router 配置):&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">{
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;#34;h5&amp;#34; : {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;#34;router&amp;#34; : {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;#34;mode&amp;#34; : &amp;#34;hash&amp;#34;,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;#34;base&amp;#34;: &amp;#34;./&amp;#34;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>资源引用规范：&lt;/p>
+&lt;ul>
+&lt;li>❌ 避免使用 &lt;code>../../static/icon/logo.png&lt;/code> 这种跨层级相对路径。&lt;/li>
+&lt;li>✅ 推荐使用 &lt;code>static/icon/logo.png&lt;/code> 或绝对路径，确保基于当前目录结构查找。&lt;/li>
+&lt;/ul>
+&lt;h3 id="32-环境变量管理-api-基地址">3.2 环境变量管理 (API 基地址)&lt;/h3>
+&lt;p>根据构建工具的不同（Vite vs Webpack/Vue CLI），环境变量的处理方式有所区别。&lt;/p>
+&lt;p>&lt;strong>场景 A：Vite 项目 (Vue 3 / UniApp)&lt;/strong>&lt;/p>
+&lt;ol>
+&lt;li>创建配置文件 &lt;code>.env.production&lt;/code>:&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">NODE_ENV=production
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 变量名必须以 VITE_ 开头
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">VITE_BASE_URL=http://api.prod.com
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ol start="2">
+&lt;li>代码中调用:&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">console.log(&amp;#39;当前环境&amp;#39;, import.meta.env.MODE);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">export const defaultUrl = import.meta.env.MODE === &amp;#39;production&amp;#39;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ? import.meta.env.VITE_BASE_URL
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> : &amp;#39;http://172.168.50.73:6603&amp;#39;;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;strong>场景 B：Vue CLI 项目 (Vue 2)&lt;/strong>&lt;/p>
+&lt;ol>
+&lt;li>创建配置文件 &lt;code>.env.production&lt;/code>:&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">NODE_ENV=production
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 变量名必须以 VUE_APP_ 开头
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">VUE_APP_BASE_URL=http://api.prod.com
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ol start="2">
+&lt;li>代码中调用:&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">console.log(&amp;#39;当前环境&amp;#39;, process.env.NODE_ENV);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">export const defaultUrl = process.env.NODE_ENV === &amp;#39;production&amp;#39;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ? process.env.VUE_APP_BASE_URL
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> : &amp;#39;http://172.168.81.177:9001&amp;#39;;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="33-构建公共路径-vite-config">3.3 构建公共路径 (Vite Config)&lt;/h3>
+&lt;p>在 &lt;code>vite.config.js&lt;/code> 中配置 &lt;code>base&lt;/code>，决定了 HTML 中引入 JS/CSS 的路径前缀。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">import { defineConfig } from &amp;#34;vite&amp;#34;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">import uni from &amp;#34;@dcloudio/vite-plugin-uni&amp;#34;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">export default defineConfig({
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> plugins: [uni()],
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> base: &amp;#39;/&amp;#39;, // 默认值，表示从根路径加载。如果部署在子目录，请修改此处
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> server: {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> port: 9011,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">})
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="4-windows-环境与-iis-混合部署指南">4. Windows 环境与 IIS 混合部署指南&lt;/h2>
+&lt;p>如果您的生产环境是 Windows Server，且涉及 IIS 与 Nginx 共存，请参考以下操作。&lt;/p>
+&lt;h3 id="41-部署结构建议">4.1 部署结构建议&lt;/h3>
+&lt;ol>
+&lt;li>&lt;strong>IIS 配置&lt;/strong>：新建网站，指向项目物理路径（如 &lt;code>D:\WebSite\YKT&lt;/code>）。&lt;/li>
+&lt;li>&lt;strong>Nginx 配置&lt;/strong>：作为反向代理或静态服务器，配置文件位于 &lt;code>D:\Nginx\nginx-1.15.6\conf\nginx.conf&lt;/code>。&lt;/li>
+&lt;/ol>
+&lt;h3 id="42-nginx-常用命令-cmd">4.2 Nginx 常用命令 (CMD)&lt;/h3>
+&lt;p>请在 Nginx 安装目录（如 &lt;code>D:\Nginx\nginx-1.15.6&lt;/code>）下打开 CMD 执行：&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th style="text-align:left">操作&lt;/th>
+&lt;th style="text-align:left">命令&lt;/th>
+&lt;th style="text-align:left">说明&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td style="text-align:left">&lt;strong>启动&lt;/strong>&lt;/td>
+&lt;td style="text-align:left">&lt;code>start nginx&lt;/code>&lt;/td>
+&lt;td style="text-align:left">启动服务，在 Windows 下窗口闪退属正常现象（进程已在后台运行）。&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">&lt;strong>重载&lt;/strong>&lt;/td>
+&lt;td style="text-align:left">&lt;code>nginx -s reload&lt;/code>&lt;/td>
+&lt;td style="text-align:left">修改 &lt;code>nginx.conf&lt;/code> 后，无需重启，热加载新配置。&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">&lt;strong>停止&lt;/strong>&lt;/td>
+&lt;td style="text-align:left">&lt;code>nginx -s stop&lt;/code>&lt;/td>
+&lt;td style="text-align:left">快速停止 Nginx 服务。&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">&lt;strong>退出&lt;/strong>&lt;/td>
+&lt;td style="text-align:left">&lt;code>nginx -s quit&lt;/code>&lt;/td>
+&lt;td style="text-align:left">处理完当前请求后，优雅退出服务。&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">&lt;strong>检测&lt;/strong>&lt;/td>
+&lt;td style="text-align:left">&lt;code>nginx -t&lt;/code>&lt;/td>
+&lt;td style="text-align:left">&lt;strong>强烈推荐&lt;/strong>。在重载前运行，用于检测配置文件语法是否正确。&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h3 id="43-排查端口占用">4.3 排查端口占用&lt;/h3>
+&lt;p>如果启动失败，通常是端口冲突导致。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"># 1. 查看占用 80 端口的进程 PID
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">netstat -aon | findstr &amp;#34;80&amp;#34;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 2. 根据 PID 查看是哪个程序 (假设 PID 为 2276)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">tasklist | findstr &amp;#34;2276&amp;#34;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="-windows-下的严重警告">⚠️ Windows 下的严重警告&lt;/h3>
+&lt;p>&lt;strong>不要使用记事本 (Notepad) 编辑&lt;/strong> &lt;code>nginx.conf&lt;/code>！ 记事本保存时会自动添加 &lt;strong>BOM (Byte Order Mark)&lt;/strong> 头，这会导致 Nginx 读取配置文件失败。 &lt;strong>解决方案&lt;/strong>：请使用 VS Code、Notepad++ 或 Sublime Text 等专业编辑器。&lt;/p>
+&lt;h2 id="5-常见问题排查-faq">5. 常见问题排查 (FAQ)&lt;/h2>
+&lt;p>Q1: 部署后静态资源（JS/CSS）加载 404？&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>原因：构建时的 &lt;code>publicPath&lt;/code> (Vue CLI) 或 &lt;code>base&lt;/code> (Vite) 配置与 Nginx 的部署目录不一致。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>解决：如果部署在根目录，设置为 &lt;code>/&lt;/code>；如果部署在 &lt;code>/app/&lt;/code> 子目录，设置为 &lt;code>/app/&lt;/code> 或 &lt;code>./&lt;/code>。
+Q2: 环境变量不生效？&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>原因：前缀错误或文件未加载。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>解决：&lt;/p>
+&lt;ul>
+&lt;li>Vite 必须用 &lt;code>VITE_&lt;/code>开头。&lt;/li>
+&lt;li>Vue CLI 必须用 &lt;code>VUE_APP_&lt;/code> 开头。&lt;/li>
+&lt;li>确保 &lt;code>.env.production&lt;/code> 文件位于项目根目录。
+Q3: 刷新页面出现 404 错误？&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>原因：使用了 History 路由模式，但 Nginx 未配置重定向。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>解决：确保 Nginx 配置中包含 &lt;code>try_files $uri $uri/ /index.html;&lt;/code>。&lt;/p>
+&lt;/li>
+&lt;/ul></description></item></channel></rss>

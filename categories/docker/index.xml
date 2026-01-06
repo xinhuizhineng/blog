@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Docker on 我的空间</title><link>https://changxiangyu.cn/categories/docker/</link><description>Recent content in Docker on 我的空间</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Tue, 17 Jan 2023 11:02:00 +0800</lastBuildDate><atom:link href="https://changxiangyu.cn/categories/docker/index.xml" rel="self" type="application/rss+xml"/><item><title>Docker容器占用大量存储</title><link>https://changxiangyu.cn/p/docker%E5%AE%B9%E5%99%A8%E5%8D%A0%E7%94%A8%E5%A4%A7%E9%87%8F%E5%AD%98%E5%82%A8/</link><pubDate>Tue, 17 Jan 2023 11:02:00 +0800</pubDate><guid>https://changxiangyu.cn/p/docker%E5%AE%B9%E5%99%A8%E5%8D%A0%E7%94%A8%E5%A4%A7%E9%87%8F%E5%AD%98%E5%82%A8/</guid><description>&lt;p>服务产生大量core文件，导致存储空间被占满
+可通过命令&lt;code>find /home/docker -name core.*&lt;/code>查看产生core文件的路径（docker数据目录以现场配置为准）&lt;/p>
+&lt;ol>
+&lt;li>删除所有容器，包含base和c3目录下的
+&lt;code>docker-compose down&lt;/code>&lt;/li>
+&lt;li>使用df -h检查空间是否已经恢复&lt;/li>
+&lt;li>修改&lt;code>docker-compose.yml&lt;/code>,在每个服务的最后增加以下配置：&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"> ulimits:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> core: 0
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://changxiangyu.cn/images/web/docker-1.png"
+loading="lazy"
+>
+5. 启动docker容器
+&lt;code>docker-compose up -d&lt;/code>&lt;/p></description></item></channel></rss>
