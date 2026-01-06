@@ -85,9 +85,10 @@ npm config set cache "D:\nodejs\node_cache"
 执行完毕后，您可以运行 npm config list 检查是否生效。  
 
 3. 配置全局路径环境变量 (Environment Variables)
-如果不配置此项，安装的全局命令（如 vue）将无法识别。
 
-操作路径：右键“此电脑” -> 属性 -> 高级系统设置 -> 环境变量。
+如果不配置此项，安装的全局命令（如 vue）将无法识别。  
+
+操作路径：右键“此电脑” -> 属性 -> 高级系统设置 -> 环境变量。  
     1. 配置 Path 变量 (系统变量/用户变量)：
         - 找到 `Path` 变量 -> 编辑 -> 新建。
         - 添加路径：`D:\nodejs\node_global`
