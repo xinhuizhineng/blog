@@ -1,3 +1,17 @@
+---
+title: "Windows 11 上配置 Docker"
+author: "常香玉"
+description: "Windows 11 上配置 Docker 的完整指南"
+date: 2026-01-20T10:50:00+08:00
+lastmod: 2026-01-20         # 文章修改日期
+tags : [                    # 文章所属标签
+    "Docker"
+]
+categories : [              # 文章所属标签
+    "Docker",
+]
+---
+
 一、系统要求与准备
 1. 系统要求
 Windows 11 64位：家庭版/专业版/企业版
