@@ -1,0 +1,141 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="Windows 11 上配置 Docker 的完整指南"><title>Windows 11 上配置 Docker</title><link rel=canonical href=https://changxiangyu.cn/p/windows-11-%E4%B8%8A%E9%85%8D%E7%BD%AE-docker/><link rel=stylesheet href=/scss/style.min.ac77dcf8b111b51da39a92990f431923f210f3876d85798a2125667f96dc33a4.css><meta property="og:title" content="Windows 11 上配置 Docker"><meta property="og:description" content="Windows 11 上配置 Docker 的完整指南"><meta property="og:url" content="https://changxiangyu.cn/p/windows-11-%E4%B8%8A%E9%85%8D%E7%BD%AE-docker/"><meta property="og:site_name" content="我的空间"><meta property="og:type" content="article"><meta property="article:section" content="Post"><meta property="article:tag" content="Docker"><meta property="article:published_time" content="2026-01-20T10:50:00+08:00"><meta property="article:modified_time" content="2026-01-20T00:00:00+00:00"><meta name=twitter:title content="Windows 11 上配置 Docker"><meta name=twitter:description content="Windows 11 上配置 Docker 的完整指南"><link rel="shortcut icon" href=/images/favicon.ico></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=/img/1_hu8b5a3db4a21c8e092ed8817bbbdf793a_61250_300x0_resize_q75_box.jpg width=300 height=300 class=site-logo loading=lazy alt=Avatar></a>
+<span class=emoji>🍥</span></figure><div class=site-meta><h1 class=site-name><a href=/>我的空间</a></h1><h2 class=site-description>常香玉&陈金鑫.</h2></div></header><ol class=social-menu><li><a href=https://github.com/changxiangyu666 target=_blank title=GitHub><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://twitter.com target=_blank title=Twitter><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M22 4.01c-1 .49-1.98.689-3 .99-1.121-1.265-2.783-1.335-4.38-.737S11.977 6.323 12 8v1c-3.245.083-6.135-1.395-8-4 0 0-4.182 7.433 4 11-1.872 1.247-3.739 2.088-6 2 3.308 1.803 6.913 2.423 10.034 1.517 3.58-1.04 6.522-3.723 7.651-7.742a13.84 13.84.0 00.497-3.753C20.18 7.773 21.692 5.25 22 4.009z"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg><span>主页</span></a></li><li><a href=/%E5%85%B3%E4%BA%8E/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg><span>关于</span></a></li><li><a href=/archives/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg><span>Archives</span></a></li><li><a href=/search/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg><span>Search</span></a></li><li><a href=/links/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg><span>Links</span></a></li><div class=menu-bottom-section><li id=i18n-switch><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 5h7"/><path d="M9 3v2c0 4.418-2.239 8-5 8"/><path d="M5 9c-.003 2.144 2.952 3.908 6.7 4"/><path d="M12 20l4-9 4 9"/><path d="M19.1 18h-6.2"/></svg><select name=language onchange="window.location.href=this.selectedOptions[0].value"><option value=https://changxiangyu.cn/en/>English</option><option value=https://changxiangyu.cn/ selected>中文</option></select></li><li id=dark-mode-toggle><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg><span>暗色模式</span></li></div></ol></aside><main class="main full-width"><article class=main-article><header class=article-header><div class=article-details><header class=article-category><a href=/categories/docker/>Docker</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/p/windows-11-%E4%B8%8A%E9%85%8D%E7%BD%AE-docker/>Windows 11 上配置 Docker</a></h2><h3 class=article-subtitle>Windows 11 上配置 Docker 的完整指南</h3></div><footer class=article-time><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg><time class=article-time--published>Jan 20, 2026</time></div><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg><time class=article-time--reading>阅读时长: 4 分钟</time></div></footer></div></header><section class=article-content><p>一、系统要求与准备</p><ol><li>系统要求
+Windows 11 64位：家庭版/专业版/企业版</li></ol><p>必须启用硬件虚拟化（BIOS/UEFI中开启Intel VT-x/AMD-V）</p><p>WSL 2 需要 Windows 10 版本 1903 或更高（Windows 11 已内置）</p><p>至少 4GB RAM（建议8GB以上）</p><p>存储空间：至少 20GB 可用空间</p><ol start=2><li>检查虚拟化是否开启
+powershell</li></ol><h1 id=打开-powershell管理员>打开 PowerShell（管理员）</h1><p>systeminfo</p><h1 id=或使用任务管理器查看>或使用任务管理器查看</h1><h1 id=ctrlshiftesc--性能--cpu--虚拟化-已启用>Ctrl+Shift+Esc → 性能 → CPU → &ldquo;虚拟化: 已启用&rdquo;</h1><p>如果未启用，需要重启进入 BIOS/UEFI 开启：</p><p>Intel CPU：开启 Intel Virtualization Technology (VT-x)</p><p>AMD CPU：开启 AMD-V</p><p>二、安装 Docker Desktop for Windows
+方法1：官方安装（推荐）
+下载 Docker Desktop</p><p>powershell</p><h1 id=官方下载地址最新稳定版>官方下载地址（最新稳定版）</h1><p><a class=link href=https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe target=_blank rel=noopener>https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe</a>
+运行安装程序</p><p>双击安装文件</p><p>勾选 &ldquo;Use WSL 2 instead of Hyper-V&rdquo;（推荐）</p><p>安装完成后不要立即启动</p><p>启用 WSL 2 功能</p><p>powershell</p><h1 id=以管理员身份打开-powershell>以管理员身份打开 PowerShell</h1><p>dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart</p><h1 id=重启电脑>重启电脑</h1><p>shutdown /r /t 0
+设置 WSL 2 为默认版本</p><p>powershell
+wsl &ndash;set-default-version 2
+方法2：使用 Winget 安装
+powershell</p><h1 id=搜索-docker-desktop>搜索 Docker Desktop</h1><p>winget search Docker.Desktop</p><h1 id=安装>安装</h1><p>winget install Docker.DockerDesktop
+三、安装后的配置</p><ol><li>首次启动配置
+启动 Docker Desktop</li></ol><p>接受服务条款</p><p>选择 &ldquo;Use WSL 2 based engine&rdquo;（推荐）</p><p>配置 WSL 集成：</p><p>text
+[x] Enable integration with my default WSL distro
+[x] Ubuntu (或你安装的其他 WSL 发行版)
+2. 验证安装
+powershell</p><h1 id=打开-powershell-或-cmd>打开 PowerShell 或 CMD</h1><p>docker &ndash;version</p><h1 id=docker-version-2406-build-ed223bc>Docker version 24.0.6, build ed223bc</h1><p>docker-compose &ndash;version</p><h1 id=docker-compose-version-v2210>Docker Compose version v2.21.0</h1><p>docker run hello-world</p><h1 id=如果看到欢迎信息说明安装成功>如果看到欢迎信息，说明安装成功</h1><h1 id=查看-docker-信息>查看 Docker 信息</h1><p>docker info
+3. WSL 2 后端配置
+powershell</p><h1 id=查看-wsl-状态>查看 WSL 状态</h1><p>wsl -l -v</p><h1 id=应该显示>应该显示：</h1><h1 id=name------state-----------version>NAME STATE VERSION</h1><h1 id=-ubuntu----running---------2>* Ubuntu Running 2</h1><h1 id=docker-desktop-data-running-2>docker-desktop-data Running 2</h1><h1 id=docker-desktop----running-2>docker-desktop Running 2</h1><h1 id=如果版本不是2升级>如果版本不是2，升级：</h1><p>wsl &ndash;set-version Ubuntu 2</p><h1 id=设置默认发行版>设置默认发行版</h1><p>wsl &ndash;set-default Ubuntu
+四、Docker Desktop 设置优化</p><ol><li>资源分配
+打开 Docker Desktop → Settings → Resources：</li></ol><p>CPU：建议分配 4-8 核（根据你的 CPU 核心数）</p><p>Memory：建议分配 4-8 GB（不要超过总内存的50%）</p><p>Swap：1-2 GB</p><p>Disk image size：至少 50 GB</p><ol start=2><li>Docker Engine 配置
+json
+// Settings → Docker Engine
+{
+&ldquo;registry-mirrors&rdquo;: [
+&ldquo;https://docker.mirrors.ustc.edu.cn&rdquo;,
+&ldquo;https://hub-mirror.c.163.com&rdquo;
+],
+&ldquo;insecure-registries&rdquo;: [],
+&ldquo;debug&rdquo;: false,
+&ldquo;experimental&rdquo;: false,
+&ldquo;features&rdquo;: {
+&ldquo;buildkit&rdquo;: true
+},
+&ldquo;builder&rdquo;: {
+&ldquo;gc&rdquo;: {
+&ldquo;enabled&rdquo;: true,
+&ldquo;defaultKeepStorage&rdquo;: &ldquo;10GB&rdquo;
+}
+}
+}</li><li>WSL 2 设置
+Enable integration with additional WSL 2 distros：选择要集成的发行版</li></ol><p>Start Docker Desktop when you log in：根据需要开启</p><p>Expose daemon on tcp://localhost:2375 without TLS：不建议开启</p><p>五、常用命令与操作
+基础命令
+powershell</p><h1 id=镜像操作>镜像操作</h1><p>docker images # 查看镜像
+docker pull ubuntu:latest # 拉取镜像
+docker rmi &lt;image_id> # 删除镜像</p><h1 id=容器操作>容器操作</h1><p>docker ps # 查看运行中的容器
+docker ps -a # 查看所有容器
+docker run -it ubuntu bash # 运行交互式容器
+docker start &lt;container_id> # 启动容器
+docker stop &lt;container_id> # 停止容器
+docker rm &lt;container_id> # 删除容器</p><h1 id=清理>清理</h1><p>docker system prune -a # 清理所有未使用的资源
+Windows 特有命令
+powershell</p><h1 id=wsl-与-docker-交互>WSL 与 Docker 交互</h1><p>wsl &ndash;shutdown # 关闭所有 WSL 发行版
+wsl -d docker-desktop # 进入 docker-desktop WSL
+wsl -d docker-desktop-data # 进入数据卷 WSL</p><h1 id=重启-docker-服务>重启 Docker 服务</h1><p>net stop com.docker.service
+net start com.docker.service
+六、开发环境配置</p><ol><li>项目结构示例
+text
+my-project/
+├── docker-compose.yml
+├── Dockerfile
+├── .dockerignore
+├── src/
+└── data/</li><li>简单 Dockerfile 示例
+dockerfile</li></ol><h1 id=基础镜像>基础镜像</h1><p>FROM python:3.11-slim</p><h1 id=设置工作目录>设置工作目录</h1><p>WORKDIR /app</p><h1 id=复制依赖文件>复制依赖文件</h1><p>COPY requirements.txt .</p><h1 id=安装依赖>安装依赖</h1><p>RUN pip install &ndash;no-cache-dir -r requirements.txt</p><h1 id=复制源代码>复制源代码</h1><p>COPY . .</p><h1 id=暴露端口>暴露端口</h1><p>EXPOSE 8000</p><h1 id=启动命令>启动命令</h1><p>CMD [&ldquo;python&rdquo;, &ldquo;app.py&rdquo;]
+3. Docker Compose 示例
+yaml
+version: &lsquo;3.8&rsquo;
+services:
+web:
+build: .
+ports:
+- &ldquo;8000:8000&rdquo;
+volumes:
+- ./src:/app/src
+environment:
+- DEBUG=1
+depends_on:
+- db</p><p>db:
+image: postgres:15
+environment:
+POSTGRES_PASSWORD: example
+volumes:
+- postgres_data:/var/lib/postgresql/data</p><p>volumes:
+postgres_data:
+七、常见问题解决</p><ol><li>Docker 启动失败
+powershell</li></ol><h1 id=1-检查-wsl-2-是否正常>1. 检查 WSL 2 是否正常</h1><p>wsl &ndash;status</p><h1 id=2-重置-docker>2. 重置 Docker</h1><p>Docker Desktop → Troubleshoot → Reset to factory defaults</p><h1 id=3-重新安装-wsl-2-内核>3. 重新安装 WSL 2 内核</h1><h1 id=下载httpswslstorestorageblobcorewindowsnetwslblobwsl_update_x64msi>下载：https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi</h1><ol start=2><li>网络问题
+powershell</li></ol><h1 id=查看-docker-网络>查看 Docker 网络</h1><p>docker network ls</p><h1 id=创建自定义网络>创建自定义网络</h1><p>docker network create my-network</p><h1 id=配置-dns在-docker-desktop-settings--docker-engine>配置 DNS（在 Docker Desktop Settings → Docker Engine）</h1><p>{
+&ldquo;dns&rdquo;: [&ldquo;8.8.8.8&rdquo;, &ldquo;114.114.114.114&rdquo;]
+}
+3. 磁盘空间不足
+powershell</p><h1 id=清理-docker-数据>清理 Docker 数据</h1><p>docker system prune &ndash;all &ndash;volumes</p><h1 id=或通过-docker-desktop>或通过 Docker Desktop</h1><p>Settings → Resources → Advanced → Disk image location</p><h1 id=可以移动到更大的磁盘>可以移动到更大的磁盘</h1><ol start=4><li>权限问题
+powershell</li></ol><h1 id=以管理员运行-docker-desktop>以管理员运行 Docker Desktop</h1><h1 id=或在-powershell-中>或在 PowerShell 中：</h1><p>net localgroup docker-users &ldquo;你的用户名&rdquo; /add
+5. 端口被占用
+powershell</p><h1 id=查看端口占用>查看端口占用</h1><p>netstat -ano | findstr :端口号</p><h1 id=停止占用进程>停止占用进程</h1><p>taskkill /PID 进程号 /F
+八、性能优化建议</p><ol><li>文件系统性能
+dockerfile</li></ol><h1 id=在-dockerfile-中使用-dockerignore>在 Dockerfile 中使用 .dockerignore</h1><h1 id=dockerignore-文件内容>.dockerignore 文件内容：</h1><p>.git
+node_modules
+*.log
+*.tmp
+2. 卷映射优化
+yaml</p><h1 id=docker-composeyml>docker-compose.yml</h1><p>version: &lsquo;3.8&rsquo;
+services:
+app:
+volumes:
+# 使用命名卷（性能更好）
+- app_data:/data
+# 特定文件映射（避免整个目录）
+- ./config:/app/config:ro # 只读</p><p>volumes:
+app_data:
+3. WSL 2 性能优化
+创建 %UserProfile%.wslconfig：</p><p>ini
+[wsl2]
+memory=8GB # 限制内存使用
+processors=4 # 分配 CPU 核心
+swap=2GB # 交换空间
+localhostForwarding=true
+九、GUI 应用支持</p><ol><li>运行 GUI 应用
+dockerfile</li></ol><h1 id=dockerfile-示例运行-firefox>Dockerfile 示例（运行 Firefox）</h1><p>FROM ubuntu:22.04</p><p>RUN apt update && apt install -y firefox</p><h1 id=允许连接到主机-x11-服务器>允许连接到主机 X11 服务器</h1><p>ENV DISPLAY=host.docker.internal:0
+2. 安装 Windows 的 X 服务器
+安装 VcXsrv 或 XMing</p><p>启动 XLaunch，选择 &ldquo;Disable access control&rdquo;</p><p>在 WSL 中设置：</p><p>bash
+export DISPLAY=$(cat /etc/resolv.conf | grep nameserver | awk &lsquo;{print $2}&rsquo;):0
+十、常用工具扩展</p><ol><li>安装 Docker 扩展
+powershell</li></ol><h1 id=安装-dive查看镜像层>安装 dive（查看镜像层）</h1><p>docker run &ndash;rm -it wagoodman/dive:latest</p><h1 id=安装-lazydockertui-管理工具>安装 lazydocker（TUI 管理工具）</h1><p>docker run &ndash;rm -it lazyteam/lazydocker
+2. VS Code 集成
+安装 Docker 和 Dev Containers 扩展</p><p>在项目根目录创建 .devcontainer/devcontainer.json</p><p>按 F1 → Reopen in Container</p><p>十一、备份与迁移</p><ol><li>导出/导入镜像
+powershell</li></ol><h1 id=导出镜像>导出镜像</h1><p>docker save -o myimage.tar myimage:tag</p><h1 id=导入镜像>导入镜像</h1><p>docker load -i myimage.tar</p><h1 id=导出容器>导出容器</h1><p>docker export -o mycontainer.tar container_id
+docker import mycontainer.tar
+2. 备份 Docker 数据
+powershell</p><h1 id=备份所有镜像>备份所有镜像</h1><p>docker save $(docker images -q) -o all_images.tar</p><h1 id=备份卷数据>备份卷数据</h1><p>docker run &ndash;rm -v my_volume:/data -v $(pwd):/backup ubuntu tar czf /backup/backup.tar.gz /data
+快速检查清单
+虚拟化已启用</p><p>WSL 2 已安装并设为默认</p><p>Docker Desktop 使用 WSL 2 后端</p><p>资源分配合理（内存/CPU/磁盘）</p><p>配置了国内镜像加速器</p><p>防火墙允许 Docker 通信</p></section><footer class=article-footer><section class=article-tags><a href=/tags/docker/>Docker</a></section><section class=article-copyright><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg><span>Licensed under CC BY-NC-SA 4.0</span></section><section class=article-lastmod><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg><span>最后更新于 Jan 20, 2026 00:00 UTC</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article><a href=/p/docker%E5%AE%B9%E5%99%A8%E5%8D%A0%E7%94%A8%E5%A4%A7%E9%87%8F%E5%AD%98%E5%82%A8/><div class=article-details><h2 class=article-title>Docker容器占用大量存储</h2></div></a></article></div></div></aside><div class=disqus-container><div id=disqus_thread></div><script type=application/javascript>window.disqus_config=function(){},function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById("disqus_thread").innerHTML="Disqus comments not available by default when the website is previewed locally.";return}var t=document,e=t.createElement("script");e.async=!0,e.src="//hugo-theme-stack.disqus.com/embed.js",e.setAttribute("data-timestamp",+new Date),(t.head||t.body).appendChild(e)}()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></div><style>.disqus-container{background-color:var(--card-background);border-radius:var(--card-border-radius);box-shadow:var(--shadow-l1);padding:var(--card-padding)}</style><script>window.addEventListener("onColorSchemeChange",e=>{typeof DISQUS=="object"&&DISQUS.reset({reload:!0})})</script><footer class=site-footer><section class=copyright>&copy;
+2020 -
+2026 我的空间</section><section class=powerby>Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a><br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.13.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计<br><a href=https://beian.miit.gov.cn/ target=_blank>粤ICP备19123935号</a></section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.js defer></script>
+<script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>

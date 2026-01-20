@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>主题 on 我的空间</title><link>https://changxiangyu.cn/tags/%E4%B8%BB%E9%A2%98/</link><description>Recent content in 主题 on 我的空间</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Mon, 01 Aug 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://changxiangyu.cn/tags/%E4%B8%BB%E9%A2%98/index.xml" rel="self" type="application/rss+xml"/><item><title>修改博客主题</title><link>https://changxiangyu.cn/p/%E4%BF%AE%E6%94%B9%E5%8D%9A%E5%AE%A2%E4%B8%BB%E9%A2%98/</link><pubDate>Mon, 01 Aug 2022 00:00:00 +0000</pubDate><guid>https://changxiangyu.cn/p/%E4%BF%AE%E6%94%B9%E5%8D%9A%E5%AE%A2%E4%B8%BB%E9%A2%98/</guid><description>&lt;h3 id="下载博客主题">下载博客主题&lt;/h3>
+&lt;p>创建好博客项目后，接下来是下载&lt;a class="link" href="https://link.zhihu.com/?target=https%3A//themes.gohugo.io/" target="_blank" rel="noopener"
+>hugo博客的主题&lt;/a>，这里有很多主题，我们可以任意挑选，比如我们选择了&lt;a class="link" href="https://link.zhihu.com/?target=https%3A//themes.gohugo.io/hugo-theme-bootstrap4-blog/" target="_blank" rel="noopener"
+>bootstrap4-blog 主题&lt;/a>。&lt;/p>
+&lt;p>然后在 Blog 目录下使用git 命令来下载主题：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">git clone https://github.com/alanorth/hugo-theme-bootstrap4-blog.git themes/hugo-theme-bootstrap4-blog
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>下载下来的主题会放在themes 目录中：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">└── hugo-theme-bootstrap4-blog
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ├── CHANGELOG.md
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ├── LICENSE.txt
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ├── README.md
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ├── archetypes
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ├── assets
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ├── exampleSite # 本主题示例内容
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | ├── content # 示例博客文章
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> │ |-- static
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> │ |-- config.toml # 本主题配置
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ├── i18n
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ├── images
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ├── layouts
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ├── package-lock.json
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ├── package.json
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ├── screenshot.png
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ├── source
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ├── theme.toml
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> └── webpack.config.js
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="使用主题">使用主题&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">vim config.toml
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">theme = &amp;#34;hugo-theme-bootstrap4-blog&amp;#34;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item></channel></rss>

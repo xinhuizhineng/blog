@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>域名 on 我的空间</title><link>https://changxiangyu.cn/tags/%E5%9F%9F%E5%90%8D/</link><description>Recent content in 域名 on 我的空间</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Wed, 05 Oct 2022 20:46:00 +0800</lastBuildDate><atom:link href="https://changxiangyu.cn/tags/%E5%9F%9F%E5%90%8D/index.xml" rel="self" type="application/rss+xml"/><item><title>单服务器绑定多个域名</title><link>https://changxiangyu.cn/p/%E5%8D%95%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BB%91%E5%AE%9A%E5%A4%9A%E4%B8%AA%E5%9F%9F%E5%90%8D/</link><pubDate>Wed, 05 Oct 2022 20:46:00 +0800</pubDate><guid>https://changxiangyu.cn/p/%E5%8D%95%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BB%91%E5%AE%9A%E5%A4%9A%E4%B8%AA%E5%9F%9F%E5%90%8D/</guid><description>&lt;blockquote>
+&lt;p>参考: &lt;a class="link" href="https://cloud.tencent.com/document/product/400/35244" target="_blank" rel="noopener"
+>https://cloud.tencent.com/document/product/400/35244&lt;/a>&lt;/p>
+&lt;/blockquote>
+&lt;h1 id="环境">环境&lt;/h1>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">~$ nginx -v
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nginx version: nginx/1.18.0 (Ubuntu)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h1 id="申请-ssl-证书">申请 SSL 证书&lt;/h1>
+&lt;p>&lt;a class="link" href="https://console.cloud.tencent.com/ssl" target="_blank" rel="noopener"
+>腾讯云&lt;/a>&lt;/p>
+&lt;p>下载 Nginx 服务器类型&lt;/p>
+&lt;p>解压发送&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">scp {chenjinxin.cn_bundle.crt,chenjinxin.cn.key} root@changxiangyu.cn:/usr/share/nginx/
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h1 id="编辑服务器-nginx-配置文件-etcnginxnginxconf">编辑服务器 Nginx 配置文件 /etc/nginx/nginx.conf&lt;/h1>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt"> 10
+&lt;/span>&lt;span class="lnt"> 11
+&lt;/span>&lt;span class="lnt"> 12
+&lt;/span>&lt;span class="lnt"> 13
+&lt;/span>&lt;span class="lnt"> 14
+&lt;/span>&lt;span class="lnt"> 15
+&lt;/span>&lt;span class="lnt"> 16
+&lt;/span>&lt;span class="lnt"> 17
+&lt;/span>&lt;span class="lnt"> 18
+&lt;/span>&lt;span class="lnt"> 19
+&lt;/span>&lt;span class="lnt"> 20
+&lt;/span>&lt;span class="lnt"> 21
+&lt;/span>&lt;span class="lnt"> 22
+&lt;/span>&lt;span class="lnt"> 23
+&lt;/span>&lt;span class="lnt"> 24
+&lt;/span>&lt;span class="lnt"> 25
+&lt;/span>&lt;span class="lnt"> 26
+&lt;/span>&lt;span class="lnt"> 27
+&lt;/span>&lt;span class="lnt"> 28
+&lt;/span>&lt;span class="lnt"> 29
+&lt;/span>&lt;span class="lnt"> 30
+&lt;/span>&lt;span class="lnt"> 31
+&lt;/span>&lt;span class="lnt"> 32
+&lt;/span>&lt;span class="lnt"> 33
+&lt;/span>&lt;span class="lnt"> 34
+&lt;/span>&lt;span class="lnt"> 35
+&lt;/span>&lt;span class="lnt"> 36
+&lt;/span>&lt;span class="lnt"> 37
+&lt;/span>&lt;span class="lnt"> 38
+&lt;/span>&lt;span class="lnt"> 39
+&lt;/span>&lt;span class="lnt"> 40
+&lt;/span>&lt;span class="lnt"> 41
+&lt;/span>&lt;span class="lnt"> 42
+&lt;/span>&lt;span class="lnt"> 43
+&lt;/span>&lt;span class="lnt"> 44
+&lt;/span>&lt;span class="lnt"> 45
+&lt;/span>&lt;span class="lnt"> 46
+&lt;/span>&lt;span class="lnt"> 47
+&lt;/span>&lt;span class="lnt"> 48
+&lt;/span>&lt;span class="lnt"> 49
+&lt;/span>&lt;span class="lnt"> 50
+&lt;/span>&lt;span class="lnt"> 51
+&lt;/span>&lt;span class="lnt"> 52
+&lt;/span>&lt;span class="lnt"> 53
+&lt;/span>&lt;span class="lnt"> 54
+&lt;/span>&lt;span class="lnt"> 55
+&lt;/span>&lt;span class="lnt"> 56
+&lt;/span>&lt;span class="lnt"> 57
+&lt;/span>&lt;span class="lnt"> 58
+&lt;/span>&lt;span class="lnt"> 59
+&lt;/span>&lt;span class="lnt"> 60
+&lt;/span>&lt;span class="lnt"> 61
+&lt;/span>&lt;span class="lnt"> 62
+&lt;/span>&lt;span class="lnt"> 63
+&lt;/span>&lt;span class="lnt"> 64
+&lt;/span>&lt;span class="lnt"> 65
+&lt;/span>&lt;span class="lnt"> 66
+&lt;/span>&lt;span class="lnt"> 67
+&lt;/span>&lt;span class="lnt"> 68
+&lt;/span>&lt;span class="lnt"> 69
+&lt;/span>&lt;span class="lnt"> 70
+&lt;/span>&lt;span class="lnt"> 71
+&lt;/span>&lt;span class="lnt"> 72
+&lt;/span>&lt;span class="lnt"> 73
+&lt;/span>&lt;span class="lnt"> 74
+&lt;/span>&lt;span class="lnt"> 75
+&lt;/span>&lt;span class="lnt"> 76
+&lt;/span>&lt;span class="lnt"> 77
+&lt;/span>&lt;span class="lnt"> 78
+&lt;/span>&lt;span class="lnt"> 79
+&lt;/span>&lt;span class="lnt"> 80
+&lt;/span>&lt;span class="lnt"> 81
+&lt;/span>&lt;span class="lnt"> 82
+&lt;/span>&lt;span class="lnt"> 83
+&lt;/span>&lt;span class="lnt"> 84
+&lt;/span>&lt;span class="lnt"> 85
+&lt;/span>&lt;span class="lnt"> 86
+&lt;/span>&lt;span class="lnt"> 87
+&lt;/span>&lt;span class="lnt"> 88
+&lt;/span>&lt;span class="lnt"> 89
+&lt;/span>&lt;span class="lnt"> 90
+&lt;/span>&lt;span class="lnt"> 91
+&lt;/span>&lt;span class="lnt"> 92
+&lt;/span>&lt;span class="lnt"> 93
+&lt;/span>&lt;span class="lnt"> 94
+&lt;/span>&lt;span class="lnt"> 95
+&lt;/span>&lt;span class="lnt"> 96
+&lt;/span>&lt;span class="lnt"> 97
+&lt;/span>&lt;span class="lnt"> 98
+&lt;/span>&lt;span class="lnt"> 99
+&lt;/span>&lt;span class="lnt">100
+&lt;/span>&lt;span class="lnt">101
+&lt;/span>&lt;span class="lnt">102
+&lt;/span>&lt;span class="lnt">103
+&lt;/span>&lt;span class="lnt">104
+&lt;/span>&lt;span class="lnt">105
+&lt;/span>&lt;span class="lnt">106
+&lt;/span>&lt;span class="lnt">107
+&lt;/span>&lt;span class="lnt">108
+&lt;/span>&lt;span class="lnt">109
+&lt;/span>&lt;span class="lnt">110
+&lt;/span>&lt;span class="lnt">111
+&lt;/span>&lt;span class="lnt">112
+&lt;/span>&lt;span class="lnt">113
+&lt;/span>&lt;span class="lnt">114
+&lt;/span>&lt;span class="lnt">115
+&lt;/span>&lt;span class="lnt">116
+&lt;/span>&lt;span class="lnt">117
+&lt;/span>&lt;span class="lnt">118
+&lt;/span>&lt;span class="lnt">119
+&lt;/span>&lt;span class="lnt">120
+&lt;/span>&lt;span class="lnt">121
+&lt;/span>&lt;span class="lnt">122
+&lt;/span>&lt;span class="lnt">123
+&lt;/span>&lt;span class="lnt">124
+&lt;/span>&lt;span class="lnt">125
+&lt;/span>&lt;span class="lnt">126
+&lt;/span>&lt;span class="lnt">127
+&lt;/span>&lt;span class="lnt">128
+&lt;/span>&lt;span class="lnt">129
+&lt;/span>&lt;span class="lnt">130
+&lt;/span>&lt;span class="lnt">131
+&lt;/span>&lt;span class="lnt">132
+&lt;/span>&lt;span class="lnt">133
+&lt;/span>&lt;span class="lnt">134
+&lt;/span>&lt;span class="lnt">135
+&lt;/span>&lt;span class="lnt">136
+&lt;/span>&lt;span class="lnt">137
+&lt;/span>&lt;span class="lnt">138
+&lt;/span>&lt;span class="lnt">139
+&lt;/span>&lt;span class="lnt">140
+&lt;/span>&lt;span class="lnt">141
+&lt;/span>&lt;span class="lnt">142
+&lt;/span>&lt;span class="lnt">143
+&lt;/span>&lt;span class="lnt">144
+&lt;/span>&lt;span class="lnt">145
+&lt;/span>&lt;span class="lnt">146
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">user www-data;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">worker_processes auto;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">pid /run/nginx.pid;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">include /etc/nginx/modules-enabled/*.conf;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">events {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> worker_connections 768;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> # multi_accept on;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">http {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> # changxiangyu.cn
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> server {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> listen 80;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> listen [::]:80;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> server_name changxiangyu.cn www.changxiangyu.cn;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> #把http的域名请求转成https
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> return 301 https://$host$request_uri;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> #location / {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> # root /home/sammy/blog/public;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> #}
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> #location /images {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> # root /home/sammy/data/;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> # autoindex on;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> #}
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> server {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> listen 443 ssl;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ssl_certificate /usr/share/nginx/changxiangyu.cn_bundle.crt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ssl_certificate_key /usr/share/nginx/changxiangyu.cn.key;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ssl_session_timeout 5m;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> #请按照以下套件配置，配置加密套件，写法遵循 openssl 标准。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> #请按照以下协议配置
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ssl_protocols TLSv1.2 TLSv1.3;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ssl_prefer_server_ciphers on;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> server_name changxiangyu.cn www.changxiangyu.cn;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> location / {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> root /home/sammy/blog/public;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> location /images {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> root /home/sammy/data/;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> autoindex on;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> # chenjinxin.cn
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> server {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> listen 80;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> listen [::]:80;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> server_name chenjinxin.cn www.chenjinxin.cn;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> #把http的域名请求转成https
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> return 301 https://$host$request_uri;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> server {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> listen 443 ssl;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ssl_certificate /usr/share/nginx/chenjinxin.cn_bundle.crt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ssl_certificate_key /usr/share/nginx/chenjinxin.cn.key;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ssl_session_timeout 5m;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> #请按照以下套件配置，配置加密套件，写法遵循 openssl 标准。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> #请按照以下协议配置
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ssl_protocols TLSv1.2 TLSv1.3;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ssl_prefer_server_ciphers on;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> server_name chenjinxin.cn www.chenjinxin.cn;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> location / {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> root /home/sammy/cjx_blog/public;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> location /images {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> root /home/sammy/data/;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> autoindex on;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ##
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> # Basic Settings
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ##
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> sendfile on;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> tcp_nopush on;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> tcp_nodelay on;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> keepalive_timeout 65;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> types_hash_max_size 2048;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> # server_tokens off;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> # server_names_hash_bucket_size 64;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> # server_name_in_redirect off;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> include /etc/nginx/mime.types;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> default_type application/octet-stream;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ##
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> # SSL Settings
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ##
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3; # Dropping SSLv3, ref: POODLE
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ssl_prefer_server_ciphers on;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ##
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> # Logging Settings
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ##
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> access_log /var/log/nginx/access.log;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> error_log /var/log/nginx/error.log;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ##
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> # Gzip Settings
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ##
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> gzip on;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> # gzip_vary on;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> # gzip_proxied any;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> # gzip_comp_level 6;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> # gzip_buffers 16 8k;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> # gzip_http_version 1.1;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> # gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ##
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> # Virtual Host Configs
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ##
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> include /etc/nginx/conf.d/*.conf;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> include /etc/nginx/sites-enabled/*;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">#mail {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># # See sample authentication script at:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># # http://wiki.nginx.org/ImapAuthenticateWithApachePhpScript
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">#
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># # auth_http localhost/auth.php;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># # pop3_capabilities &amp;#34;TOP&amp;#34; &amp;#34;USER&amp;#34;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># # imap_capabilities &amp;#34;IMAP4rev1&amp;#34; &amp;#34;UIDPLUS&amp;#34;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">#
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># server {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># listen localhost:110;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># protocol pop3;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># proxy on;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">#
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># server {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># listen localhost:143;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># protocol imap;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># proxy on;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">#}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="验证配置文件问题">验证配置文件问题&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">sudo /usr/sbin/nginx -t
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="重载-nginx">重载 Nginx&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">sudo /usr/sbin/nginx -s reload
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>成功后即可使用 &lt;code>chenjinxin.cn&lt;/code> 进行访问&lt;/p></description></item></channel></rss>

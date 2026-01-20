@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>浏览器工作原理与实践 on 我的空间</title><link>https://changxiangyu.cn/tags/%E6%B5%8F%E8%A7%88%E5%99%A8%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E8%B7%B5/</link><description>Recent content in 浏览器工作原理与实践 on 我的空间</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Wed, 18 Jun 2025 14:05:18 +0800</lastBuildDate><atom:link href="https://changxiangyu.cn/tags/%E6%B5%8F%E8%A7%88%E5%99%A8%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E8%B7%B5/index.xml" rel="self" type="application/rss+xml"/><item><title>深入理解 TCP 协议</title><link>https://changxiangyu.cn/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3-tcp-%E5%8D%8F%E8%AE%AE/</link><pubDate>Wed, 18 Jun 2025 14:05:18 +0800</pubDate><guid>https://changxiangyu.cn/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3-tcp-%E5%8D%8F%E8%AE%AE/</guid><description>&lt;h2 id="一个数据包的旅程">一个数据包的“旅程”&lt;/h2>
+&lt;h3 id="1-ip把数据包送达目的主机">1. IP：把数据包送达目的主机&lt;/h3>
+&lt;p>计算机在网络中的地址称为 &lt;strong>IP 地址&lt;/strong>。访问任何网站，本质上都是你的计算机向另一台计算机请求信息的过程。&lt;/p>
+&lt;p>&lt;strong>简化的 IP 网络三层传输模型：&lt;/strong>
+&lt;img src="https://changxiangyu.cn/images/browser-principles-and-practice/t-1.jpg"
+loading="lazy"
+alt="IP 网络三层传输模型示意图"
+>&lt;/p>
+&lt;h3 id="2-udp把数据包送达应用程序">2. UDP：把数据包送达应用程序&lt;/h3>
+&lt;p>IP 协议负责将数据包发送给指定的计算机，但这还不够，因为计算机上运行着各种不同的程序。&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>定义&lt;/strong>：“用户数据包协议（User Datagram Protocol）”，简称 &lt;strong>UDP&lt;/strong>。&lt;/li>
+&lt;li>&lt;strong>作用&lt;/strong>：UDP 中最重要的信息是&lt;strong>端口号&lt;/strong>。IP 通过 IP 地址把数据包发送给指定的电脑，而 UDP 通过端口号把数据包分发给正确的程序。&lt;/li>
+&lt;li>&lt;strong>特点&lt;/strong>：UDP 不保证数据的可靠性，但传输速度非常快，适用于对实时性要求高但对丢包不敏感的应用（如视频会议、在线游戏）。&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>简化的 UDP 网络四层传输模型：&lt;/strong>
+&lt;img src="https://changxiangyu.cn/images/browser-principles-and-practice/t-2.jpg"
+loading="lazy"
+alt="UDP 网络四层传输模型示意图"
+>&lt;/p>
+&lt;h3 id="3-tcp把数据完整地送达应用程序">3. TCP：把数据完整地送达应用程序&lt;/h3>
+&lt;p>对于要求数据传输**可靠性（Reliability）**的应用，如果直接使用 UDP 传输会面临两个主要问题：&lt;/p>
+&lt;ol>
+&lt;li>&lt;strong>丢包&lt;/strong>：数据包在传输过程中容易丢失。&lt;/li>
+&lt;li>&lt;strong>乱序&lt;/strong>：大文件会被拆分成多个小数据包传输，这些数据包可能经过不同的路由、在不同时间到达。UDP 无法将这些乱序包还原为原始文件。&lt;/li>
+&lt;/ol>
+&lt;p>&lt;strong>TCP（Transmission Control Protocol，传输控制协议）&lt;/strong> 是一种面向连接的、可靠的、基于字节流的传输层通信协议。相对于 UDP，TCP 具备以下核心特点：&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>重传机制&lt;/strong>：针对数据包丢失的情况，TCP 提供重传功能。&lt;/li>
+&lt;li>&lt;strong>排序机制&lt;/strong>：TCP 引入了数据包排序，保证乱序到达的数据包能被重新组合成完整的文件。&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>简化的 TCP 网络四层传输模型：&lt;/strong>
+&lt;img src="https://changxiangyu.cn/images/browser-principles-and-practice/t-3.jpg"
+loading="lazy"
+alt="TCP 网络四层传输模型示意图"
+>&lt;/p>
+&lt;h4 id="tcp-连接的生命周期">TCP 连接的生命周期&lt;/h4>
+&lt;p>一个完整的 TCP 连接生命周期包含三个阶段：“&lt;strong>建立连接&lt;/strong>”、“&lt;strong>传输数据&lt;/strong>”和“&lt;strong>断开连接&lt;/strong>”。&lt;/p>
+&lt;p>&lt;img src="https://changxiangyu.cn/images/browser-principles-and-practice/t-4.jpg"
+loading="lazy"
+alt="TCP 生命周期示意图"
+>&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>&lt;strong>建立连接阶段&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>该阶段通过“&lt;strong>三次握手&lt;/strong>”来建立客户端和服务器之间的连接。&lt;/li>
+&lt;li>TCP 提供面向连接的通信传输。&lt;strong>面向连接&lt;/strong>是指在数据通信开始之前，先做好两端之间的准备工作。&lt;/li>
+&lt;li>&lt;strong>三次握手&lt;/strong>：指在建立一个 TCP 连接时，客户端和服务器总共要发送三个数据包以确认连接的建立。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>传输数据阶段&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>在该阶段，&lt;strong>接收端需要对每个数据包进行确认操作&lt;/strong>。即接收端收到数据包后，需发送确认数据包给发送端。&lt;/li>
+&lt;li>&lt;strong>重发机制&lt;/strong>：若发送端在规定时间内未收到确认消息，则判断数据包丢失，触发重发。&lt;/li>
+&lt;li>&lt;strong>排序重组&lt;/strong>：大文件被拆分的小数据包到达接收端后，接收端会根据 TCP 头中的序号进行排序，从而保证组成完整的数据。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>断开连接阶段&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>数据传输完毕后，需要终止连接。&lt;/li>
+&lt;li>此阶段涉及“&lt;strong>四次挥手&lt;/strong>”，以确保双方都能安全断开连接，释放资源。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h2 id="总结">总结&lt;/h2>
+&lt;ul>
+&lt;li>&lt;strong>数据包传输&lt;/strong>：互联网中的数据通过数据包传输，传输过程面临丢失或出错的风险。&lt;/li>
+&lt;li>&lt;strong>IP 协议&lt;/strong>：负责将数据包准确送达目的主机。&lt;/li>
+&lt;li>&lt;strong>UDP 协议&lt;/strong>：负责通过端口号将数据包分发给具体的应用程序，速度快但不可靠。&lt;/li>
+&lt;li>&lt;strong>TCP 协议&lt;/strong>：保证数据的完整性和可靠性。其连接生命周期分为三个阶段：
+&lt;ol>
+&lt;li>建立连接（三次握手）&lt;/li>
+&lt;li>传输数据（确认、重传、排序）&lt;/li>
+&lt;li>断开连接（四次挥手）&lt;/li>
+&lt;/ol>
+&lt;/li>
+&lt;/ul></description></item><item><title>HTTP请求流程</title><link>https://changxiangyu.cn/p/http%E8%AF%B7%E6%B1%82%E6%B5%81%E7%A8%8B/</link><pubDate>Tue, 08 Apr 2025 13:06:18 +0800</pubDate><guid>https://changxiangyu.cn/p/http%E8%AF%B7%E6%B1%82%E6%B5%81%E7%A8%8B/</guid><description>&lt;h2 id="浏览器端发起-http-请求流程">浏览器端发起 HTTP 请求流程&lt;/h2>
+&lt;h3 id="1-构建请求-build-request">1. 构建请求 (Build Request)&lt;/h3>
+&lt;p>首先，浏览器构建请求行信息，构建好后，浏览器准备发起网络请求。
+&lt;code>GET /index.html HTTP1.1&lt;/code>&lt;/p>
+&lt;h3 id="2-查找缓存-check-cache">2. 查找缓存 (Check Cache)&lt;/h3>
+&lt;p>在真正发起网络请求之前，浏览器会先在浏览器缓存中查询是否有要请求的文件。其中，&lt;strong>浏览器缓存是一种在本地保存资源副本，以供下次请求时直接使用的技术。&lt;/strong> 当浏览器发现请求的资源已经在浏览器缓存中存有副本，它会拦截请求，返回该资源的副本，并直接结束请求，而不会再去源服务器重新下载。这样做的好处有：&lt;/p>
+&lt;ul>
+&lt;li>缓解服务器端压力，提升性能（获取资源的耗时更短了）；&lt;/li>
+&lt;li>对于网站来说，缓存是实现快速资源加载的重要组成部分。&lt;/li>
+&lt;/ul>
+&lt;h3 id="3-准备-ip-地址和端口-dns-resolution">3. 准备 IP 地址和端口 (DNS Resolution)&lt;/h3>
+&lt;p>因为浏览器使用 &lt;strong>HTTP 协议作为应用层协议&lt;/strong>，用来封装请求的文本信息；并使用 &lt;strong>TCP/IP 作传输层协议&lt;/strong>将它发到网络上，所以在 HTTP 工作开始之前，浏览器需要通过 TCP 与服务器建立连接。也就是说 &lt;strong>HTTP 的内容是通过 TCP 的传输数据阶段来实现的&lt;/strong>
+&lt;img src="https://changxiangyu.cn/images/browser-principles-and-practice/h-1.jpg"
+loading="lazy"
+alt="展示完整流程示意图"
+>&lt;/p>
+&lt;p>&lt;strong>第一步浏览器会请求 DNS 返回域名对应的 IP&lt;/strong>。当然浏览器还提供了 DNS 数据缓存服务，如果某个域名已经解析过了，那么浏览器会缓存解析的结果，以供下次查询时直接使用，这样也会减少一次网络请求。拿到 IP 之后，接下来就需要获取端口号了。通常情况下，如果 URL 没有特别指明端口号，那么 HTTP 协议默认是 80 端口。&lt;/p>
+&lt;h3 id="4-等待-tcp-队列-queueing">4. 等待 TCP 队列 (Queueing)&lt;/h3>
+&lt;p>Chrome 有个机制，同一个域名同时最多只能建立 6 个 TCP 连接，如果在同一个域名下同时有 10 个请求发生，那么其中 4 个请求会进入排队等待状态，直至进行中的请求完成。当然，如果当前请求数量少于 6，会直接进入下一步，建立 TCP 连接。
+背景：这是 HTTP/1.1 协议下的浏览器限制，导致了“队头阻塞”问题。
+优化：现在的 HTTP/2 协议支持多路复用 (Multiplexing)，可以在一个 TCP 连接中并发处理无数个请求，从而突破了这 6 个连接的限制，极大提升了加载效率。&lt;/p>
+&lt;h3 id="5-建立-tcp-连接-tcp-handshake">5. 建立 TCP 连接 (TCP Handshake)&lt;/h3>
+&lt;p>排队等待结束之后，终于可以快乐地和服务器握手了，在 HTTP 工作开始之前，浏览器通过 TCP 与服务器建立连接。&lt;/p>
+&lt;h3 id="6-发送-http-请求-send-request">6. 发送 HTTP 请求 (Send Request)&lt;/h3>
+&lt;p>一旦建立了 TCP 连接，浏览器就可以和服务器进行通信了。而 HTTP 中的数据正是在这个通信过程中传输的。
+HTTP 请求数据格式
+&lt;img src="https://changxiangyu.cn/images/browser-principles-and-practice/h-2.jpg"
+loading="lazy"
+alt="展示示意图"
+>&lt;/p>
+&lt;h2 id="服务器端处理-http-请求流程">服务器端处理 HTTP 请求流程&lt;/h2>
+&lt;h3 id="1-返回请求-server-response">1. 返回请求 (Server Response)&lt;/h3>
+&lt;ul>
+&lt;li>服务器响应的数据格式
+&lt;img src="https://changxiangyu.cn/images/browser-principles-and-practice/h-3.jpg"
+loading="lazy"
+alt="展示示意图"
+>&lt;/li>
+&lt;li>首先服务器会返回响应行，包括协议版本和状态码。&lt;/li>
+&lt;li>那么一些无法处理或者处理出错的信息，服务器会通过请求行的状态码来告诉浏览器它的处理结果&lt;/li>
+&lt;li>服务器也会随同响应向浏览器发送响应头。响应头包含了服务器自身的一些信息，比如服务器生成返回数据的时间、返回的数据类型（JSON、HTML、流媒体等类型），以及服务器要在客户端保存的 Cookie 等信息。发送完响应头后，服务器就可以继续发送响应体的数据，通常，响应体就包含了 HTML 的实际内容。&lt;/li>
+&lt;/ul>
+&lt;h3 id="2-断开连接-connection-handling">2. 断开连接 (Connection Handling)&lt;/h3>
+&lt;p>通常情况下，一旦服务器向客户端返回了请求数据，它就要关闭 TCP 连接。不过如果浏览器或者服务器在其头信息中加入了：&lt;code>Connection:Keep-Alive&lt;/code> ，那么 TCP 连接在发送后将仍然保持打开状态，这样浏览器就可以继续通过同一个 TCP 连接发送请求。&lt;strong>保持 TCP 连接可以省去下次请求时需要建立连接的时间，提升资源加载速度&lt;/strong>&lt;/p>
+&lt;h3 id="3-重定向-redirect">3. 重定向 (Redirect)&lt;/h3>
+&lt;ul>
+&lt;li>当你在浏览器中打开 &lt;a class="link" href="geekbang.org" >&lt;/a> 后，你会发现最终打开的页面地址是 &lt;a class="link" href="https://www.geekbang.org" target="_blank" rel="noopener"
+>&lt;/a>。这两个 URL 之所以不一样，是因为涉及到了一个&lt;strong>重定向操作&lt;/strong>。&lt;/li>
+&lt;li>在控制台输入如下命令：curl -I geekbang.org注意这里输入的参数是-I，和-i不一样，-I表示只需要获取响应头和响应行数据，而不需要获取响应体的数据，最终返回的数据如下图所示：
+&lt;img src="https://changxiangyu.cn/images/browser-principles-and-practice/h-4.jpg"
+loading="lazy"
+alt="展示示意图"
+>&lt;/li>
+&lt;li>响应行返回的状态码是 301，状态 301 就是告诉浏览器，我需要重定向到另外一个网址，而需要重定向的网址正是包含在响应头的 Location 字段中，接下来，浏览器获取 Location 字段中的地址，并使用该地址重新导航，这就是一个完整重定向的执行流程。&lt;/li>
+&lt;li>301 (Moved Permanently)：永久重定向。浏览器会缓存这个重定向，下次直接去新地址，不再请求旧地址（SEO 友好）。&lt;/li>
+&lt;li>302 (Found)：临时重定向。浏览器不会缓存重定向关系，每次还是先去旧地址，再被踢到新地址。&lt;/li>
+&lt;/ul>
+&lt;h2 id="1-为什么很多站点第二次打开速度会很快">1. 为什么很多站点第二次打开速度会很快？&lt;/h2>
+&lt;ul>
+&lt;li>主要原因是第一次加载页面过程中，缓存了一些耗时的数据&lt;/li>
+&lt;li>DNS 缓存和页面资源缓存这两块数据是会被浏览器缓存的。DNS 缓存主要就是在浏览器本地把对应的 IP 和域名关联起来&lt;/li>
+&lt;/ul>
+&lt;ol>
+&lt;li>强缓存 (本地直接用)
+&lt;ul>
+&lt;li>标志：Cache-Control: Max-age=2000 (HTTP/1.1) 或 Expires (HTTP/1.0)。&lt;/li>
+&lt;li>行为：浏览器直接判断资源未过期，不向服务器发送任何请求，直接从磁盘/内存读取。状态码通常显示为 200 (from memory cache / disk cache)。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>协商缓存 (问问服务器能不能用)
+&lt;ul>
+&lt;li>标志：If-None-Match (对应 ETag) 或 If-Modified-Since (对应 Last-Modified)。&lt;/li>
+&lt;li>行为：强缓存失效后，浏览器发送请求询问服务器。&lt;/li>
+&lt;li>如果服务器说“没变”：返回 304 Not Modified，浏览器继续用旧的。&lt;/li>
+&lt;li>如果服务器说“变了”：返回 200 OK 和新内容。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;ul>
+&lt;li>
+&lt;p>缓存查找流程示意图
+&lt;img src="https://changxiangyu.cn/images/browser-principles-and-practice/h-5.jpg"
+loading="lazy"
+alt="展示示意图"
+>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>从上图的第一次请求可以看出，当服务器返回 HTTP 响应头给浏览器时，浏览器是&lt;strong>通过响应头中的 Cache-Control 字段来设置是否缓存该资源&lt;/strong>。通常，我们还需要为这个资源设置一个缓存过期时长，而这个时长是通过 &lt;code>Cache-Control&lt;/code> 中的 &lt;code>Max-age&lt;/code> 参数来设置的，比如上图设置的缓存过期时间是 2000 秒。
+&lt;code>Cache-Control:Max-age=2000&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>这也就意味着，在该缓存资源还未过期的情况下, 如果再次请求该资源，会直接返回缓存中的资源给浏览器。但如果缓存过期了，浏览器则会继续发起网络请求，并且在 &lt;strong>HTTP 请求头&lt;/strong>中带上：
+&lt;code>If-None-Match:&amp;quot;4f80f-13c-3a1xb12a&amp;quot;&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>服务器收到请求头后，会根据 &lt;code>If-None-Match&lt;/code> 的值来判断请求的资源是否有更新。&lt;/p>
+&lt;ul>
+&lt;li>如果没有更新，就返回 304 状态码，相当于服务器告诉浏览器：“这个缓存可以继续使用，这次就不重复发送数据给你了。”&lt;/li>
+&lt;li>如果资源有更新，服务器就直接返回最新资源给浏览器。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="2-登录状态是如何保持的">2. 登录状态是如何保持的？&lt;/h2>
+&lt;ul>
+&lt;li>用户打开登录页面，在登录框里填入用户名和密码，点击确定按钮。点击按钮会触发页面脚本生成用户登录信息，然后调用 POST 方法提交用户登录信息给服务器。&lt;/li>
+&lt;li>服务器接收到浏览器提交的信息之后，查询后台，验证用户登录信息是否正确，如果正确的话，会生成一段表示用户身份的字符串，并把该字符串写到响应头的 Set-Cookie 字段里，如下所示，然后把响应头发送给浏览器。
+&lt;code>Set-Cookie: UID=3431uad;&lt;/code>&lt;/li>
+&lt;li>浏览器在接收到服务器的响应头后，开始解析响应头，如果遇到响应头里含有 Set-Cookie 字段的情况，浏览器就会把这个字段信息保存到本地。比如把UID=3431uad保持到本地。&lt;/li>
+&lt;li>当用户再次访问时，浏览器会发起 HTTP 请求，但在发起请求之前，浏览器会读取之前保存的 Cookie 数据，并把数据写进请求头里的 Cookie 字段里（如下所示），然后浏览器再将请求头发送给服务器。
+&lt;code>Cookie: UID=3431uad;&lt;/code>&lt;/li>
+&lt;li>服务器在收到 HTTP 请求头数据之后，就会查找请求头里面的“Cookie”字段信息，当查找到包含UID=3431uad的信息时，服务器查询后台，并判断该用户是已登录状态，然后生成含有该用户信息的页面数据，并把生成的数据发送给浏览器。&lt;/li>
+&lt;li>浏览器在接收到该含有当前用户的页面数据后，就可以正确展示用户登录的状态信息了。&lt;/li>
+&lt;li>Cookie 流程图
+&lt;img src="https://changxiangyu.cn/images/browser-principles-and-practice/h-6.jpg"
+loading="lazy"
+alt="展示示意图"
+>&lt;/li>
+&lt;/ul>
+&lt;h2 id="总结">总结&lt;/h2>
+&lt;p>HTTP 请求流程示意图
+&lt;img src="https://changxiangyu.cn/images/browser-principles-and-practice/h-7.jpg"
+loading="lazy"
+alt="HTTP 请求流程示意图"
+>&lt;/p></description></item><item><title>导航流程</title><link>https://changxiangyu.cn/p/%E5%AF%BC%E8%88%AA%E6%B5%81%E7%A8%8B/</link><pubDate>Thu, 30 Jan 2025 13:05:18 +0800</pubDate><guid>https://changxiangyu.cn/p/%E5%AF%BC%E8%88%AA%E6%B5%81%E7%A8%8B/</guid><description>&lt;h2 id="从输入-url-到页面展示这中间发生了什么">从输入 URL 到页面展示，这中间发生了什么？&lt;/h2>
+&lt;ul>
+&lt;li>从输入 URL 到页面展示完整流程示意图：&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://changxiangyu.cn/images/browser-principles-and-practice/browser.jpg"
+loading="lazy"
+alt="从输入 URL 到页面展示完整流程示意图"
+>&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>浏览器进程&lt;/strong>：主要负责用户交互、子进程管理和文件储存等功能。&lt;/li>
+&lt;li>&lt;strong>网络进程&lt;/strong>：面向渲染进程和浏览器进程等提供网络下载功能。&lt;/li>
+&lt;li>&lt;strong>渲染进程&lt;/strong>：主要职责是把从网络下载的 HTML、JavaScript、CSS、图片等资源解析为可以显示和交互的页面。
+&lt;ul>
+&lt;li>因为渲染进程所有的内容都是通过网络获取的，会存在一些恶意代码利用浏览器漏洞对系统进行攻击，所以运行在渲染进程里面的代码是不被信任的。&lt;/li>
+&lt;li>这也是为什么 Chrome 会让渲染进程运行在安全沙箱里，就是为了保证系统的安全。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>简要流程：&lt;/strong>&lt;/p>
+&lt;ol>
+&lt;li>首先，浏览器进程接收到用户输入的 URL 请求，浏览器进程便将该 URL 转发给网络进程。&lt;/li>
+&lt;li>然后，在网络进程中发起真正的 URL 请求。&lt;/li>
+&lt;li>接着网络进程接收到了响应头数据，便解析响应头数据，并将数据转发给浏览器进程。&lt;/li>
+&lt;li>浏览器进程接收到网络进程的响应头数据之后，发送“提交导航 (CommitNavigation)”消息到渲染进程。&lt;/li>
+&lt;li>渲染进程接收到“提交导航”的消息之后，便开始准备接收 HTML 数据，接收数据的方式是直接和网络进程建立数据管道。&lt;/li>
+&lt;li>最后渲染进程会向浏览器进程“确认提交”，这是告诉浏览器进程：“已经准备好接受和解析页面数据了”。&lt;/li>
+&lt;li>浏览器进程接收到渲染进程“提交文档”的消息之后，便开始移除之前旧的文档，然后更新浏览器进程中的页面状态。&lt;/li>
+&lt;/ol>
+&lt;p>用户发出 URL 请求到页面开始解析的这个过程，就叫做 &lt;strong>导航&lt;/strong>。&lt;/p>
+&lt;hr>
+&lt;h1 id="详细阶段解析">详细阶段解析&lt;/h1>
+&lt;h3 id="1-用户输入">1. 用户输入&lt;/h3>
+&lt;p>当用户在地址栏中输入一个查询关键字时，地址栏会判断输入的关键字是 &lt;strong>搜索内容&lt;/strong>，还是 &lt;strong>请求的 URL&lt;/strong>。&lt;/p>
+&lt;ul>
+&lt;li>如果是搜索内容，地址栏会使用浏览器默认的搜索引擎，来合成新的带搜索关键字的 URL。&lt;/li>
+&lt;li>如果判断输入内容符合 URL 规则，比如输入的是 &lt;code>time.geekbang.org&lt;/code>，那么地址栏会根据规则，把这段内容加上协议，合成为完整的 URL，如 &lt;code>https://time.geekbang.org&lt;/code>。&lt;/li>
+&lt;/ul>
+&lt;p>当用户输入关键字并键入回车之后，这意味着当前页面即将要被替换成新的页面。不过在这个流程继续之前，浏览器还给了当前页面一次执行 &lt;code>beforeunload&lt;/code> 事件的机会。&lt;/p>
+&lt;blockquote>
+&lt;p>&lt;code>beforeunload&lt;/code> 事件允许页面在退出之前执行一些数据清理操作，还可以询问用户是否要离开当前页面，比如当前页面可能有未提交完成的表单等情况，因此用户可以通过 &lt;code>beforeunload&lt;/code> 事件来取消导航，让浏览器不再执行任何后续工作。&lt;/p>
+&lt;/blockquote>
+&lt;p>当浏览器刚开始加载一个地址之后，标签页上的图标便进入了加载状态。但此时图中页面显示的依然是之前打开的页面内容，并没立即替换为极客时间的页面。因为需要等待提交文档阶段，页面内容才会被替换。&lt;/p>
+&lt;h3 id="2-url-请求过程">2. URL 请求过程&lt;/h3>
+&lt;p>浏览器进程会通过进程间通信（IPC）把 URL 请求发送至网络进程，网络进程接收到 URL 请求后，会在这里发起真正的 URL 请求流程。&lt;/p>
+&lt;ol>
+&lt;li>首先，网络进程会查找本地缓存是否缓存了该资源。如果有缓存资源，那么直接返回资源给浏览器进程；如果在缓存中没有查找到资源，那么直接进入网络请求流程。&lt;/li>
+&lt;li>这请求前的第一步是要进行 DNS 解析，以获取请求域名的服务器 IP 地址。如果请求协议是 HTTPS，那么还需要建立 TLS 连接。&lt;/li>
+&lt;li>接下来就是利用 IP 地址和服务器建立 TCP 连接。连接建立之后，浏览器端会构建请求行、请求头等信息，并把和该域名相关的 Cookie 等数据附加到请求头中，然后向服务器发送构建的请求信息。&lt;/li>
+&lt;li>服务器接收到请求信息后，会根据请求信息生成响应数据（包括响应行、响应头和响应体等信息），并发给网络进程。等网络进程接收了响应行和响应头之后，就开始解析响应头的内容了。&lt;/li>
+&lt;/ol>
+&lt;p>在导航过程中，如果服务器响应行的状态码包含了 301、302 一类的跳转信息，浏览器会跳转到新的地址继续导航；如果响应行是 200，那么表示浏览器可以继续处理该请求。&lt;/p>
+&lt;h4 id="1重定向">（1）重定向&lt;/h4>
+&lt;p>在接收到服务器返回的响应头后，网络进程开始解析响应头，如果发现返回的状态码是 301 或者 302，那么说明服务器需要浏览器重定向到其他 URL。这时网络进程会从响应头的 &lt;code>Location&lt;/code> 字段里面读取重定向的地址，然后再发起新的 HTTP 或者 HTTPS 请求，一切又重头开始了。&lt;/p>
+&lt;p>使用 &lt;code>curl -I + URL&lt;/code> 的命令可以接收服务器返回的响应头的信息。&lt;/p>
+&lt;p>&lt;img src="https://changxiangyu.cn/images/browser-principles-and-practice/2.jpg"
+loading="lazy"
+alt="响应头的信息示意图"
+>&lt;/p>
+&lt;p>HTTP 向极客时间服务器请求时，服务器会返回一个包含有 301 或者 302 状态码响应头，并把响应头的 &lt;code>Location&lt;/code> 字段中填上 HTTPS 的地址，这就是告诉了浏览器要重新导航到新的地址上。&lt;/p>
+&lt;h4 id="2响应数据类型处理">（2）响应数据类型处理&lt;/h4>
+&lt;p>&lt;code>Content-Type&lt;/code> 是 HTTP 头中一个非常重要的字段， 它告诉浏览器服务器返回的响应体数据是什么类型。&lt;/p>
+&lt;p>&lt;strong>案例 A：HTML 类型&lt;/strong>
+执行命令：&lt;code>curl -I https://time.geekbang.org/&lt;/code>&lt;/p>
+&lt;p>&lt;img src="https://changxiangyu.cn/images/browser-principles-and-practice/3.jpg"
+loading="lazy"
+alt="响应数据类型处理示意图"
+>&lt;/p>
+&lt;p>响应头中的 &lt;code>Content-type&lt;/code> 字段的值是 &lt;code>text/html&lt;/code>，这就是告诉浏览器，服务器返回的数据是 &lt;strong>HTML 格式&lt;/strong>。&lt;/p>
+&lt;p>&lt;strong>案例 B：下载类型&lt;/strong>
+执行命令：&lt;code>curl -I https://res001.geekbang.org/.../geektime.apk&lt;/code>&lt;/p>
+&lt;p>&lt;img src="https://changxiangyu.cn/images/browser-principles-and-practice/4.jpg"
+loading="lazy"
+alt="响应数据类型处理示意图"
+>&lt;/p>
+&lt;p>从返回的响应头信息来看，其 &lt;code>Content-Type&lt;/code> 的值是 &lt;code>application/octet-stream&lt;/code>，显示数据是 &lt;strong>字节流类型&lt;/strong> 的，通常情况下，浏览器会按照 &lt;strong>下载类型&lt;/strong> 来处理该请求。&lt;/p>
+&lt;p>如果 &lt;code>Content-Type&lt;/code> 字段的值被浏览器判断为下载类型，那么该请求会被提交给浏览器的下载管理器，同时该 URL 请求的导航流程就此结束。但如果是 HTML，那么浏览器则会继续进行导航流程。&lt;/p>
+&lt;h3 id="3-准备渲染进程">3. 准备渲染进程&lt;/h3>
+&lt;p>那什么情况下多个页面会同时运行在一个渲染进程中呢？&lt;/p>
+&lt;p>&lt;strong>同一站点（same-site）&lt;/strong>：定义为 &lt;strong>根域名&lt;/strong>（例如，&lt;code>geekbang.org&lt;/code>）加上 &lt;strong>协议&lt;/strong>（例如，&lt;code>https://&lt;/code> 或者 &lt;code>http://&lt;/code>），还包含了该根域名下的所有子域名和不同的端口。&lt;/p>
+&lt;p>Chrome 的默认策略是，每个标签对应一个渲染进程。但 &lt;strong>如果从一个页面打开了另一个新页面，而新页面和当前页面属于同一站点的话，那么新页面会复用父页面的渲染进程&lt;/strong>。官方把这个默认策略叫 &lt;code>process-per-site-instance&lt;/code>。&lt;/p>
+&lt;p>总结来说，打开一个新页面采用的 &lt;strong>渲染进程策略&lt;/strong> 就是：&lt;/p>
+&lt;ul>
+&lt;li>通常情况下，打开新的页面都会使用单独的渲染进程；&lt;/li>
+&lt;li>如果从 A 页面打开 B 页面，且 A 和 B 都属于 &lt;strong>同一站点&lt;/strong> 的话，那么 B 页面复用 A 页面的渲染进程；&lt;/li>
+&lt;li>如果是其他情况，浏览器进程则会为 B 创建一个新的渲染进程。&lt;/li>
+&lt;/ul>
+&lt;p>渲染进程准备好之后，还不能立即进入文档解析状态，因为此时的文档数据还在网络进程中，并没有提交给渲染进程。&lt;/p>
+&lt;h3 id="4-提交文档">4. 提交文档&lt;/h3>
+&lt;p>所谓提交文档，就是指浏览器进程将网络进程接收到的 HTML 数据提交给渲染进程。&lt;/p>
+&lt;ol>
+&lt;li>首先当浏览器进程接收到网络进程的响应头数据之后，便向渲染进程发起“提交文档”的消息；&lt;/li>
+&lt;li>渲染进程接收到“提交文档”的消息后，会和网络进程建立传输数据的“管道”；&lt;/li>
+&lt;li>等文档数据传输完成之后，渲染进程会返回“确认提交”的消息给浏览器进程；&lt;/li>
+&lt;li>浏览器进程在收到“确认提交”的消息后，会更新浏览器界面状态，包括了安全状态、地址栏的 URL、前进后退的历史状态，并更新 Web 页面。&lt;/li>
+&lt;/ol>
+&lt;p>到这里，一个完整的导航流程就“走”完了，这之后就要进入渲染阶段了。&lt;/p>
+&lt;h3 id="5-渲染阶段">5. 渲染阶段&lt;/h3>
+&lt;p>一旦文档被提交，渲染进程便开始页面解析和子资源加载了。一旦页面生成完成，渲染进程会发送一个消息给浏览器进程，浏览器接收到消息后，会停止标签图标上的加载动画。&lt;/p>
+&lt;h3 id="总结">总结&lt;/h3>
+&lt;p>服务器可以根据响应头来控制浏览器的行为，如跳转、网络数据类型判断。&lt;/p>
+&lt;p>Chrome 默认采用每个标签对应一个渲染进程，但是如果两个页面属于同一站点，那这两个标签会使用同一个渲染进程。&lt;/p>
+&lt;p>浏览器的导航过程涵盖了从用户发起请求到提交文档给渲染进程的中间所有阶段。&lt;/p>
+&lt;ol>
+&lt;li>浏览器进程（Browser Process）主导：&lt;/li>
+&lt;/ol>
+&lt;ul>
+&lt;li>处理输入：区分是搜索关键字还是 URL。&lt;/li>
+&lt;li>生命周期管理：触发 beforeunload 事件（允许页面清理或取消导航）。&lt;/li>
+&lt;li>状态更新：加载动画开始，但页面内容需等待“提交文档”后才替换。&lt;/li>
+&lt;/ul>
+&lt;ol start="2">
+&lt;li>网络进程（Network Process）执行：&lt;/li>
+&lt;/ol>
+&lt;ul>
+&lt;li>资源查找：先查本地缓存，无缓存则发起网络请求。&lt;/li>
+&lt;li>建立连接：DNS 解析 -&amp;gt; 建立 TCP 连接 -&amp;gt; 构建请求头/Cookie。&lt;/li>
+&lt;li>处理响应：
+&lt;ul>
+&lt;li>重定向：若遇 301/302，读取 Location 重新发起请求。&lt;/li>
+&lt;li>类型判断：通过 Content-Type 判断是下载（application/octet-stream）还是 HTML 导航（text/html）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;ol start="3">
+&lt;li>准备渲染进程（Render Process）：&lt;/li>
+&lt;/ol>
+&lt;ul>
+&lt;li>默认策略：通常每个标签页一个进程。&lt;/li>
+&lt;li>同一站点（Same-site）策略：如果新页面与旧页面属于同一站点（根域名+协议相同），则复用父页面的渲染进程（process-per-site-instance）。&lt;/li>
+&lt;/ul>
+&lt;ol start="4">
+&lt;li>提交文档（Commit Navigation）：&lt;/li>
+&lt;/ol>
+&lt;ul>
+&lt;li>这是导航流程的终点。浏览器进程通知渲染进程，渲染进程与网络进程建立数据管道接收 HTML。&lt;/li>
+&lt;li>一旦确认提交，旧文档被移除，界面 UI（地址栏、后退按钮等）正式更新。&lt;/li>
+&lt;/ul></description></item></channel></rss>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>图片 on 我的空间</title><link>https://changxiangyu.cn/tags/%E5%9B%BE%E7%89%87/</link><description>Recent content in 图片 on 我的空间</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Sun, 07 Aug 2022 02:33:18 +0800</lastBuildDate><atom:link href="https://changxiangyu.cn/tags/%E5%9B%BE%E7%89%87/index.xml" rel="self" type="application/rss+xml"/><item><title>Ubuntu下在命令行批量生成缩略图</title><link>https://changxiangyu.cn/p/ubuntu%E4%B8%8B%E5%9C%A8%E5%91%BD%E4%BB%A4%E8%A1%8C%E6%89%B9%E9%87%8F%E7%94%9F%E6%88%90%E7%BC%A9%E7%95%A5%E5%9B%BE/</link><pubDate>Sun, 07 Aug 2022 02:33:18 +0800</pubDate><guid>https://changxiangyu.cn/p/ubuntu%E4%B8%8B%E5%9C%A8%E5%91%BD%E4%BB%A4%E8%A1%8C%E6%89%B9%E9%87%8F%E7%94%9F%E6%88%90%E7%BC%A9%E7%95%A5%E5%9B%BE/</guid><description>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"># 准备工作：安装 imagemagick
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sudo apt-get install imagemagick
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">#大图所在的目录
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">cd /path/to/big/images
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">#创建小图对应的目录结构
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">find . -type d -print -exec mkdir &amp;#39;../small/{}&amp;#39; -p \;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">#批量转换! 等比例缩小到320x320之内 320x: 只设置宽度
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">find . -type f -name &amp;#39;*.jpg&amp;#39; -print -exec \
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">convert &amp;#39;{}&amp;#39; -resize 320x320 &amp;#39;../small/{}&amp;#39; \;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item></channel></rss>

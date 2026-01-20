@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>ssh on 我的空间</title><link>https://changxiangyu.cn/tags/ssh/</link><description>Recent content in ssh on 我的空间</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Tue, 13 Sep 2022 14:44:00 +0800</lastBuildDate><atom:link href="https://changxiangyu.cn/tags/ssh/index.xml" rel="self" type="application/rss+xml"/><item><title>ssh服务</title><link>https://changxiangyu.cn/p/ssh%E6%9C%8D%E5%8A%A1/</link><pubDate>Tue, 13 Sep 2022 14:44:00 +0800</pubDate><guid>https://changxiangyu.cn/p/ssh%E6%9C%8D%E5%8A%A1/</guid><description>&lt;h2 id="更新源">更新源&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">sudo apt-get update
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="安装ssh服务">安装ssh服务&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">sudo apt-get install openssh-server
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="验证ssh服务">验证SSH服务&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">sudo systemctl status ssh
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="创建密钥">创建密钥&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">ssh-keygen
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item><item><title>SSH远程执行脚本报错command not found和环境变量问题</title><link>https://changxiangyu.cn/p/ssh%E8%BF%9C%E7%A8%8B%E6%89%A7%E8%A1%8C%E8%84%9A%E6%9C%AC%E6%8A%A5%E9%94%99command-not-found%E5%92%8C%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E9%97%AE%E9%A2%98/</link><pubDate>Tue, 06 Sep 2022 11:33:18 +0800</pubDate><guid>https://changxiangyu.cn/p/ssh%E8%BF%9C%E7%A8%8B%E6%89%A7%E8%A1%8C%E8%84%9A%E6%9C%AC%E6%8A%A5%E9%94%99command-not-found%E5%92%8C%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E9%97%AE%E9%A2%98/</guid><description>&lt;p>参考: &lt;a class="link" href="https://blog.csdn.net/nklinsirui/article/details/104673286" target="_blank" rel="noopener"
+>https://blog.csdn.net/nklinsirui/article/details/104673286&lt;/a>&lt;/p>
+&lt;h1 id="ssh远程执行脚本报错">SSH远程执行脚本报错&lt;/h1>
+&lt;p>SSH 远程执行脚本报错&amp;quot;command not found&amp;quot;。在宿主机可以执行命令。&lt;/p>
+&lt;p>原因是之前将环境变量配置在了 /etc/profile 中，但是SSH远程执行脚本时实际上执行的是 non-login shell，而 non-login shell不会读取 /etc/profile 配置文件，只读取 ~/.bashrc。&lt;/p>
+&lt;h1 id="login-shell和non-login-shell">login shell和non-login shell&lt;/h1>
+&lt;p>用SSH客户端登陆Linux系统时，要求输入用户名/密码登录或根据SSH key登录时，就是login shell。&lt;/p>
+&lt;p>而在A机器上再用SSH免密码登录B机器，在B机器上执行Shell脚本，就是non-login shell。&lt;/p>
+&lt;p>用Ansible在目标机器上远程执行Shell脚本时，也是non-login shell，因为Ansible是基于SSH的。&lt;/p>
+&lt;h2 id="login-shell和non-login-shell读取的环境变量配置文件">login shell和non-login shell读取的环境变量配置文件&lt;/h2>
+&lt;p>login-shell读取环境变量配置文件：&lt;/p>
+&lt;ul>
+&lt;li>/etc/profile&lt;/li>
+&lt;li>~/.bash_profile&lt;/li>
+&lt;li>~/.profile&lt;/li>
+&lt;li>~/.bashrc&lt;/li>
+&lt;li>/etc/bashrc&lt;/li>
+&lt;/ul>
+&lt;p>注意：~/.bash_profile中已经引入了~/.bashrc，而~/.bashrc引入了/etc/bashrc，因此login shell可以读取到~/.bashrc和/etc/bashrc的配置。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"># Get the aliases and functions
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">if [ -f ~/.bashrc ]; then
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> . ~/.bashrc
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">fi
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>non-login shell读取环境变量配置文件：&lt;/p>
+&lt;ul>
+&lt;li>/etc/bashrc&lt;/li>
+&lt;li>~/.bashrc&lt;/li>
+&lt;/ul>
+&lt;h1 id="解决non-login-shell的环境配置问题">解决non-login shell的环境配置问题&lt;/h1>
+&lt;p>方法一：&lt;/p>
+&lt;p>将login-shell和non-login shell都需要的环境配置放在~/.bashrc中，其它配置放在~/.bash_profile中。&lt;/p>
+&lt;p>方法二：&lt;/p>
+&lt;p>如果环境配置只放在~/.bash_profile中，需要执行non-login shell时先source ~/.bash_profile再执行命令。&lt;/p>
+&lt;p>方法三：&lt;/p>
+&lt;p>在 ~/.bashrc 里添加: . /etc/profile。（立即生效需要: source ~/.bashrc）&lt;/p></description></item></channel></rss>

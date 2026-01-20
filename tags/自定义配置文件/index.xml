@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>自定义配置文件 on 我的空间</title><link>https://changxiangyu.cn/tags/%E8%87%AA%E5%AE%9A%E4%B9%89%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/</link><description>Recent content in 自定义配置文件 on 我的空间</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Wed, 25 Jan 2023 13:05:18 +0800</lastBuildDate><atom:link href="https://changxiangyu.cn/tags/%E8%87%AA%E5%AE%9A%E4%B9%89%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/index.xml" rel="self" type="application/rss+xml"/><item><title>uniapp-h5自定义配置文件</title><link>https://changxiangyu.cn/p/uniapp-h5%E8%87%AA%E5%AE%9A%E4%B9%89%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/</link><pubDate>Wed, 25 Jan 2023 13:05:18 +0800</pubDate><guid>https://changxiangyu.cn/p/uniapp-h5%E8%87%AA%E5%AE%9A%E4%B9%89%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/</guid><description>&lt;p>uniapp项目H5发行（发行-&amp;gt;网站-PC web或手机H5）打包后&lt;br>
+如果要给项目封装一个请求，但请求地址必须读取配置文件，从配置文件中拿地址，后续随时更改配置文件，直接让请求地址发生变化。&lt;/p>
+&lt;h2 id="解决方案">解决方案&lt;/h2>
+&lt;p>核心思路：利用打包后的&lt;code>index.html&lt;/code>文件，原生&lt;code>&amp;lt;script&amp;gt;&lt;/code>引入配置文件，在全局可调用。
+uniapp 官方解决方案（建议看一眼）：&lt;a class="link" href="https://uniapp.dcloud.io/collocation/manifest.html#h5=template" target="_blank" rel="noopener"
+>&lt;/a>&lt;/p>
+&lt;ol>
+&lt;li>建立一个&lt;code>config.js&lt;/code>配置文件：
+&lt;code>var config = { defaultUrl: &amp;quot;https://c3test.dassoft.cn&amp;quot;, tenantCode: &amp;quot;admin&amp;quot; }&lt;/code>&lt;br>
+保存到桌面上即可，无需放到项目中。&lt;/li>
+&lt;li>在项目根目录新建&lt;code>temp.h5.html&lt;/code>空文件，cli创建的话同理&lt;/li>
+&lt;li>打开&lt;code>temp.h5.html&lt;/code>复制以下模板代码，&lt;code>&amp;lt;script&amp;gt;&lt;/code>引入配置文件：
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"> &amp;lt;html lang=&amp;#34;zh-CN&amp;#34;&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;head&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;meta charset=&amp;#34;utf-8&amp;#34;&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;meta http-equiv=&amp;#34;X-UA-Compatible&amp;#34; content=&amp;#34;IE=edge&amp;#34;&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;title&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;%= htmlWebpackPlugin.options.title %&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;/title&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;!-- Open Graph data --&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;!-- &amp;lt;meta property=&amp;#34;og:title&amp;#34; content=&amp;#34;Title Here&amp;#34; /&amp;gt; --&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;!-- &amp;lt;meta property=&amp;#34;og:url&amp;#34; content=&amp;#34;http://www.example.com/&amp;#34; /&amp;gt; --&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;!-- &amp;lt;meta property=&amp;#34;og:image&amp;#34; content=&amp;#34;http://example.com/image.jpg&amp;#34; /&amp;gt; --&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;!-- &amp;lt;meta property=&amp;#34;og:description&amp;#34; content=&amp;#34;Description Here&amp;#34; /&amp;gt; --&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;script&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> var coverSupport = &amp;#39;CSS&amp;#39; in window &amp;amp;&amp;amp; typeof CSS.supports === &amp;#39;function&amp;#39; &amp;amp;&amp;amp; (CSS.supports(&amp;#39;top: env(a)&amp;#39;) || CSS.supports(&amp;#39;top: constant(a)&amp;#39;))
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> document.write(&amp;#39;&amp;lt;meta name=&amp;#34;viewport&amp;#34; content=&amp;#34;width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0&amp;#39; + (coverSupport ? &amp;#39;, viewport-fit=cover&amp;#39; : &amp;#39;&amp;#39;) + &amp;#39;&amp;#34; /&amp;gt;&amp;#39;)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;/script&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;link rel=&amp;#34;stylesheet&amp;#34; href=&amp;#34;&amp;lt;%= BASE_URL %&amp;gt;static/index.&amp;lt;%= VUE_APP_INDEX_CSS_HASH %&amp;gt;.css&amp;#34; /&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;/head&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;body&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;noscript&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;strong&amp;gt;Please enable JavaScript to continue.&amp;lt;/strong&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;/noscript&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;div id=&amp;#34;app&amp;#34;&amp;gt;&amp;lt;/div&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;!-- built files will be auto injected --&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;script language=&amp;#34;javascript&amp;#34;&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> //使用了 sessionStorage和时间戳，这样可以防止 js和css的缓存,页面会话刷新时间为半小时
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> var timestamp = new Date().getTime();
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> var versionStamp = sessionStorage.version;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (versionStamp == null || (timestamp - versionStamp) &amp;gt; 1800000) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> sessionStorage.version = timestamp;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> document.write(&amp;#39;&amp;lt;script src=&amp;#34;./config.js?v=&amp;#39; + sessionStorage.version + &amp;#39;&amp;#34;&amp;gt;&amp;lt;\/script\&amp;gt;&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;/script&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;/body&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;/html&amp;gt;```
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;li>提前写好获取配置文件的代码（在哪里用配置文件就在那里写）&lt;br>
+&lt;code>export const defaultUrl = config.defaultUrl;&lt;/code>&lt;br>
+开发中，可以先写死参数，后续要打包后在变更。&lt;/li>
+&lt;li>打开&lt;code>manifest.json&lt;/code>文件，将&lt;code>temp.h5.html&lt;/code>关联：
+&lt;img src="https://changxiangyu.cn/images/uniapp/20251230_161923.png"
+loading="lazy"
+alt="展示示意图"
+>&lt;/li>
+&lt;li>都配置好后，执行编辑器菜单-&amp;gt;发行-&amp;gt;网站-PC web或手机H5,进行打包：
+打包完成后，把&lt;code>h5&lt;/code>目录复制到桌面，如下图所示文件夹位置。
+&lt;img src="https://changxiangyu.cn/images/uniapp/20251230163111.jpg"
+loading="lazy"
+alt="展示示意图"
+>&lt;/li>
+&lt;li>将配置文件&lt;code>config.js&lt;/code>加入到根目录，确保与&lt;code>index.html&lt;/code>同级&lt;/li>
+&lt;li>&lt;img src="https://changxiangyu.cn/images/uniapp/20251230163119.jpg"
+loading="lazy"
+alt="展示示意图"
+>
+此时&lt;code>index.html&lt;/code>中的&lt;code>&amp;lt;script src=&amp;quot;./config.js&amp;gt;&lt;/code>就能正确找到配置文件，从而实现读取。
+可以改变&lt;code>config.js&lt;/code>文件配置，然后刷新浏览器页面，查看是否更改。&lt;/li>
+&lt;/ol></description></item></channel></rss>
