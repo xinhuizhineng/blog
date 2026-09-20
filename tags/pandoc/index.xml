@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Pandoc on 我的空间</title><link>https://changxiangyu.cn/tags/pandoc/</link><description>Recent content in Pandoc on 我的空间</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Fri, 27 Oct 2023 20:46:00 +0800</lastBuildDate><atom:link href="https://changxiangyu.cn/tags/pandoc/index.xml" rel="self" type="application/rss+xml"/><item><title>Markdown 与 Pandoc 的完美结合</title><link>https://changxiangyu.cn/p/markdown-%E4%B8%8E-pandoc-%E7%9A%84%E5%AE%8C%E7%BE%8E%E7%BB%93%E5%90%88/</link><pubDate>Fri, 27 Oct 2023 20:46:00 +0800</pubDate><guid>https://changxiangyu.cn/p/markdown-%E4%B8%8E-pandoc-%E7%9A%84%E5%AE%8C%E7%BE%8E%E7%BB%93%E5%90%88/</guid><description>&lt;h1 id="打造高效写作流markdown-与-pandoc-的完美结合">打造高效写作流：Markdown 与 Pandoc 的完美结合&lt;/h1>
+&lt;p>在数字化写作的时代，我们经常面临一个痛点：&lt;strong>内容与格式的纠缠&lt;/strong>。在 Word 中调整缩进和字体往往占据了我们一半的创作时间。今天，我想分享一套“一次编写，到处运行”的高效写作方案：&lt;strong>Markdown + Pandoc&lt;/strong>。&lt;/p>
+&lt;h2 id="为什么选择-markdown">为什么选择 Markdown？&lt;/h2>
+&lt;p>Markdown 是一种轻量级标记语言，它允许人们使用易读易写的纯文本格式编写文档。它的核心优势在于：&lt;/p>
+&lt;ol>
+&lt;li>&lt;strong>专注内容&lt;/strong>：没有复杂的排版按钮，让你沉浸在写作逻辑中。&lt;/li>
+&lt;li>&lt;strong>通用性强&lt;/strong>：几乎所有的代码编辑器和笔记软件都支持。&lt;/li>
+&lt;li>&lt;strong>版本控制&lt;/strong>：纯文本文件非常适合用 Git 进行管理。&lt;/li>
+&lt;/ol>
+&lt;blockquote>
+&lt;p>“Markdown 的目标是实现‘易读易写’。” —— John Gruber&lt;/p>
+&lt;/blockquote>
+&lt;h2 id="神器登场pandoc-是什么">神器登场：Pandoc 是什么？&lt;/h2>
+&lt;p>如果说 Markdown 是原材料，那么 &lt;a class="link" href="https://pandoc.org/" target="_blank" rel="noopener"
+>Pandoc&lt;/a> 就是那台万能加工机。它是一个开源的文档转换工具，被誉为文档转换界的“瑞士军刀”。&lt;/p>
+&lt;p>它支持在 Markdown、Word、PDF、LaTeX、HTML 等多种格式之间相互转换。这对于写简历、论文或技术文档来说，简直是救星。&lt;/p>
+&lt;h3 id="核心功能">核心功能&lt;/h3>
+&lt;ul>
+&lt;li>保留 Markdown 的结构和可读性&lt;/li>
+&lt;li>一键生成 PDF / Word / HTML&lt;/li>
+&lt;li>支持自定义 CSS 样式和 LaTeX 模板&lt;/li>
+&lt;/ul>
+&lt;h2 id="实战演练如何安装与使用">实战演练：如何安装与使用&lt;/h2>
+&lt;h3 id="1-安装-pandoc">1. 安装 Pandoc&lt;/h3>
+&lt;p>根据你的操作系统，选择对应的安装方式：&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Windows&lt;/strong>: 访问官网下载 &lt;code>.msi&lt;/code> 安装包，记得勾选 &amp;ldquo;Add to PATH&amp;rdquo;。&lt;/li>
+&lt;li>&lt;strong>MacOS&lt;/strong>: 使用 Homebrew 安装。
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">brew install pandoc
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;li>&lt;strong>Linux&lt;/strong>:
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">sudo apt install pandoc
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;/ul>
+&lt;p>安装完成后，在终端输入 &lt;code>pandoc -v&lt;/code> 检查是否成功。&lt;/p>
+&lt;h3 id="2-转换命令速查">2. 转换命令速查&lt;/h3>
+&lt;p>假设你写好了一份名为 &lt;code>resume.md&lt;/code> 的简历，以下是几个常用的转换命令：&lt;/p>
+&lt;p>&lt;strong>生成 Word 文档&lt;/strong>&lt;/p>
+&lt;p>&lt;code>pandoc resume.md -o resume.docx&lt;/code>&lt;/p>
+&lt;p>生成 PDF (推荐使用 wkhtmltopdf 引擎) 如果你希望保留 Markdown 中的 CSS 样式（比如带颜色的标题），建议使用以下命令：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">pandoc resume.md -o resume.pdf --pdf-engine&lt;span class="o">=&lt;/span>wkhtmltopdf
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>进阶技巧：套用模板
+Pandoc 最强大的地方在于支持模板。你可以下载大神们做好的 LaTeX 模板，让你的文档瞬间拥有出版级的排版。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">pandoc resume.md -o resume.pdf --template&lt;span class="o">=&lt;/span>mytemplate.tex
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item></channel></rss>

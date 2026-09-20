@@ -1,0 +1,2133 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Web前端 on 我的空间</title><link>https://changxiangyu.cn/categories/web%E5%89%8D%E7%AB%AF/</link><description>Recent content in Web前端 on 我的空间</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Mon, 22 Jan 2024 10:05:18 +0800</lastBuildDate><atom:link href="https://changxiangyu.cn/categories/web%E5%89%8D%E7%AB%AF/index.xml" rel="self" type="application/rss+xml"/><item><title>Angular + Ng-Zorro 模态框拖拽功能</title><link>https://changxiangyu.cn/p/angular--ng-zorro-%E6%A8%A1%E6%80%81%E6%A1%86%E6%8B%96%E6%8B%BD%E5%8A%9F%E8%83%BD/</link><pubDate>Mon, 22 Jan 2024 10:05:18 +0800</pubDate><guid>https://changxiangyu.cn/p/angular--ng-zorro-%E6%A8%A1%E6%80%81%E6%A1%86%E6%8B%96%E6%8B%BD%E5%8A%9F%E8%83%BD/</guid><description>&lt;h2 id="基本原理">基本原理&lt;/h2>
+&lt;p>通过监听鼠标的按下（mousedown），弹起（mouseup），移动（mousemove）三个事件来计算移动的距离，从而调整模态框的新位置。&lt;/p>
+&lt;ul>
+&lt;li>鼠标按下（mousedown）：
+&lt;ul>
+&lt;li>记录鼠标按下时的位置和弹窗当前的位置，并设置弹窗左侧和顶部边距为当前位置；&lt;/li>
+&lt;li>将 &lt;code>canMove&lt;/code> 标志设置为 &lt;code>true&lt;/code>，表示模态框可以移动。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>鼠标弹起（mouseup）：
+&lt;ul>
+&lt;li>将 &lt;code>canMove&lt;/code> 标志设置为 &lt;code>false&lt;/code>，表示停止移动模态框。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>鼠标移动（mousemove）：
+&lt;ul>
+&lt;li>如果 &lt;code>canMove&lt;/code> 为 &lt;code>true&lt;/code>，则计算鼠标移动距离。&lt;/li>
+&lt;li>根据鼠标的移动距离调整模态框的新位置，使用渲染器设置模态框的新左侧和顶部偏移值，从而实现拖拽效果。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="通过nz-modal模板生成的弹窗">通过nz-modal模板生成的弹窗&lt;/h2>
+&lt;p>实现步骤：&lt;/p>
+&lt;h3 id="1通过指令来绑定拖拽方法-drag-modaldirectivets-">1.通过指令来绑定拖拽方法( drag-modal.directive.ts )：&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">import { Directive, Input } from &amp;#39;@angular/core&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">import { NzModalRef } from &amp;#39;ng-zorro-antd/modal&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">import { ModalDragService } from &amp;#39;./drag-modal.service.ts&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">@Directive({
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> selector: &amp;#39;[dragModal]&amp;#39;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">})
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">export class DragModalDirective {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> @Input() dragModal: NzModalRef;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> constructor(private modalDragService: ModalDragService) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ngAfterViewInit() {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> setTimeout(() =&amp;gt; {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.modalDragService.enableModalDrag(this.dragModal);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }, 1000);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="2注册模块-modal-dragmodulets">2.注册模块 (modal-drag.module.ts)&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">import { NgModule } from &amp;#39;@angular/core&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">import { CommonModule } from &amp;#39;@angular/common&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">import { DragModalDirective } from &amp;#34;./drag-modal.directive&amp;#34;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">import { ModalDragService } from &amp;#39;./drag-modal.service.ts&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">@NgModule({
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> providers: [ModalDragService],
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> declarations: [DragModalDirective],
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> imports: [
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> CommonModule,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ],
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> exports: [DragModalDirective]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">})
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">export class ModalDragModule { }
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>使用方法：&lt;/p>
+&lt;ol>
+&lt;li>将 &lt;code>ModalDragModule&lt;/code> 导入到需要使用弹窗拖拽的功能模块中。&lt;/li>
+&lt;li>在 &lt;code>&amp;lt;nz-modal&amp;gt;&lt;/code> 标签中增加一个模板引用变量（例如 &lt;code>#modal&lt;/code>）。&lt;/li>
+&lt;li>将该变量传递给 &lt;code>dragModal&lt;/code> 指令。&lt;/li>
+&lt;/ol>
+&lt;p>&lt;img src="https://changxiangyu.cn/images/web/popupdrag-1.png"
+loading="lazy"
+>&lt;/p>
+&lt;p>&lt;img src="https://changxiangyu.cn/images/web/popupdrag-2.png"
+loading="lazy"
+>&lt;/p>
+&lt;h2 id="通过nzmodalservice服务创建的弹窗">通过NzModalService服务创建的弹窗&lt;/h2>
+&lt;p>实现步骤：
+利用服务把事件绑定在modal的header上，通过控制mousedown,mouseup,mousemove，来实现拖拽&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;span class="lnt">43
+&lt;/span>&lt;span class="lnt">44
+&lt;/span>&lt;span class="lnt">45
+&lt;/span>&lt;span class="lnt">46
+&lt;/span>&lt;span class="lnt">47
+&lt;/span>&lt;span class="lnt">48
+&lt;/span>&lt;span class="lnt">49
+&lt;/span>&lt;span class="lnt">50
+&lt;/span>&lt;span class="lnt">51
+&lt;/span>&lt;span class="lnt">52
+&lt;/span>&lt;span class="lnt">53
+&lt;/span>&lt;span class="lnt">54
+&lt;/span>&lt;span class="lnt">55
+&lt;/span>&lt;span class="lnt">56
+&lt;/span>&lt;span class="lnt">57
+&lt;/span>&lt;span class="lnt">58
+&lt;/span>&lt;span class="lnt">59
+&lt;/span>&lt;span class="lnt">60
+&lt;/span>&lt;span class="lnt">61
+&lt;/span>&lt;span class="lnt">62
+&lt;/span>&lt;span class="lnt">63
+&lt;/span>&lt;span class="lnt">64
+&lt;/span>&lt;span class="lnt">65
+&lt;/span>&lt;span class="lnt">66
+&lt;/span>&lt;span class="lnt">67
+&lt;/span>&lt;span class="lnt">68
+&lt;/span>&lt;span class="lnt">69
+&lt;/span>&lt;span class="lnt">70
+&lt;/span>&lt;span class="lnt">71
+&lt;/span>&lt;span class="lnt">72
+&lt;/span>&lt;span class="lnt">73
+&lt;/span>&lt;span class="lnt">74
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">import { Injectable, RendererFactory2 } from &amp;#39;@angular/core&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">@Injectable({
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> providedIn: &amp;#39;root&amp;#39;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">})
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">export class ModalDragService {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> constructor(private rendererFactory2: RendererFactory2,) { }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 激活弹窗拖拽
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> enableModalDrag(refModal) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> refModal.afterOpen.subscribe(() =&amp;gt; {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const render = this.rendererFactory2.createRenderer(null, null);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 整个悬浮层的dom
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const modalBackground = refModal.getElement();
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 弹窗的dom
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const modalElement = refModal.getElement().querySelector(&amp;#39;.ant-modal-content&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 弹窗header的dom
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const modalTitleElement = this.createModalTitleElement(render, modalElement);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 绑定拖拽事件
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.dragListen(render, modalTitleElement, modalElement, modalBackground);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> })
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 自定义弹窗header拖拽区域的大小
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> createModalTitleElement(render, modalElement) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> let element = document.createElement(&amp;#39;div&amp;#39;) as any;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.setStyle(element, &amp;#39;width&amp;#39;, &amp;#39;100%&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.setStyle(element, &amp;#39;height&amp;#39;, &amp;#39;54px&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.setStyle(element, &amp;#39;position&amp;#39;, &amp;#39;absolute&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.setStyle(element, &amp;#39;top&amp;#39;, &amp;#39;0&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.setStyle(element, &amp;#39;left&amp;#39;, &amp;#39;0&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.setStyle(element, &amp;#39;cursor&amp;#39;, &amp;#39;move&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.setStyle(element, &amp;#39;-moz-user-select&amp;#39;, &amp;#39;none&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.setStyle(element, &amp;#39;-webkit-user-select&amp;#39;, &amp;#39;none&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.setStyle(element, &amp;#39;-ms-user-select&amp;#39;, &amp;#39;none&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.setStyle(element, &amp;#39;-khtml-user-select&amp;#39;, &amp;#39;none&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.setStyle(element, &amp;#39;user-select&amp;#39;, &amp;#39;none&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.appendChild(modalElement, element);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> return element;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 监听鼠标的mousedown，mouseup，mousemove事件
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> dragListen(render, modalTitleElement, modalElement, modalBackground) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.listen(modalTitleElement, &amp;#39;mousedown&amp;#39;, function (event) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 记录了鼠标按下时的位置（mouseDownX 和 mouseDownY）。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 获取了模态框当前的位置（modalX 和 modalY）。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 设置模态框的左侧和顶部边距为当前位置。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 将 canMove 标志设置为 true，表示模态框可以移动。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.mouseDownX = event.clientX;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.mouseDownY = event.clientY;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.modalX = modalElement.offsetLeft;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.modalY = modalElement.offsetTop;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.setStyle(modalElement, &amp;#39;left&amp;#39;, `${this.modalX}px`);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.setStyle(modalElement, &amp;#39;top&amp;#39;, `${this.modalY}px`);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.canMove = true;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }.bind(this));
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.listen(modalTitleElement, &amp;#39;mouseup&amp;#39;, function (event) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 将 canMove 标志设置为 false，表示停止移动模态框
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.canMove = false;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }.bind(this));
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.listen(modalBackground, &amp;#39;mousemove&amp;#39;, function (event) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 如果 canMove 为 true，则计算鼠标移动距离。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 根据鼠标的移动距离调整模态框的新位置。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 使用渲染器设置模态框的新左侧和顶部偏移值，从而实现拖拽效果。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (this.canMove) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> let moveX = event.clientX - this.mouseDownX;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> let moveY = event.clientY - this.mouseDownY;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> let newModalX = this.modalX + moveX;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> let newModalY = this.modalY + moveY;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.setStyle(modalElement, &amp;#39;left&amp;#39;, `${newModalX}px`);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.setStyle(modalElement, &amp;#39;top&amp;#39;, `${newModalY}px`);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }.bind(this));
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>在初始化&lt;code>modal&lt;/code>时，使用&lt;code>modalDragService&lt;/code>的&lt;code>enableModalDrag&lt;/code>方法激活拖拽功能；&lt;/p>
+&lt;p>&lt;img src="https://changxiangyu.cn/images/web/popupdrag-3.png"
+loading="lazy"
+>&lt;/p>
+&lt;p>使用方法：&lt;/p>
+&lt;p>&lt;img src="https://changxiangyu.cn/images/web/popupdrag-4.png"
+loading="lazy"
+>&lt;/p></description></item><item><title>NVM 安装与配置完全指南</title><link>https://changxiangyu.cn/p/nvm-%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97/</link><pubDate>Thu, 18 Jan 2024 11:02:00 +0800</pubDate><guid>https://changxiangyu.cn/p/nvm-%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97/</guid><description>&lt;h1 id="nvm-安装与配置完全指南">NVM 安装与配置完全指南&lt;/h1>
+&lt;p>NVM (Node Version Manager) 是管理 Node.js 版本的利器，允许您在同一台设备上切换不同版本的 Node.js，以适应不同的项目需求。&lt;/p>
+&lt;h2 id="第一步清理旧环境重要">第一步：清理旧环境（重要）&lt;/h2>
+&lt;p>&lt;strong>注意：&lt;/strong> 在安装 NVM 之前，必须彻底卸载电脑上现有的 Node.js 版本并删除残留文件，否则极易产生路径冲突。&lt;/p>
+&lt;h3 id="windows-用户">Windows 用户&lt;/h3>
+&lt;ol>
+&lt;li>打开“控制面板” -&amp;gt; “卸载程序”，卸载 Node.js。&lt;/li>
+&lt;li>手动检查并删除安装目录（通常为 &lt;code>C:\Program Files\nodejs&lt;/code>）。&lt;/li>
+&lt;li>检查用户目录下（&lt;code>C:\Users\用户名&lt;/code>）是否存在 &lt;code>node_modules&lt;/code>、&lt;code>.npm&lt;/code> 或 &lt;code>.npmrc&lt;/code> 文件/文件夹，建议一并删除。&lt;/li>
+&lt;/ol>
+&lt;h3 id="macos-用户">macOS 用户&lt;/h3>
+&lt;ul>
+&lt;li>如果之前通过 pkg 安装，建议手动删除 &lt;code>/usr/local/bin/node&lt;/code>、&lt;code>/usr/local/lib/node_modules&lt;/code> 等相关文件。&lt;/li>
+&lt;li>如果是通过 Homebrew 安装，运行：&lt;code>brew uninstall node&lt;/code>。&lt;/li>
+&lt;/ul>
+&lt;h2 id="第二步安装-nvm">第二步：安装 NVM&lt;/h2>
+&lt;h3 id="方案-awindows-系统-nvm-windows">方案 A：Windows 系统 (nvm-windows)&lt;/h3>
+&lt;h4 id="1-下载与安装">1. 下载与安装&lt;/h4>
+&lt;ul>
+&lt;li>&lt;strong>下载地址&lt;/strong>：&lt;a class="link" href="https://github.com/coreybutler/nvm-windows/releases" target="_blank" rel="noopener"
+>GitHub - nvm-windows releases&lt;/a>&lt;/li>
+&lt;li>&lt;strong>操作&lt;/strong>：推荐下载 &lt;code>nvm-setup.exe&lt;/code>。双击运行，按照提示点击“下一步”即可。
+&lt;ul>
+&lt;li>&lt;em>提示&lt;/em>：安装路径建议保持默认，或者确保路径中&lt;strong>不包含空格和中文字符&lt;/strong>。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h4 id="2-环境变量配置-关键步骤">2. 环境变量配置 (关键步骤)&lt;/h4>
+&lt;p>虽然安装程序通常会自动配置，但为了确保稳定性，建议手动检查以下配置：&lt;/p>
+&lt;ol>
+&lt;li>&lt;strong>打开设置&lt;/strong>：右键“此电脑” -&amp;gt; “属性” -&amp;gt; “高级系统设置” -&amp;gt; “环境变量”。&lt;/li>
+&lt;li>&lt;strong>检查/新建用户变量&lt;/strong>：&lt;/li>
+&lt;/ol>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th style="text-align:left">变量名&lt;/th>
+&lt;th style="text-align:left">变量值示例&lt;/th>
+&lt;th style="text-align:left">说明&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td style="text-align:left">&lt;code>NVM_HOME&lt;/code>&lt;/td>
+&lt;td style="text-align:left">&lt;code>C:\Users\YourUser\AppData\Roaming\nvm&lt;/code>&lt;/td>
+&lt;td style="text-align:left">NVM 的安装目录&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">&lt;code>NVM_SYMLINK&lt;/code>&lt;/td>
+&lt;td style="text-align:left">&lt;code>C:\Program Files\nodejs&lt;/code>&lt;/td>
+&lt;td style="text-align:left">Node.js 的快捷方式映射目录&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;ol start="3">
+&lt;li>&lt;strong>编辑 Path 变量&lt;/strong>：
+在“用户变量”或“系统变量”中找到 &lt;code>Path&lt;/code>，点击“编辑”，确保列表中包含以下两项引用：
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-text" data-lang="text">&lt;span class="line">&lt;span class="cl">%NVM_HOME%
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">%NVM_SYMLINK%
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;li>&lt;strong>生效&lt;/strong>：保存设置后，&lt;strong>重启&lt;/strong> CMD 或 PowerShell 窗口。&lt;/li>
+&lt;/ol>
+&lt;h4 id="3-配置-nvm-国内镜像">3. 配置 NVM 国内镜像&lt;/h4>
+&lt;p>为了解决下载慢的问题，请在&lt;strong>管理员权限&lt;/strong>的终端中运行：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">nvm node_mirror https://npmmirror.com/mirrors/node/
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nvm npm_mirror https://npmmirror.com/mirrors/npm/
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h4 id="进阶配置自定义-npm-全局路径-windows-推荐">进阶配置：自定义 NPM 全局路径 (Windows 推荐)&lt;/h4>
+&lt;p>此步骤可选，但强烈建议配置，以便统一管理全局包（如 vue-cli, yarn）。&lt;/p>
+&lt;ol>
+&lt;li>新建文件夹
+在您的 NVM 或任意目录下手动创建两个文件夹：&lt;/li>
+&lt;/ol>
+&lt;p>D:\nodejs\node_global (存放全局包)
+D:\nodejs\node_cache (存放缓存)
+2. 修改 NPM 配置
+打开终端执行：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">bash
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 设置全局模块的安装路径
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">npm config set prefix &amp;#34;D:\nodejs\node_global&amp;#34;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 设置缓存路径
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">npm config set cache &amp;#34;D:\nodejs\node_cache&amp;#34;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>执行完毕后，您可以运行 npm config list 检查是否生效。&lt;/p>
+&lt;ol start="3">
+&lt;li>配置全局路径环境变量 (Environment Variables)&lt;/li>
+&lt;/ol>
+&lt;p>如果不配置此项，安装的全局命令（如 vue）将无法识别。&lt;/p>
+&lt;p>操作路径：右键“此电脑” -&amp;gt; 属性 -&amp;gt; 高级系统设置 -&amp;gt; 环境变量。&lt;/p>
+&lt;ul>
+&lt;li>配置 Path 变量 (系统变量/用户变量)：
+&lt;ul>
+&lt;li>找到 &lt;code>Path&lt;/code> 变量 -&amp;gt; 编辑 -&amp;gt; 新建。&lt;/li>
+&lt;li>添加路径：&lt;code>D:\nodejs\node_global&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>配置 NODE_PATH (系统变量)，在“系统变量”区域，点击“新建”：
+&lt;ul>
+&lt;li>新建变量名：&lt;code>NODE_PATH&lt;/code>&lt;/li>
+&lt;li>变量值：&lt;code>D:\nodejs\node_global\node_modules&lt;/code>&lt;/li>
+&lt;li>注意：必须多加一层 &lt;code>node_modules&lt;/code>，否则 require 无法找到模块。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>验证： 重启终端后，运行 &lt;code>npm install express -g&lt;/code>，检查是否安装到了新目录。&lt;/li>
+&lt;/ul>
+&lt;p>特别提示（如果您正在使用 NVM）
+如果您是配合 NVM 使用此配置，这意味着所有 Node 版本都会共用这个 node_global。&lt;/p>
+&lt;ul>
+&lt;li>优点：切换 Node 版本后，不需要重新安装全局包（如 yarn, cnpm）。&lt;/li>
+&lt;li>缺点：如果某个全局包依赖特定的 Node 版本（例如旧版 Sass），切换 Node 版本后可能会导致该工具报错。&lt;/li>
+&lt;/ul>
+&lt;h3 id="方案-bmacos--linux-系统-nvm">方案 B：macOS / Linux 系统 (nvm)&lt;/h3>
+&lt;ol>
+&lt;li>安装脚本
+打开终端，运行官方安装脚本：&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">bash
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>(如果网络连接失败，请尝试搜索“nvm gitee”寻找国内搬运脚本)&lt;/p>
+&lt;ol start="2">
+&lt;li>
+&lt;p>配置环境变量
+安装脚本通常会自动写入配置文件。如果没有生效（输入 nvm 提示 command not found），请手动配置：&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>编辑配置文件：&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">macOS (Zsh): vim ~/.zshrc
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Linux (Bash): vim ~/.bashrc
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ol start="3">
+&lt;li>添加以下内容：&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">bash
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">export NVM_DIR=&amp;#34;$HOME/.nvm&amp;#34;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ -s &amp;#34;$NVM_DIR/nvm.sh&amp;#34; ] &amp;amp;&amp;amp; \. &amp;#34;$NVM_DIR/nvm.sh&amp;#34; # 加载 nvm
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ -s &amp;#34;$NVM_DIR/bash_completion&amp;#34; ] &amp;amp;&amp;amp; \. &amp;#34;$NVM_DIR/bash_completion&amp;#34; # 加载自动补全
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">#在此处也可以直接配置国内镜像变量
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">export NVM_NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node/
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ol start="3">
+&lt;li>使配置生效：&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">bash
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">source ~/.zshrc # 或 source ~/.bashrc
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="第三步使用-nvm-安装-nodejs">第三步：使用 NVM 安装 Node.js&lt;/h2>
+&lt;p>配置好 NVM 后，即可灵活管理 Node 版本。&lt;/p>
+&lt;ol>
+&lt;li>查看可安装版本：&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">bash
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nvm list available # Windows
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nvm ls-remote # Mac/Linux
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ol start="2">
+&lt;li>安装指定版本（推荐安装 LTS 长期支持版）：&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">bash
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nvm install 18.17.0 # 安装具体的版本号
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nvm install lts # 自动安装最新的 LTS 版本
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ol start="3">
+&lt;li>切换/使用版本：&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">bash
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nvm use 18.17.0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">(Windows 用户如果遇到 &amp;#34;exit status 1&amp;#34; 乱码报错，请右键选择*“以管理员身份运行”*终端)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ol start="4">
+&lt;li>查看当前已安装版本：&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">bash
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nvm list
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="第四步配置-npm-镜像加速依赖包下载">第四步：配置 NPM 镜像（加速依赖包下载）&lt;/h2>
+&lt;p>安装完 Node.js 后，npm 命令自动可用。建议配置淘宝镜像（npmmirror）以加速 npm install。&lt;/p>
+&lt;ol>
+&lt;li>设置镜像源：&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">bash
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">npm config set registry https://registry.npmmirror.com
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ol start="2">
+&lt;li>验证是否成功：&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">bash
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">npm config get registry
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 预期输出: https://registry.npmmirror.com/
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="常用命令速查表">常用命令速查表&lt;/h2>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th style="text-align:left">命令&lt;/th>
+&lt;th style="text-align:left">说明&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td style="text-align:left">&lt;code>nvm install &amp;lt;version&amp;gt;&lt;/code>&lt;/td>
+&lt;td style="text-align:left">安装指定版本 (如 nvm install 20.10.0)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">&lt;code>nvm use &amp;lt;version&amp;gt;&lt;/code>&lt;/td>
+&lt;td style="text-align:left">切换到指定版本&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">&lt;code>nvm list&lt;/code>&lt;/td>
+&lt;td style="text-align:left">列出本地已安装的所有版本&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">&lt;code>nvm uninstall &amp;lt;version&amp;gt;&lt;/code>&lt;/td>
+&lt;td style="text-align:left">卸载指定版本&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">&lt;code>nvm alias default &amp;lt;version&amp;gt;&lt;/code>&lt;/td>
+&lt;td style="text-align:left">(Mac/Linux) 设置默认版本，新开终端自动生效&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">&lt;code>node -v&lt;/code>&lt;/td>
+&lt;td style="text-align:left">查看当前正在使用的 Node 版本&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">&lt;code>npm -v&lt;/code>&lt;/td>
+&lt;td style="text-align:left">查看当前正在使用的 NPM 版本&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h2 id="-常见问题提示">💡 常见问题提示&lt;/h2>
+&lt;p>权限问题：Windows 用户在执行 nvm use 切换版本时，必须使用管理员身份运行 CMD 或 PowerShell，否则无法创建软链接。
+路径空格：确保 NVM 安装路径不包含空格（如 Program Files 有时会引起兼容性问题，建议安装在 C:\nvm 或类似简单路径）。&lt;/p></description></item><item><title>乾坤(Qiankun)微前端路由</title><link>https://changxiangyu.cn/p/%E4%B9%BE%E5%9D%A4qiankun%E5%BE%AE%E5%89%8D%E7%AB%AF%E8%B7%AF%E7%94%B1/</link><pubDate>Thu, 27 Apr 2023 13:05:18 +0800</pubDate><guid>https://changxiangyu.cn/p/%E4%B9%BE%E5%9D%A4qiankun%E5%BE%AE%E5%89%8D%E7%AB%AF%E8%B7%AF%E7%94%B1/</guid><description>&lt;p>在微前端架构中，主应用与子应用的技术栈差异往往会带来一些意想不到的路由同步问题。本文将分享一个在 Vue3 主应用 + Angular 子应用 场景下，遇到的“三级路由回退导致导航失效”的各种坑及其解决方案。&lt;/p>
+&lt;h2 id="1-问题描述">1. 问题描述&lt;/h2>
+&lt;p>场景&lt;/p>
+&lt;ul>
+&lt;li>主应用：Vue3 + Vue Router (Hash 模式)&lt;/li>
+&lt;li>子应用：Angular (使用 Qiankun 接入)&lt;/li>
+&lt;li>操作路径：进入 Angular 子应用 -&amp;gt; 进入二级页面 -&amp;gt; 进入三级页面 -&amp;gt; 点击“返回”按钮回退到上一级。
+症状
+当从三级路由回退后，再次点击主应用侧边栏或其他菜单时，页面无反应。查看浏览器控制台，出现类似 &lt;code>route undefined&lt;/code> 的报错。&lt;/li>
+&lt;/ul>
+&lt;h2 id="2-原因深度分析">2. 原因深度分析&lt;/h2>
+&lt;p>经过源码排查，发现问题的根源在于 &lt;strong>Vue Router&lt;/strong> 与 &lt;strong>Angular Router&lt;/strong> 对底层 &lt;strong>History API&lt;/strong> 的使用差异。&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>&lt;strong>Vue Router 的机制&lt;/strong>： Vue3 的路由跳转底层调用了 &lt;code>changeLocation&lt;/code> 函数。该函数在执行时，高度依赖 &lt;code>history.state&lt;/code> 来获取路由信息。如果 &lt;code>history.state&lt;/code> 为空或缺少关键字段（如 &lt;code>current&lt;/code>），Vue Router 可能无法正确识别当前位置，从而导致跳转逻辑中断。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Angular Router 的差异&lt;/strong>： Angular 的默认路由跳转（特别是使用 HTML 中的 &lt;code>[routerLink]=&amp;quot;['../']&amp;quot;&lt;/code> 指令时），并不会默认向 &lt;code>history.state&lt;/code> 中写入 Vue Router 所需的元数据。&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;p>结论：当在 Angular 子应用中进行路由回退时，由于没有正确更新 &lt;code>history.state&lt;/code>，导致主应用（Vue3）接管路由时读取到了空状态或错误状态，最终引发路由报错。&lt;/p>
+&lt;h2 id="3-解决方案">3. 解决方案&lt;/h2>
+&lt;p>为了解决这个问题，我们需要在“子应用跳转”和“主应用监听”两个层面进行改造。&lt;/p>
+&lt;h3 id="步骤一改造-angular-子应用的跳转方式">步骤一：改造 Angular 子应用的跳转方式&lt;/h3>
+&lt;p>&lt;strong>核心策略&lt;/strong>：放弃 HTML 模板中的 &lt;code>[routerLink]&lt;/code> 跳转，改用 API 编程式导航，并手动注入 &lt;code>state&lt;/code>。&lt;/p>
+&lt;p>Angular 的 &lt;code>Router.navigate&lt;/code> 方法允许我们传递 &lt;code>NavigationExtras&lt;/code>，其中的 &lt;code>state&lt;/code> 属性可以让我们自定义路由状态。这正好可以用来模拟 Vue Router 所需的数据结构。&lt;br>
+代码实现 (Angular 子应用)：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">// 在组件中注入 Router
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">import { Router } from &amp;#39;@angular/router&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">constructor(private _router: Router) {}
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">// 替代原本的 [routerLink]=&amp;#34;[&amp;#39;../&amp;#39;]&amp;#34;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">back() {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 手动构建 state 对象，模拟 Vue Router 的 current 字段
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 注意：这里的路径需要根据实际业务调整
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const state = { current: &amp;#39;/kq/kqGroup&amp;#39; };
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 使用 navigate 跳转，并带上 state
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this._router.navigate([&amp;#39;/kqGroup&amp;#39;], { state: state });
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>注意：建议三级路由跳转时，URL 中尽量不要直接携带参数，可以考虑通过 Service 或 State 传递数据，以减少路由匹配的复杂度。&lt;/p>
+&lt;h3 id="步骤二改造-vue3-主应用的路由守卫">步骤二：改造 Vue3 主应用的路由守卫&lt;/h3>
+&lt;p>&lt;strong>核心策略&lt;/strong>：在主应用的全局路由守卫中，主动检测并修复 &lt;code>history.state&lt;/code>。&lt;/p>
+&lt;p>我们需要在 &lt;code>router.beforeEach&lt;/code> 中监听路由变化。如果发现 &lt;code>history.state&lt;/code> 丢失或不完整（缺少 current 字段），则使用 &lt;code>history.replaceState&lt;/code> 强制补全，确保 Vue Router 能正常工作。&lt;/p>
+&lt;p>代码实现 (Vue3 主应用)：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;span class="lnt">43
+&lt;/span>&lt;span class="lnt">44
+&lt;/span>&lt;span class="lnt">45
+&lt;/span>&lt;span class="lnt">46
+&lt;/span>&lt;span class="lnt">47
+&lt;/span>&lt;span class="lnt">48
+&lt;/span>&lt;span class="lnt">49
+&lt;/span>&lt;span class="lnt">50
+&lt;/span>&lt;span class="lnt">51
+&lt;/span>&lt;span class="lnt">52
+&lt;/span>&lt;span class="lnt">53
+&lt;/span>&lt;span class="lnt">54
+&lt;/span>&lt;span class="lnt">55
+&lt;/span>&lt;span class="lnt">56
+&lt;/span>&lt;span class="lnt">57
+&lt;/span>&lt;span class="lnt">58
+&lt;/span>&lt;span class="lnt">59
+&lt;/span>&lt;span class="lnt">60
+&lt;/span>&lt;span class="lnt">61
+&lt;/span>&lt;span class="lnt">62
+&lt;/span>&lt;span class="lnt">63
+&lt;/span>&lt;span class="lnt">64
+&lt;/span>&lt;span class="lnt">65
+&lt;/span>&lt;span class="lnt">66
+&lt;/span>&lt;span class="lnt">67
+&lt;/span>&lt;span class="lnt">68
+&lt;/span>&lt;span class="lnt">69
+&lt;/span>&lt;span class="lnt">70
+&lt;/span>&lt;span class="lnt">71
+&lt;/span>&lt;span class="lnt">72
+&lt;/span>&lt;span class="lnt">73
+&lt;/span>&lt;span class="lnt">74
+&lt;/span>&lt;span class="lnt">75
+&lt;/span>&lt;span class="lnt">76
+&lt;/span>&lt;span class="lnt">77
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">import { createRouter, createWebHashHistory } from &amp;#39;vue-router&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">const router = createRouter({
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> history: createWebHashHistory(),
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> routes,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">});
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">router.beforeEach(async (to, from, next) =&amp;gt; {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 1. 核心修复逻辑：补全 history.state
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 如果 state 存在但没有 current 字段，说明可能是子应用过来的跳转，手动补全
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (history.state &amp;amp;&amp;amp; !history.state.current) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> console.log(&amp;#39;检测到 state 缺失，执行 replaceState 修复&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> window.history.replaceState({ current: to.path }, &amp;#39;&amp;#39;, to.path);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 调试日志
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> console.log(&amp;#39;微前端 history.state ===&amp;#39;, history.state);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> console.log(&amp;#39;微前端 window.location ===&amp;#39;, window.location);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 2. 特殊业务场景修复（如巡更业务）
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 修复通过菜单切换后，history.state 丢失应用前缀信息的问题
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const current = history.state?.current;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const pathname = window.location.pathname;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (pathname &amp;amp;&amp;amp; pathname.startsWith(&amp;#39;/xg&amp;#39;)) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (current !== pathname) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> history.replaceState(
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> { back: from.path, current: window.location.pathname },
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> to.path,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;#39;&amp;#39;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> );
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 3. 常规鉴权与路由分发逻辑
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (!verifyToken() &amp;amp;&amp;amp; to.path !== &amp;#39;/login&amp;#39;) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // ... 处理登录逻辑
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (noLoginPage.includes(to.path)) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> next();
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> } else {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> next({ path: &amp;#39;/login&amp;#39;, query: { fromPath: to.fullPath } });
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> } else {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 清理缓存逻辑
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (to.path === &amp;#39;/home&amp;#39;) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> sessionStorage.removeItem(&amp;#39;currentMenu&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> sessionStorage.removeItem(&amp;#39;currentPage&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 动态路由加载逻辑
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (store.state.menus.routers.length === 0 &amp;amp;&amp;amp; to.path !== &amp;#39;/login&amp;#39;) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 处理菜单基合菜单列表
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const res = await store.dispatch(&amp;#39;menus/getMenus&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> res.forEach((route) =&amp;gt; {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (router.hasRoute(&amp;#39;Main&amp;#39;)) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> router.addRoute(&amp;#39;Main&amp;#39;, route);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> });
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const routers = router.getRoutes();
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // Tips不检查门禁监控菜单
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (routers.find((item) =&amp;gt; item.path === to.path || /\/monitor\/mj\//.test(to.path))) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> next({ ...to, replace: true });
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> } else {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> next({ path: &amp;#39;/not-find&amp;#39; });
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> } else {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 404 检测
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const routers = router.getRoutes();
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 简单的白名单检查
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (routers.find(item =&amp;gt; item.path === to.path || /\/monitor\/mj\//.test(to.path))) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> next();
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> } else {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> next({ path: &amp;#39;/not-find&amp;#39; });
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">});
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="4-总结">4. 总结&lt;/h2>
+&lt;p>在乾坤微前端架构中，不同框架对 &lt;code>History API&lt;/code> 的操作习惯不同是导致路由不同步的常见原因。&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Angular&lt;/strong> 侧：利用 &lt;code>navigate&lt;/code> 的 &lt;code>state&lt;/code> 参数主动配合主应用的路由机制。&lt;/li>
+&lt;li>&lt;strong>Vue&lt;/strong> 侧：利用 &lt;code>beforeEach&lt;/code> 守卫进行兜底，确保 &lt;code>history.state&lt;/code> 始终包含 &lt;code>current&lt;/code> 字段。
+通过双向奔赴的改造，我们成功解决了三级路由回退后的“死锁”问题，保证了微前端应用的流畅体验。&lt;/li>
+&lt;/ul></description></item><item><title>微信支付接入指南：JSAPI、H5与小程序</title><link>https://changxiangyu.cn/p/%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97jsapih5%E4%B8%8E%E5%B0%8F%E7%A8%8B%E5%BA%8F/</link><pubDate>Sun, 12 Mar 2023 13:05:18 +0800</pubDate><guid>https://changxiangyu.cn/p/%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97jsapih5%E4%B8%8E%E5%B0%8F%E7%A8%8B%E5%BA%8F/</guid><description>&lt;p>本文总结了前端开发中常见的微信支付三种接入场景及其核心流程。&lt;/p>
+&lt;h2 id="1-公众号支付-jsapi">1. 公众号支付 (JSAPI)&lt;/h2>
+&lt;p>&lt;strong>适用场景&lt;/strong>：微信内置浏览器、微信客户端扫码、企业微信网页。&lt;/p>
+&lt;h3 id="核心流程">核心流程&lt;/h3>
+&lt;ol>
+&lt;li>&lt;strong>网页授权获取 Code&lt;/strong>：
+引导用户访问微信授权链接，获取 &lt;code>code&lt;/code>。
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-http" data-lang="http">&lt;span class="line">&lt;span class="cl">&lt;span class="err">https://open.weixin.qq.com/connect/oauth2/authorize?appid=APPID&amp;amp;redirect_uri=REDIRECT_URI&amp;amp;response_type=code&amp;amp;scope=snsapi_base&amp;amp;state=123#wechat_redirect
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;li>&lt;strong>获取 OpenID&lt;/strong>：
+后端使用 &lt;code>appid&lt;/code>、&lt;code>secret&lt;/code> 和前端传来的 &lt;code>code&lt;/code> 换取用户的 &lt;code>openid&lt;/code>。&lt;/li>
+&lt;li>&lt;strong>统一下单&lt;/strong>：
+后端调用微信统一下单接口，获取支付参数（&lt;code>timeStamp&lt;/code>, &lt;code>nonceStr&lt;/code>, &lt;code>package&lt;/code>, &lt;code>signType&lt;/code>, &lt;code>paySign&lt;/code>）。&lt;/li>
+&lt;li>&lt;strong>唤起支付&lt;/strong>：
+前端使用 &lt;code>WeixinJSBridge.invoke&lt;/code> 或 &lt;code>wx.chooseWXPay&lt;/code> 调起支付窗口。&lt;/li>
+&lt;/ol>
+&lt;h3 id="-注意事项">⚠️ 注意事项&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>授权域名&lt;/strong>：&lt;code>redirect_uri&lt;/code> 的域名必须在&lt;strong>微信公众平台&lt;/strong>的“网页授权域名”中配置。&lt;/li>
+&lt;li>&lt;strong>支付目录&lt;/strong>：支付页面的路径必须在&lt;strong>微信商户平台&lt;/strong>配置“JSAPI支付授权目录”。&lt;/li>
+&lt;li>&lt;strong>AppID&lt;/strong>：此处使用&lt;strong>公众号&lt;/strong>的 AppID。&lt;/li>
+&lt;/ul>
+&lt;hr>
+&lt;h2 id="2-h5-支付">2. H5 支付&lt;/h2>
+&lt;p>&lt;strong>适用场景&lt;/strong>：外部移动端浏览器（如 Safari, Chrome）、App 内嵌 H5（非微信环境）。&lt;/p>
+&lt;h3 id="核心流程-1">核心流程&lt;/h3>
+&lt;ol>
+&lt;li>&lt;strong>后端下单&lt;/strong>：
+后端调用微信统一下单接口（交易类型为 &lt;code>MWEB&lt;/code>）。&lt;/li>
+&lt;li>&lt;strong>获取跳转链接&lt;/strong>：
+接口返回 &lt;code>mweb_url&lt;/code>（即原文中的 &lt;code>pay_url&lt;/code>）。&lt;/li>
+&lt;li>&lt;strong>跳转支付&lt;/strong>：
+前端直接跳转该链接，微信会中间页唤起微信客户端进行支付。
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-javascript" data-lang="javascript">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 示例：跳转并指定支付后的回调页
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="nb">window&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">location&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">href&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nx">mweb_url&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="s1">&amp;#39;&amp;amp;redirect_url=&amp;#39;&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="nb">encodeURIComponent&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">window&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">location&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">href&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;/ol>
+&lt;h3 id="-注意事项-1">⚠️ 注意事项&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>Referer 校验&lt;/strong>：微信会校验发起支付请求的域名（Referer），需在商户平台配置“H5支付域名”。&lt;/li>
+&lt;li>&lt;strong>AppID&lt;/strong>：此处使用&lt;strong>商户绑定的移动应用或公众号&lt;/strong> AppID。&lt;/li>
+&lt;/ul>
+&lt;hr>
+&lt;h2 id="3-小程序支付">3. 小程序支付&lt;/h2>
+&lt;p>&lt;strong>适用场景&lt;/strong>：微信小程序原生环境。&lt;/p>
+&lt;h3 id="核心流程-2">核心流程&lt;/h3>
+&lt;ol>
+&lt;li>&lt;strong>获取登录凭证&lt;/strong>：
+前端调用 &lt;code>wx.login()&lt;/code> 获取 &lt;code>code&lt;/code>。&lt;/li>
+&lt;li>&lt;strong>获取 OpenID&lt;/strong>：
+后端通过 &lt;code>appid&lt;/code>、&lt;code>secret&lt;/code> 和 &lt;code>code&lt;/code> 换取 &lt;code>openid&lt;/code>。&lt;/li>
+&lt;li>&lt;strong>后端下单&lt;/strong>：
+后端调用统一下单接口，返回支付核心参数（&lt;code>paySign&lt;/code> 等）。&lt;/li>
+&lt;li>&lt;strong>唤起支付&lt;/strong>：
+前端调用小程序 API 进行支付：
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;span class="lnt">9
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-javascript" data-lang="javascript">&lt;span class="line">&lt;span class="cl">&lt;span class="nx">wx&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">requestPayment&lt;/span>&lt;span class="p">({&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">timeStamp&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="s1">&amp;#39;&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">nonceStr&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="s1">&amp;#39;&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kr">package&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="s1">&amp;#39;&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">signType&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="s1">&amp;#39;MD5&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">paySign&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="s1">&amp;#39;&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">success&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nx">res&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span> &lt;span class="p">},&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">fail&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nx">res&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">})&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;/ol>
+&lt;h3 id="-注意事项-2">⚠️ 注意事项&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>AppID&lt;/strong>：此处必须使用&lt;strong>小程序&lt;/strong>的 AppID。&lt;/li>
+&lt;li>&lt;strong>账号关联&lt;/strong>：小程序必须已关联到微信商户号。&lt;/li>
+&lt;/ul>
+&lt;h2 id="4-附录前端环境判断工具">4. 附录：前端环境判断工具&lt;/h2>
+&lt;p>在发起支付前，我们需要根据当前运行环境（User Agent）来决定调用 JSAPI 支付还是 H5 支付。可以使用以下工具函数进行判断：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">/**
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> * 获取当前运行平台
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> * @returns {string} &amp;#39;wecom&amp;#39; | &amp;#39;wechat&amp;#39; | &amp;#39;h5&amp;#39;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> */
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">function getPlat() {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const ua = window.navigator.userAgent.toLowerCase();
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (ua.includes(&amp;#39;wxwork&amp;#39;)) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> return &amp;#39;wecom&amp;#39;; // 企业微信环境（需使用企业微信JS-SDK或兼容JSAPI）
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> } else if (ua.includes(&amp;#39;micromessenger&amp;#39;)) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> return &amp;#39;wechat&amp;#39;; // 微信内置浏览器（使用 JSAPI 支付）
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> } else {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> return &amp;#39;h5&amp;#39;; // 普通浏览器（使用 H5 支付）
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">// 业务逻辑调用示例
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">const platform = getPlat();
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">if (platform === &amp;#39;wechat&amp;#39; || platform === &amp;#39;wecom&amp;#39;) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 执行 JSAPI 支付逻辑
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> console.log(&amp;#34;检测到微信环境，准备唤起 JSAPI 支付&amp;#34;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // doJSAPIPay();
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">} else {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 执行 H5 支付逻辑
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> console.log(&amp;#34;检测到外部浏览器，准备唤起 H5 支付&amp;#34;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // doH5Pay();
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="补充说明">补充说明&lt;/h3>
+&lt;ul>
+&lt;li>企业微信兼容性：在企业微信（wxwork）中，通常也兼容微信的 JSAPI 支付，但建议参考企业微信官方文档确认是否需要引入特定的 jweixin-module。&lt;/li>
+&lt;li>小程序环境判断：如果您还需要判断是否在小程序 Webview 中，可以增加一个判断条件：&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">if (ua.includes(&amp;#39;miniprogram&amp;#39;) || window.__wxjs_environment === &amp;#39;miniprogram&amp;#39;) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> return &amp;#39;miniprogram&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item><item><title>uniapp-h5自定义配置文件</title><link>https://changxiangyu.cn/p/uniapp-h5%E8%87%AA%E5%AE%9A%E4%B9%89%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/</link><pubDate>Wed, 25 Jan 2023 13:05:18 +0800</pubDate><guid>https://changxiangyu.cn/p/uniapp-h5%E8%87%AA%E5%AE%9A%E4%B9%89%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/</guid><description>&lt;p>uniapp项目H5发行（发行-&amp;gt;网站-PC web或手机H5）打包后&lt;br>
+如果要给项目封装一个请求，但请求地址必须读取配置文件，从配置文件中拿地址，后续随时更改配置文件，直接让请求地址发生变化。&lt;/p>
+&lt;h2 id="解决方案">解决方案&lt;/h2>
+&lt;p>核心思路：利用打包后的&lt;code>index.html&lt;/code>文件，原生&lt;code>&amp;lt;script&amp;gt;&lt;/code>引入配置文件，在全局可调用。
+uniapp 官方解决方案（建议看一眼）：&lt;a class="link" href="https://uniapp.dcloud.io/collocation/manifest.html#h5=template" target="_blank" rel="noopener"
+>&lt;/a>&lt;/p>
+&lt;ol>
+&lt;li>建立一个&lt;code>config.js&lt;/code>配置文件：
+&lt;code>var config = { defaultUrl: &amp;quot;https://c3test.dassoft.cn&amp;quot;, tenantCode: &amp;quot;admin&amp;quot; }&lt;/code>&lt;br>
+保存到桌面上即可，无需放到项目中。&lt;/li>
+&lt;li>在项目根目录新建&lt;code>temp.h5.html&lt;/code>空文件，cli创建的话同理&lt;/li>
+&lt;li>打开&lt;code>temp.h5.html&lt;/code>复制以下模板代码，&lt;code>&amp;lt;script&amp;gt;&lt;/code>引入配置文件：
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"> &amp;lt;html lang=&amp;#34;zh-CN&amp;#34;&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;head&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;meta charset=&amp;#34;utf-8&amp;#34;&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;meta http-equiv=&amp;#34;X-UA-Compatible&amp;#34; content=&amp;#34;IE=edge&amp;#34;&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;title&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;%= htmlWebpackPlugin.options.title %&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;/title&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;!-- Open Graph data --&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;!-- &amp;lt;meta property=&amp;#34;og:title&amp;#34; content=&amp;#34;Title Here&amp;#34; /&amp;gt; --&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;!-- &amp;lt;meta property=&amp;#34;og:url&amp;#34; content=&amp;#34;http://www.example.com/&amp;#34; /&amp;gt; --&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;!-- &amp;lt;meta property=&amp;#34;og:image&amp;#34; content=&amp;#34;http://example.com/image.jpg&amp;#34; /&amp;gt; --&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;!-- &amp;lt;meta property=&amp;#34;og:description&amp;#34; content=&amp;#34;Description Here&amp;#34; /&amp;gt; --&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;script&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> var coverSupport = &amp;#39;CSS&amp;#39; in window &amp;amp;&amp;amp; typeof CSS.supports === &amp;#39;function&amp;#39; &amp;amp;&amp;amp; (CSS.supports(&amp;#39;top: env(a)&amp;#39;) || CSS.supports(&amp;#39;top: constant(a)&amp;#39;))
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> document.write(&amp;#39;&amp;lt;meta name=&amp;#34;viewport&amp;#34; content=&amp;#34;width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0&amp;#39; + (coverSupport ? &amp;#39;, viewport-fit=cover&amp;#39; : &amp;#39;&amp;#39;) + &amp;#39;&amp;#34; /&amp;gt;&amp;#39;)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;/script&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;link rel=&amp;#34;stylesheet&amp;#34; href=&amp;#34;&amp;lt;%= BASE_URL %&amp;gt;static/index.&amp;lt;%= VUE_APP_INDEX_CSS_HASH %&amp;gt;.css&amp;#34; /&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;/head&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;body&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;noscript&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;strong&amp;gt;Please enable JavaScript to continue.&amp;lt;/strong&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;/noscript&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;div id=&amp;#34;app&amp;#34;&amp;gt;&amp;lt;/div&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;!-- built files will be auto injected --&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;script language=&amp;#34;javascript&amp;#34;&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> //使用了 sessionStorage和时间戳，这样可以防止 js和css的缓存,页面会话刷新时间为半小时
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> var timestamp = new Date().getTime();
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> var versionStamp = sessionStorage.version;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (versionStamp == null || (timestamp - versionStamp) &amp;gt; 1800000) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> sessionStorage.version = timestamp;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> document.write(&amp;#39;&amp;lt;script src=&amp;#34;./config.js?v=&amp;#39; + sessionStorage.version + &amp;#39;&amp;#34;&amp;gt;&amp;lt;\/script\&amp;gt;&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;/script&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;/body&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;/html&amp;gt;```
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;li>提前写好获取配置文件的代码（在哪里用配置文件就在那里写）&lt;br>
+&lt;code>export const defaultUrl = config.defaultUrl;&lt;/code>&lt;br>
+开发中，可以先写死参数，后续要打包后在变更。&lt;/li>
+&lt;li>打开&lt;code>manifest.json&lt;/code>文件，将&lt;code>temp.h5.html&lt;/code>关联：
+&lt;img src="https://changxiangyu.cn/images/uniapp/20251230_161923.png"
+loading="lazy"
+alt="展示示意图"
+>&lt;/li>
+&lt;li>都配置好后，执行编辑器菜单-&amp;gt;发行-&amp;gt;网站-PC web或手机H5,进行打包：
+打包完成后，把&lt;code>h5&lt;/code>目录复制到桌面，如下图所示文件夹位置。
+&lt;img src="https://changxiangyu.cn/images/uniapp/20251230163111.jpg"
+loading="lazy"
+alt="展示示意图"
+>&lt;/li>
+&lt;li>将配置文件&lt;code>config.js&lt;/code>加入到根目录，确保与&lt;code>index.html&lt;/code>同级&lt;/li>
+&lt;li>&lt;img src="https://changxiangyu.cn/images/uniapp/20251230163119.jpg"
+loading="lazy"
+alt="展示示意图"
+>
+此时&lt;code>index.html&lt;/code>中的&lt;code>&amp;lt;script src=&amp;quot;./config.js&amp;gt;&lt;/code>就能正确找到配置文件，从而实现读取。
+可以改变&lt;code>config.js&lt;/code>文件配置，然后刷新浏览器页面，查看是否更改。&lt;/li>
+&lt;/ol></description></item><item><title>Uniapp H5端解决图片拍照旋转与压缩上传方案</title><link>https://changxiangyu.cn/p/uniapp-h5%E7%AB%AF%E8%A7%A3%E5%86%B3%E5%9B%BE%E7%89%87%E6%8B%8D%E7%85%A7%E6%97%8B%E8%BD%AC%E4%B8%8E%E5%8E%8B%E7%BC%A9%E4%B8%8A%E4%BC%A0%E6%96%B9%E6%A1%88/</link><pubDate>Mon, 09 Jan 2023 10:00:00 +0800</pubDate><guid>https://changxiangyu.cn/p/uniapp-h5%E7%AB%AF%E8%A7%A3%E5%86%B3%E5%9B%BE%E7%89%87%E6%8B%8D%E7%85%A7%E6%97%8B%E8%BD%AC%E4%B8%8E%E5%8E%8B%E7%BC%A9%E4%B8%8A%E4%BC%A0%E6%96%B9%E6%A1%88/</guid><description>&lt;p>在 Uniapp 开发 H5 应用时，涉及到手机拍照上传的功能往往会遇到两个棘手的问题：&lt;/p>
+&lt;ol>
+&lt;li>&lt;strong>图片方向不对&lt;/strong>：不同厂商的手机（尤其是 iOS 和部分 Android）在拍照时，图片实际上是“横着”保存的，通过 EXIF 信息标记了方向。直接在 &lt;code>img&lt;/code> 标签显示可能正常，但一旦绘制到 Canvas 或上传到服务器，图片就会歪掉（通常是旋转了 90 度）。&lt;/li>
+&lt;li>&lt;strong>图片体积过大&lt;/strong>：手机原图动辄 5MB+，直接上传消耗流量且速度慢，需要在前端进行压缩。&lt;/li>
+&lt;/ol>
+&lt;p>本文将分享一个基于 &lt;code>Exif.js&lt;/code> 和 &lt;code>Canvas&lt;/code> 的完整解决方案。&lt;/p>
+&lt;h2 id="准备工作">准备工作&lt;/h2>
+&lt;p>我们需要引入两个核心工具库：&lt;/p>
+&lt;ol>
+&lt;li>&lt;strong>Exif.js&lt;/strong>：用于读取图片的元数据（Metadata），核心是获取 &lt;code>Orientation&lt;/code>（方向）标识。&lt;/li>
+&lt;li>&lt;strong>Mobile-detect&lt;/strong>（可选）：用于辅助判断设备类型，处理特定机型的兼容性差异。&lt;/li>
+&lt;/ol>
+&lt;h3 id="1-引入-exifjs">1. 引入 Exif.js&lt;/h3>
+&lt;p>由于 &lt;code>exif.js&lt;/code> 是一个较老的库，建议将其源码保存到项目中，例如 &lt;code>common/js/toolJs/exif.js&lt;/code>。
+&lt;em>(注：由于源码较长，此处不贴出完整库代码，请直接下载官方版本或使用 npm 安装)&lt;/em>&lt;/p>
+&lt;h3 id="2-核心组件实现">2. 核心组件实现&lt;/h3>
+&lt;p>我们将功能封装在一个 Vue 组件中。主要流程如下：
+&lt;code>选择图片&lt;/code> -&amp;gt; &lt;code>读取EXIF方向&lt;/code> -&amp;gt; &lt;code>Canvas重绘(旋转+压缩)&lt;/code> -&amp;gt; &lt;code>获取Base64&lt;/code> -&amp;gt; &lt;code>上传&lt;/code>。&lt;/p>
+&lt;h4 id="html-结构">HTML 结构&lt;/h4>
+&lt;p>简单的界面，包含预览图、拍照按钮和上传按钮。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">html
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&amp;lt;template&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;view class=&amp;#34;container&amp;#34;&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;image :src=&amp;#34;photoSrc&amp;#34; mode=&amp;#34;aspectFit&amp;#34; style=&amp;#34;width: 100%; height: 300px;&amp;#34;&amp;gt;&amp;lt;/image&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;button type=&amp;#34;primary&amp;#34; @click=&amp;#34;takePhoto&amp;#34;&amp;gt;拍照/选图&amp;lt;/button&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;button type=&amp;#34;primary&amp;#34; @click=&amp;#34;uploadPhoto&amp;#34; :disabled=&amp;#34;!photoSrc&amp;#34;&amp;gt;上传&amp;lt;/button&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;/view&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&amp;lt;/template&amp;gt;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="核心-js-逻辑">核心 JS 逻辑&lt;/h3>
+&lt;p>首先引入必要的库：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">import EXIF from &amp;#39;../../common/js/toolJs/exif.js&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">import MobileDetect from &amp;#39;mobile-detect&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">export default {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> data() {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> return {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> photoSrc: &amp;#39;&amp;#39;,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> },
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> methods: {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // ...后续方法
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="关键步骤解析">关键步骤解析&lt;/h3>
+&lt;ol>
+&lt;li>获取图片并开启处理流程
+使用 &lt;code>uni.chooseImage&lt;/code> 获取图片，然后调用 &lt;code>detail&lt;/code> 方法进行处理。&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">takePhoto() {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> uni.chooseImage({
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> count: 1,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> success: async (res) =&amp;gt; {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 开启异步处理流程
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.photoSrc = await this.detail(res.tempFilePaths[0])
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> },
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> fail: (res) =&amp;gt; {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> console.error(res)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> })
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">},
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ol start="2">
+&lt;li>读取 EXIF Orientation 信息
+这是修正方向的关键。我们需要封装一个 Promise 方法来读取图片的 Orientation 标签。&lt;/li>
+&lt;/ol>
+&lt;ul>
+&lt;li>1: 正常&lt;/li>
+&lt;li>6: 顺时针旋转90度&lt;/li>
+&lt;li>8: 逆时针旋转90度&lt;/li>
+&lt;li>3: 旋转180度&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">getImageTag(file, tag, suc) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (!file) return 0;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> return new Promise((resolve, reject) =&amp;gt; {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> let imgObj = new Image()
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> imgObj.src = file
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> uni.getImageInfo({
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> src: file,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> success(res) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> EXIF.getData(imgObj, function() {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> EXIF.getAllTags(this);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 获取方向标记
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> let or = EXIF.getTag(this, &amp;#39;Orientation&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> resolve(suc(or))
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> });
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> })
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> });
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">},
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ol start="3">
+&lt;li>Canvas 旋转与压缩
+这是最复杂的环节。我们需要根据 &lt;code>Orientation&lt;/code> 的值，利用 &lt;code>Canvas&lt;/code> 的 &lt;code>rotate&lt;/code> 方法将图片“扳正”。同时，通过控制 &lt;code>Canvas&lt;/code> 的尺寸来实现压缩。&lt;/li>
+&lt;/ol>
+&lt;p>注意：代码中加入了一个 &lt;code>getPlat()&lt;/code> 判断，这是因为在实际测试中发现，部分 Android 环境下 Canvas 的旋转行为可能与 iOS 不一致，需要做特殊处理。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;span class="lnt">43
+&lt;/span>&lt;span class="lnt">44
+&lt;/span>&lt;span class="lnt">45
+&lt;/span>&lt;span class="lnt">46
+&lt;/span>&lt;span class="lnt">47
+&lt;/span>&lt;span class="lnt">48
+&lt;/span>&lt;span class="lnt">49
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">// 判断是否为 Android 终端
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">getPlat() {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> let u = navigator.userAgent;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> return u.indexOf(&amp;#39;Android&amp;#39;) &amp;gt; -1 || u.indexOf(&amp;#39;Adr&amp;#39;) &amp;gt; -1;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">},
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">async detail(url) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> let maxWidth = 800; // 设置最大宽度进行压缩
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> let Orientation = 1;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 1. 获取方向
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> await this.getImageTag(url, &amp;#39;Orientation&amp;#39;, function(e) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (e != undefined) Orientation = e;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> })
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> var img = null;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> var canvas = null;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 2. 加载图片资源
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> await this.comprossImage(url, maxWidth, function(e) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> img = e.img;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> canvas = e.canvas;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> })
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> console.log(&amp;#34;图片方向角:&amp;#34;, Orientation)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> let baseStr = &amp;#39;&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 3. 根据方向角进行旋转修正
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 注意：这里针对不同平台做了一些特定逻辑处理（根据实际调试情况调整）
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> switch (Orientation) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> case 6: // 需要顺时针（向右）90度
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> baseStr = this.getPlat() ?
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.rotateImg(img, &amp;#39;right&amp;#39;, canvas) :
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.rotateImg(img, &amp;#39;&amp;#39;, canvas); // 某些安卓机型可能不需要手动旋，视具体Webview内核而定
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> break;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> case 8: // 需要逆时针（向左）90度
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> baseStr = this.getPlat() ?
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.rotateImg(img, &amp;#39;left&amp;#39;, canvas) :
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.rotateImg(img, &amp;#39;&amp;#39;, canvas);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> break;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> case 3: // 180度
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> baseStr = this.rotateImg(img, &amp;#39;right&amp;#39;, canvas, 2);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> break;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> default:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> baseStr = this.rotateImg(img, &amp;#39;&amp;#39;, canvas);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> break;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> return baseStr;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">},
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ol start="4">
+&lt;li>旋转的具体实现 (rotateImg)
+利用 &lt;code>Canvas&lt;/code> 上下文的 &lt;code>rotate&lt;/code> 和 &lt;code>drawImage&lt;/code>。&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;span class="lnt">43
+&lt;/span>&lt;span class="lnt">44
+&lt;/span>&lt;span class="lnt">45
+&lt;/span>&lt;span class="lnt">46
+&lt;/span>&lt;span class="lnt">47
+&lt;/span>&lt;span class="lnt">48
+&lt;/span>&lt;span class="lnt">49
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">rotateImg(img, direction, canvas, times = 1) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // ...初始化参数，计算宽高...
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> var width = img.width;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> var height = img.height;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 压缩逻辑：限制最大宽度
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> let maxWidth = 800;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (width &amp;gt; maxWidth) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> height = Math.floor(height * (maxWidth / width));
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> width = maxWidth;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 旋转角度计算
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> var step = 0;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (direction == &amp;#39;right&amp;#39;) step += times;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> else if (direction == &amp;#39;left&amp;#39;) step -= times;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> var degree = step * 90 * Math.PI / 180;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> var ctx = canvas.getContext(&amp;#39;2d&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> switch (step) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> case 1: // 旋转90度
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> canvas.width = height;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> canvas.height = width;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ctx.rotate(degree);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ctx.drawImage(img, 0, -height, width, height);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> break;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> case 2: // 旋转180度
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> canvas.width = width;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> canvas.height = height;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ctx.rotate(degree);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ctx.drawImage(img, -width, -height, width, height);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> break;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> case 3: // 旋转270度（-90度）
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> canvas.width = height;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> canvas.height = width;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ctx.rotate(degree);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ctx.drawImage(img, -width, 0, width, height);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> break;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> default: // 不旋转
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> canvas.width = width;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> canvas.height = height;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ctx.drawImage(img, 0, 0, width, height);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> break;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 输出压缩后的 Base64，quality 设置为 0.8
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> return canvas.toDataURL(&amp;#34;image/jpeg&amp;#34;, 0.8);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ol start="5">
+&lt;li>上传逻辑
+最后，将获取到的 Base64 字符串（去除头部信息后）发送给后端。&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">uploadPhoto() {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (!this.photoSrc) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> return;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> let obj = {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 去除 base64 头部，后端通常只需要内容
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> Photo: this.photoSrc.split(&amp;#39;;base64,&amp;#39;)[1],
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> TimeStamp: new Date().getTime(),
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // ...其他业务参数
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> };
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 发起请求
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // this.$http.baseRequest(...)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="遇到的坑与总结">遇到的坑与总结&lt;/h2>
+&lt;ul>
+&lt;li>Canvas 宽高混淆：当图片旋转 90 度时，Canvas 的 width 和 height 必须互换，否则图片会被裁剪或拉伸。&lt;/li>
+&lt;li>Android 兼容性：代码中 this.getPlat() 的判断非常重要。部分 Android 手机的 WebView 或者浏览器在上传图片时会自动修正方向，如果我们再手动旋转一次，图片反而会歪掉。建议在真机上多测试几款主流机型。&lt;/li>
+&lt;li>内存溢出：对于超大分辨率的图片（如 4000x3000），Canvas 绘制可能会导致 iOS Webview 崩溃（OOM）。解决方案是在绘制前先大幅度压缩图片尺寸（如限制 maxWidth）。&lt;/li>
+&lt;/ul>
+&lt;p>通过以上方案，我们不仅解决了图片“歪脖子”的问题，还实现了前端压缩，大大减轻了服务器带宽压力。&lt;/p></description></item><item><title>uniapp拍照上传图片h5</title><link>https://changxiangyu.cn/p/uniapp%E6%8B%8D%E7%85%A7%E4%B8%8A%E4%BC%A0%E5%9B%BE%E7%89%87h5/</link><pubDate>Fri, 30 Dec 2022 13:05:18 +0800</pubDate><guid>https://changxiangyu.cn/p/uniapp%E6%8B%8D%E7%85%A7%E4%B8%8A%E4%BC%A0%E5%9B%BE%E7%89%87h5/</guid><description>&lt;h1 id="step-1-界面代码实现">Step 1: 界面代码实现&lt;/h1>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;span class="lnt">9
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">&amp;lt;template&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;view class=&amp;#34;body&amp;#34;&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;view class=&amp;#34;btn&amp;#34;&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;view class=&amp;#34;picture-img&amp;#34; ref=&amp;#34;uploadContent&amp;#34; id=&amp;#34;uploadContent&amp;#34; @click=&amp;#34;takePhotos()&amp;#34;&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;div class=&amp;#34;loader-19&amp;#34; v-if=&amp;#34;loader&amp;#34;&amp;gt;&amp;lt;/div&amp;gt;点击修改
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;/view&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;/view&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;lt;/view&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&amp;lt;/template&amp;gt;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h1 id="step-2-使用到的方法">Step 2: 使用到的方法&lt;/h1>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;span class="lnt">43
+&lt;/span>&lt;span class="lnt">44
+&lt;/span>&lt;span class="lnt">45
+&lt;/span>&lt;span class="lnt">46
+&lt;/span>&lt;span class="lnt">47
+&lt;/span>&lt;span class="lnt">48
+&lt;/span>&lt;span class="lnt">49
+&lt;/span>&lt;span class="lnt">50
+&lt;/span>&lt;span class="lnt">51
+&lt;/span>&lt;span class="lnt">52
+&lt;/span>&lt;span class="lnt">53
+&lt;/span>&lt;span class="lnt">54
+&lt;/span>&lt;span class="lnt">55
+&lt;/span>&lt;span class="lnt">56
+&lt;/span>&lt;span class="lnt">57
+&lt;/span>&lt;span class="lnt">58
+&lt;/span>&lt;span class="lnt">59
+&lt;/span>&lt;span class="lnt">60
+&lt;/span>&lt;span class="lnt">61
+&lt;/span>&lt;span class="lnt">62
+&lt;/span>&lt;span class="lnt">63
+&lt;/span>&lt;span class="lnt">64
+&lt;/span>&lt;span class="lnt">65
+&lt;/span>&lt;span class="lnt">66
+&lt;/span>&lt;span class="lnt">67
+&lt;/span>&lt;span class="lnt">68
+&lt;/span>&lt;span class="lnt">69
+&lt;/span>&lt;span class="lnt">70
+&lt;/span>&lt;span class="lnt">71
+&lt;/span>&lt;span class="lnt">72
+&lt;/span>&lt;span class="lnt">73
+&lt;/span>&lt;span class="lnt">74
+&lt;/span>&lt;span class="lnt">75
+&lt;/span>&lt;span class="lnt">76
+&lt;/span>&lt;span class="lnt">77
+&lt;/span>&lt;span class="lnt">78
+&lt;/span>&lt;span class="lnt">79
+&lt;/span>&lt;span class="lnt">80
+&lt;/span>&lt;span class="lnt">81
+&lt;/span>&lt;span class="lnt">82
+&lt;/span>&lt;span class="lnt">83
+&lt;/span>&lt;span class="lnt">84
+&lt;/span>&lt;span class="lnt">85
+&lt;/span>&lt;span class="lnt">86
+&lt;/span>&lt;span class="lnt">87
+&lt;/span>&lt;span class="lnt">88
+&lt;/span>&lt;span class="lnt">89
+&lt;/span>&lt;span class="lnt">90
+&lt;/span>&lt;span class="lnt">91
+&lt;/span>&lt;span class="lnt">92
+&lt;/span>&lt;span class="lnt">93
+&lt;/span>&lt;span class="lnt">94
+&lt;/span>&lt;span class="lnt">95
+&lt;/span>&lt;span class="lnt">96
+&lt;/span>&lt;span class="lnt">97
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">takePhotos() {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const _that = this;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (document.getElementById(&amp;#34;take-picture&amp;#34;) == null) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> let input = _that.createInputAndSetAttribute();
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> _that.$refs.uploadContent.$el.appendChild(input);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> input.onchange = async (event) =&amp;gt; {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> _that.loader = true;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> var files = event.target.files
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (files &amp;amp;&amp;amp; files.length &amp;gt; 0) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const file = files[0];
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 压缩图片需要的一些元素和对象
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> var reader = new FileReader(),
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> img = new Image();
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 缩放图片需要的canvas
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> var canvas = document.createElement(&amp;#39;canvas&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> var context = canvas.getContext(&amp;#39;2d&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // base64地址图片加载完毕后
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> img.onload = function() {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 图片原始尺寸
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> var originWidth = this.width;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> var originHeight = this.height;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 最大尺寸限制
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> var maxWidth = 960,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> maxHeight = 1280;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 目标尺寸
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> var targetWidth = originWidth,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> targetHeight = originHeight;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 图片尺寸超过400x400的限制
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (originWidth &amp;gt; maxWidth || originHeight &amp;gt; maxHeight) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (originWidth / originHeight &amp;gt; maxWidth / maxHeight) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 更宽，按照宽度限定尺寸
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> targetWidth = maxWidth;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> targetHeight = Math.round(maxWidth * (originHeight / originWidth));
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> } else {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> targetHeight = maxHeight;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> targetWidth = Math.round(maxHeight * (originWidth / originHeight));
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // canvas对图片进行缩放
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> canvas.width = targetWidth;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> canvas.height = targetHeight;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 清除画布
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> context.clearRect(0, 0, targetWidth, targetHeight);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 图片压缩
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> context.drawImage(img, 0, 0, targetWidth, targetHeight);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // canvas转为blob并上传
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> canvas.toBlob(async (blob) =&amp;gt; {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const newFile = new File([blob], &amp;#39;123.jpg&amp;#39;, {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> type: blob.type
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> })
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const imgPath = await upload(newFile, file.path, `/qy/photo`)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const detectionRes = await detection(imgPath)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> await editFacePhoto(detectionRes).then(res =&amp;gt; {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (res.code === 0) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> _that.photoSrc = res.imgUrl
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> _that.$u.toast(&amp;#34;上传成功！&amp;#34;, 2000)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> } else {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> _that.$u.toast(res.msg, 3000)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> })
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> _that.loader = false
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> _that.removeDocument()
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }, file.type || &amp;#39;image/png&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> };
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 文件base64化，以便获知图片原始尺寸
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> reader.onload = function(e) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> img.src = e.target.result;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> };
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> reader.readAsDataURL(file);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> document.querySelector(&amp;#34;#take-picture&amp;#34;).click();
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">// 创建input并设置input的属性
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">createInputAndSetAttribute() {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> var input = document.createElement(&amp;#39;input&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> input.type = &amp;#39;file&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> input.id = &amp;#39;take-picture&amp;#39;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> input.accept = &amp;#39;image/*&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // input.capture = &amp;#39;user&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> input.style.opacity = 0;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> input.style.position = &amp;#39;absolute&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> input.style.top = 0;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> input.style.left = 0;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> input.style.width = &amp;#39;50px&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> input.style.height = &amp;#39;50px&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> return input;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">// 移除input节点
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">removeDocument() {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const uploadContent = document.getElementById(&amp;#34;uploadContent&amp;#34;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const takePicture = document.getElementById(&amp;#34;take-picture&amp;#34;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> uploadContent.removeChild(takePicture);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>可参考： &lt;a class="link" href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/file" target="_blank" rel="noopener"
+>https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/file&lt;/a>&lt;/p>
+&lt;h2 id="目前的实现方式有几个优化点">目前的实现方式有几个优化点：&lt;/h2>
+&lt;ol>
+&lt;li>Vue 违规操作：在 Vue/Uniapp 中频繁使用 document.createElement、appendChild 和 removeChild 是不推荐的（这是 jQuery 时代的思维），应该利用 Vue 的模板语法。&lt;/li>
+&lt;li>回调地狱：FileReader、Image.onload、canvas.toBlob 层层嵌套，代码难以维护。&lt;/li>
+&lt;li>逻辑耦合：压缩逻辑、上传逻辑和 UI 交互混在一起。
+以下是优化后的版本，采用 Vue 数据驱动 的方式，并将压缩逻辑封装为 Promise，使代码清晰易读。&lt;/li>
+&lt;/ol>
+&lt;h2 id="优化思路">优化思路&lt;/h2>
+&lt;ol>
+&lt;li>&lt;strong>移除 DOM 操作&lt;/strong>：将 &lt;code>&amp;lt;input type=&amp;quot;file&amp;quot;&amp;gt;&lt;/code> 直接写在 &lt;code>&amp;lt;template&amp;gt;&lt;/code> 中并通过 &lt;code>v-show&lt;/code> 隐藏，通过 &lt;code>ref&lt;/code> 触发点击，避免动态创建销毁 DOM。&lt;/li>
+&lt;li>&lt;strong>异步扁平化&lt;/strong>：将图片加载和 Canvas 压缩逻辑封装成 &lt;code>Promise&lt;/code>，使用 &lt;code>async/await&lt;/code> 替代回调函数。&lt;/li>
+&lt;li>&lt;strong>功能拆分&lt;/strong>：将“选择图片”、“压缩图片”、“上传业务”拆分为独立方法。&lt;/li>
+&lt;/ol>
+&lt;h2 id="step-1-界面代码实现-1">Step 1: 界面代码实现&lt;/h2>
+&lt;p>使用 &lt;code>ref&lt;/code> 引用隐藏的 input 元素，保持页面结构整洁。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-html" data-lang="html">&lt;span class="line">&lt;span class="cl">&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="nt">template&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">&amp;lt;&lt;/span>&lt;span class="nt">view&lt;/span> &lt;span class="na">class&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s">&amp;#34;body&amp;#34;&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">&amp;lt;&lt;/span>&lt;span class="nt">view&lt;/span> &lt;span class="na">class&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s">&amp;#34;btn&amp;#34;&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c">&amp;lt;!-- 触发按钮 --&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">&amp;lt;&lt;/span>&lt;span class="nt">view&lt;/span> &lt;span class="na">class&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s">&amp;#34;picture-img&amp;#34;&lt;/span> &lt;span class="err">@&lt;/span>&lt;span class="na">click&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s">&amp;#34;triggerSelect&amp;#34;&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">&amp;lt;&lt;/span>&lt;span class="nt">div&lt;/span> &lt;span class="na">class&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s">&amp;#34;loader-19&amp;#34;&lt;/span> &lt;span class="na">v-if&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s">&amp;#34;loader&amp;#34;&lt;/span>&lt;span class="p">&amp;gt;&amp;lt;/&lt;/span>&lt;span class="nt">div&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> {{ loader ? &amp;#39;处理中...&amp;#39; : &amp;#39;点击修改&amp;#39; }}
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">&amp;lt;/&lt;/span>&lt;span class="nt">view&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c">&amp;lt;!-- 隐藏的原生Input，用于H5调用相机/文件 --&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c">&amp;lt;!-- accept=&amp;#34;image/*&amp;#34; 限制图片，capture=&amp;#34;user&amp;#34; 可选：强制调用前置摄像头 --&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">&amp;lt;&lt;/span>&lt;span class="nt">input&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="na">type&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s">&amp;#34;file&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="na">ref&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s">&amp;#34;fileInput&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="na">accept&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s">&amp;#34;image/*&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="na">class&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s">&amp;#34;hidden-input&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="err">@&lt;/span>&lt;span class="na">change&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s">&amp;#34;handleFileChange&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">/&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">&amp;lt;/&lt;/span>&lt;span class="nt">view&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">&amp;lt;/&lt;/span>&lt;span class="nt">view&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">&amp;lt;/&lt;/span>&lt;span class="nt">template&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="nt">style&lt;/span> &lt;span class="na">scoped&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">.&lt;/span>&lt;span class="nc">hidden-input&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">display&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="kc">none&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="c">/* 隐藏input */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c">/* 你的其他样式... */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">&amp;lt;/&lt;/span>&lt;span class="nt">style&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="step-2-逻辑实现-script">Step 2: 逻辑实现 (Script)&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt"> 10
+&lt;/span>&lt;span class="lnt"> 11
+&lt;/span>&lt;span class="lnt"> 12
+&lt;/span>&lt;span class="lnt"> 13
+&lt;/span>&lt;span class="lnt"> 14
+&lt;/span>&lt;span class="lnt"> 15
+&lt;/span>&lt;span class="lnt"> 16
+&lt;/span>&lt;span class="lnt"> 17
+&lt;/span>&lt;span class="lnt"> 18
+&lt;/span>&lt;span class="lnt"> 19
+&lt;/span>&lt;span class="lnt"> 20
+&lt;/span>&lt;span class="lnt"> 21
+&lt;/span>&lt;span class="lnt"> 22
+&lt;/span>&lt;span class="lnt"> 23
+&lt;/span>&lt;span class="lnt"> 24
+&lt;/span>&lt;span class="lnt"> 25
+&lt;/span>&lt;span class="lnt"> 26
+&lt;/span>&lt;span class="lnt"> 27
+&lt;/span>&lt;span class="lnt"> 28
+&lt;/span>&lt;span class="lnt"> 29
+&lt;/span>&lt;span class="lnt"> 30
+&lt;/span>&lt;span class="lnt"> 31
+&lt;/span>&lt;span class="lnt"> 32
+&lt;/span>&lt;span class="lnt"> 33
+&lt;/span>&lt;span class="lnt"> 34
+&lt;/span>&lt;span class="lnt"> 35
+&lt;/span>&lt;span class="lnt"> 36
+&lt;/span>&lt;span class="lnt"> 37
+&lt;/span>&lt;span class="lnt"> 38
+&lt;/span>&lt;span class="lnt"> 39
+&lt;/span>&lt;span class="lnt"> 40
+&lt;/span>&lt;span class="lnt"> 41
+&lt;/span>&lt;span class="lnt"> 42
+&lt;/span>&lt;span class="lnt"> 43
+&lt;/span>&lt;span class="lnt"> 44
+&lt;/span>&lt;span class="lnt"> 45
+&lt;/span>&lt;span class="lnt"> 46
+&lt;/span>&lt;span class="lnt"> 47
+&lt;/span>&lt;span class="lnt"> 48
+&lt;/span>&lt;span class="lnt"> 49
+&lt;/span>&lt;span class="lnt"> 50
+&lt;/span>&lt;span class="lnt"> 51
+&lt;/span>&lt;span class="lnt"> 52
+&lt;/span>&lt;span class="lnt"> 53
+&lt;/span>&lt;span class="lnt"> 54
+&lt;/span>&lt;span class="lnt"> 55
+&lt;/span>&lt;span class="lnt"> 56
+&lt;/span>&lt;span class="lnt"> 57
+&lt;/span>&lt;span class="lnt"> 58
+&lt;/span>&lt;span class="lnt"> 59
+&lt;/span>&lt;span class="lnt"> 60
+&lt;/span>&lt;span class="lnt"> 61
+&lt;/span>&lt;span class="lnt"> 62
+&lt;/span>&lt;span class="lnt"> 63
+&lt;/span>&lt;span class="lnt"> 64
+&lt;/span>&lt;span class="lnt"> 65
+&lt;/span>&lt;span class="lnt"> 66
+&lt;/span>&lt;span class="lnt"> 67
+&lt;/span>&lt;span class="lnt"> 68
+&lt;/span>&lt;span class="lnt"> 69
+&lt;/span>&lt;span class="lnt"> 70
+&lt;/span>&lt;span class="lnt"> 71
+&lt;/span>&lt;span class="lnt"> 72
+&lt;/span>&lt;span class="lnt"> 73
+&lt;/span>&lt;span class="lnt"> 74
+&lt;/span>&lt;span class="lnt"> 75
+&lt;/span>&lt;span class="lnt"> 76
+&lt;/span>&lt;span class="lnt"> 77
+&lt;/span>&lt;span class="lnt"> 78
+&lt;/span>&lt;span class="lnt"> 79
+&lt;/span>&lt;span class="lnt"> 80
+&lt;/span>&lt;span class="lnt"> 81
+&lt;/span>&lt;span class="lnt"> 82
+&lt;/span>&lt;span class="lnt"> 83
+&lt;/span>&lt;span class="lnt"> 84
+&lt;/span>&lt;span class="lnt"> 85
+&lt;/span>&lt;span class="lnt"> 86
+&lt;/span>&lt;span class="lnt"> 87
+&lt;/span>&lt;span class="lnt"> 88
+&lt;/span>&lt;span class="lnt"> 89
+&lt;/span>&lt;span class="lnt"> 90
+&lt;/span>&lt;span class="lnt"> 91
+&lt;/span>&lt;span class="lnt"> 92
+&lt;/span>&lt;span class="lnt"> 93
+&lt;/span>&lt;span class="lnt"> 94
+&lt;/span>&lt;span class="lnt"> 95
+&lt;/span>&lt;span class="lnt"> 96
+&lt;/span>&lt;span class="lnt"> 97
+&lt;/span>&lt;span class="lnt"> 98
+&lt;/span>&lt;span class="lnt"> 99
+&lt;/span>&lt;span class="lnt">100
+&lt;/span>&lt;span class="lnt">101
+&lt;/span>&lt;span class="lnt">102
+&lt;/span>&lt;span class="lnt">103
+&lt;/span>&lt;span class="lnt">104
+&lt;/span>&lt;span class="lnt">105
+&lt;/span>&lt;span class="lnt">106
+&lt;/span>&lt;span class="lnt">107
+&lt;/span>&lt;span class="lnt">108
+&lt;/span>&lt;span class="lnt">109
+&lt;/span>&lt;span class="lnt">110
+&lt;/span>&lt;span class="lnt">111
+&lt;/span>&lt;span class="lnt">112
+&lt;/span>&lt;span class="lnt">113
+&lt;/span>&lt;span class="lnt">114
+&lt;/span>&lt;span class="lnt">115
+&lt;/span>&lt;span class="lnt">116
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">export default {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> data() {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> return {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> loader: false,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> photoSrc: &amp;#39;&amp;#39;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> };
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> },
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> methods: {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 1. 触发文件选择
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> triggerSelect() {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 在Uniapp H5中，通过$refs获取原生DOM元素并点击
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 注意：App端不支持此操作，App端请使用 uni.chooseImage
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.$refs.fileInput.click();
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> },
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 2. 监听文件改变
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> async handleFileChange(event) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const files = event.target.files;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (!files || files.length === 0) return;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.loader = true;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const file = files[0];
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> try {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // A. 压缩图片
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const { blob, filename } = await this.compressImage(file);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // B. 构造新的File对象 (解决部分浏览器兼容性)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const newFile = new File([blob], filename || &amp;#39;compressed.jpg&amp;#39;, { type: blob.type });
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // C. 执行上传业务
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> await this.uploadProcess(newFile, file.path); // file.path 在H5 input中可能不存在，视业务需求调整
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> } catch (error) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> console.error(&amp;#34;处理失败&amp;#34;, error);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.$u.toast(&amp;#34;图片处理失败&amp;#34;, 2000);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> } finally {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.loader = false;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 清空value，确保下次选择同一张图也能触发change事件
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> event.target.value = &amp;#39;&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> },
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 3. 核心：图片压缩工具函数 (返回Promise)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> compressImage(file) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> return new Promise((resolve, reject) =&amp;gt; {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const reader = new FileReader();
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> reader.readAsDataURL(file);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> reader.onload = (e) =&amp;gt; {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const img = new Image();
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> img.src = e.target.result;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> img.onload = () =&amp;gt; {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 原始尺寸
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const originWidth = img.width;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const originHeight = img.height;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 目标尺寸配置
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const maxWidth = 960;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const maxHeight = 1280;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> let targetWidth = originWidth;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> let targetHeight = originHeight;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 计算缩放比例
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (originWidth &amp;gt; maxWidth || originHeight &amp;gt; maxHeight) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (originWidth / originHeight &amp;gt; maxWidth / maxHeight) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> targetWidth = maxWidth;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> targetHeight = Math.round(maxWidth * (originHeight / originWidth));
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> } else {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> targetHeight = maxHeight;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> targetWidth = Math.round(maxHeight * (originWidth / originHeight));
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // Canvas 绘制
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const canvas = document.createElement(&amp;#39;canvas&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const context = canvas.getContext(&amp;#39;2d&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> canvas.width = targetWidth;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> canvas.height = targetHeight;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> context.clearRect(0, 0, targetWidth, targetHeight);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> context.drawImage(img, 0, 0, targetWidth, targetHeight);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 导出 Blob
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> canvas.toBlob((blob) =&amp;gt; {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (blob) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> resolve({ blob, filename: file.name });
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> } else {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> reject(new Error(&amp;#39;Canvas to Blob failed&amp;#39;));
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }, file.type || &amp;#39;image/jpeg&amp;#39;, 0.8); // 0.8 为压缩质量
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> };
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> img.onerror = (err) =&amp;gt; reject(err);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> };
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> reader.onerror = (err) =&amp;gt; reject(err);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> });
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> },
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 4. 上传业务逻辑
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> async uploadProcess(file, originalPath) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 假设 upload, detection, editFacePhoto 已导入或定义
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const imgPath = await upload(file, originalPath, `/qy/photo`);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const detectionRes = await detection(imgPath);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const res = await editFacePhoto(detectionRes);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (res.code === 0) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.photoSrc = res.imgUrl;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.$u.toast(&amp;#34;上传成功！&amp;#34;, 2000);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> } else {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.$u.toast(res.msg, 3000);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="关键改进点说明">关键改进点说明&lt;/h3>
+&lt;ol>
+&lt;li>Input 复用：&lt;/li>
+&lt;/ol>
+&lt;ul>
+&lt;li>原代码每次点击都 &lt;code>createElement&lt;/code>，不仅性能低，而且在部分安卓 WebView 中可能因为 DOM 未完全插入而无法唤起相机。&lt;/li>
+&lt;li>新代码将&lt;code> &amp;lt;input&amp;gt;&lt;/code> 静态化，利用 &lt;code>event.target.value = ''&lt;/code> 重置状态，确保稳定性。&lt;/li>
+&lt;/ul>
+&lt;ol start="2">
+&lt;li>Promise 封装：&lt;/li>
+&lt;/ol>
+&lt;ul>
+&lt;li>原代码在 &lt;code>img.onload&lt;/code> 内部嵌套了大量业务逻辑。&lt;/li>
+&lt;li>新代码将压缩逻辑提取为 &lt;code>compressImage&lt;/code>，返回 Promise，使得主流程 &lt;code>handleFileChange&lt;/code> 可以使用 &lt;code>await&lt;/code> 顺序执行，逻辑一目了然。&lt;/li>
+&lt;/ul>
+&lt;ol start="3">
+&lt;li>兼容性处理：&lt;/li>
+&lt;/ol>
+&lt;ul>
+&lt;li>增加了 &lt;code>canvas.toBlob&lt;/code> 的质量参数（0.8），可进一步减小体积。&lt;/li>
+&lt;li>增加了 &lt;code>input&lt;/code> 的 &lt;code>display: none&lt;/code> 样式，避免页面出现奇怪的占位。&lt;/li>
+&lt;/ul></description></item></channel></rss>

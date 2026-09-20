@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>awk on 我的空间</title><link>https://changxiangyu.cn/tags/awk/</link><description>Recent content in awk on 我的空间</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Wed, 17 Aug 2022 10:03:18 +0800</lastBuildDate><atom:link href="https://changxiangyu.cn/tags/awk/index.xml" rel="self" type="application/rss+xml"/><item><title>Linux 下使用 awk 操作文件内容</title><link>https://changxiangyu.cn/p/linux-%E4%B8%8B%E4%BD%BF%E7%94%A8-awk-%E6%93%8D%E4%BD%9C%E6%96%87%E4%BB%B6%E5%86%85%E5%AE%B9/</link><pubDate>Wed, 17 Aug 2022 10:03:18 +0800</pubDate><guid>https://changxiangyu.cn/p/linux-%E4%B8%8B%E4%BD%BF%E7%94%A8-awk-%E6%93%8D%E4%BD%9C%E6%96%87%E4%BB%B6%E5%86%85%E5%AE%B9/</guid><description>&lt;p>参考: &lt;a class="link" href="https://blog.csdn.net/laobai1015/article/details/98628860" target="_blank" rel="noopener"
+>https://blog.csdn.net/laobai1015/article/details/98628860&lt;/a>&lt;/p>
+&lt;h2 id="需求">需求&lt;/h2>
+&lt;ol>
+&lt;li>把 /etc/rancher/k3s/k3s.yaml 文件的内容，每行前面加 4 个空格，追加到 ai-service-platform/yamls/config/kube-config.yaml 文件中；&lt;/li>
+&lt;li>把 ai-service-platform/yamls/config/kube-config.yaml 文件中的 127.0.0.1 替换成 $master_host_ip。&lt;/li>
+&lt;/ol>
+&lt;p>脚本：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">function fix_kube_config(){
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> sudo awk &amp;#39;{print &amp;#34; &amp;#34; $0 &amp;gt;&amp;gt; &amp;#34;ai-service-platform/yamls/config/kube-config.yaml&amp;#34;}&amp;#39; /etc/rancher/k3s/k3s.yaml
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> sed -i &amp;#34;s/127.0.0.1/$master_host_ip/g&amp;#34; ai-service-platform/yamls/config/kube-config.yaml
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="扩展">扩展&lt;/h2>
+&lt;p>在前面、后面、指定列添加相同字符&lt;/p>
+&lt;ol>
+&lt;li>给一个文件中的每一行开头插入字符的方法：awk &amp;lsquo;{print &amp;ldquo;需要添加的字符&amp;rdquo; $0}&amp;rsquo; fileName&lt;/li>
+&lt;li>给一个文件中的每一行结尾插入字符的方法：awk &amp;lsquo;{print $0 &amp;ldquo;需要添加的字符&amp;rdquo;}&amp;rsquo; fileName&lt;/li>
+&lt;li>给一个文件中的每一行的指定列插入字符的方法：awk &amp;lsquo;$0=$0 X&amp;quot;&amp;rsquo; fileName&lt;/li>
+&lt;/ol>
+&lt;p>删除某一个列&lt;/p>
+&lt;ol>
+&lt;li>删除文件中的第一列：awk &amp;lsquo;{$1=&amp;quot;&amp;quot;;print $0}&amp;rsquo; fileName 或者另一种方法 sed -e &amp;rsquo;s/[^ ]* //&amp;rsquo; text&lt;/li>
+&lt;li>删除指定列：awk &amp;lsquo;{$Num=&amp;quot;&amp;quot;;print $0}&amp;rsquo; fileName&lt;/li>
+&lt;/ol>
+&lt;p>把Num换成要删除的列数即可&lt;/p>
+&lt;h2 id="练习">练习&lt;/h2>
+&lt;p>给文件中的每一行开头添加drop tables&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">awk &amp;#39;{print &amp;#34;drop table &amp;#34;$0}&amp;#39; aa.txt &amp;gt; bb.txt
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>给文件中的每一行结尾添加分号&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">awk &amp;#39;{print $0&amp;#34;;&amp;#34;}&amp;#39; bb.txt &amp;gt; cc.txt
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item></channel></rss>

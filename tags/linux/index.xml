@@ -1,0 +1,754 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Linux on 我的空间</title><link>https://changxiangyu.cn/tags/linux/</link><description>Recent content in Linux on 我的空间</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Tue, 13 Sep 2022 14:44:00 +0800</lastBuildDate><atom:link href="https://changxiangyu.cn/tags/linux/index.xml" rel="self" type="application/rss+xml"/><item><title>ssh服务</title><link>https://changxiangyu.cn/p/ssh%E6%9C%8D%E5%8A%A1/</link><pubDate>Tue, 13 Sep 2022 14:44:00 +0800</pubDate><guid>https://changxiangyu.cn/p/ssh%E6%9C%8D%E5%8A%A1/</guid><description>&lt;h2 id="更新源">更新源&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">sudo apt-get update
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="安装ssh服务">安装ssh服务&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">sudo apt-get install openssh-server
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="验证ssh服务">验证SSH服务&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">sudo systemctl status ssh
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="创建密钥">创建密钥&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">ssh-keygen
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item><item><title>Linux命令行上传文件到百度网盘</title><link>https://changxiangyu.cn/p/linux%E5%91%BD%E4%BB%A4%E8%A1%8C%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6%E5%88%B0%E7%99%BE%E5%BA%A6%E7%BD%91%E7%9B%98/</link><pubDate>Wed, 07 Sep 2022 14:18:00 +0800</pubDate><guid>https://changxiangyu.cn/p/linux%E5%91%BD%E4%BB%A4%E8%A1%8C%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6%E5%88%B0%E7%99%BE%E5%BA%A6%E7%BD%91%E7%9B%98/</guid><description>&lt;blockquote>
+&lt;p>参考: &lt;a class="link" href="https://www.jianshu.com/p/dc7e86b171cb" target="_blank" rel="noopener"
+>https://www.jianshu.com/p/dc7e86b171cb&lt;/a>&lt;/p>
+&lt;/blockquote>
+&lt;h2 id="安装软件工具">安装软件工具&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">pip install requests
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">pip install bypy
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="授权登陆">授权登陆&lt;/h2>
+&lt;p>执行 bypy info，显示下边信息，根据提示，通过浏览器访问下边灰色的https链接，如果此时百度网盘账号正在登陆，会出现长串授权码，复制。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">[root@yu~]# bypy info
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Please visit: # 访问下边这个连接，复制授权码
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">https://openapi.baidu.com/oauth/2.0/authorize?scope=basic+netdisk&amp;amp;redirect_uri=oob&amp;amp;response_type=code&amp;amp;client_id=q8WE4EpCsau1oS0MplgMKNBn
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">And authorize this app
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Paste the Authorization Code here within 10 minutes.
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Press [Enter] when you are done # 提示在下边粘贴授权码
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>在下边图示位置粘贴授权码，耐心等待一会即可&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">Press [Enter] when you are done
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">2d2416c9e27c5b19f14da97c82daf18e
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Authorizing, please be patient, it may take upto 300 seconds...
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Quota: 14.020TB
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Used: 5.497TB
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>授权成功。&lt;/p>
+&lt;h2 id="测试上传和同步本地文件到云盘">测试上传和同步本地文件到云盘&lt;/h2>
+&lt;p>由于百度PCS API权限限制，程序只能存取百度云端/apps/bypy目录下面的文件和目录。我们可以通过：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">[root@yu~]# bypy list
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">/apps/bypy ($t $f $s $m $d):
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>把本地当前目录下的文件同步到百度云盘：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">bypy upload
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>把云盘上的内容同步到本地:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">bypy downdir
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>比较本地当前目录和云盘根目录，看是否一致，来判断是否同步成功：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">bypy compare
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item><item><title>SSH远程执行脚本报错command not found和环境变量问题</title><link>https://changxiangyu.cn/p/ssh%E8%BF%9C%E7%A8%8B%E6%89%A7%E8%A1%8C%E8%84%9A%E6%9C%AC%E6%8A%A5%E9%94%99command-not-found%E5%92%8C%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E9%97%AE%E9%A2%98/</link><pubDate>Tue, 06 Sep 2022 11:33:18 +0800</pubDate><guid>https://changxiangyu.cn/p/ssh%E8%BF%9C%E7%A8%8B%E6%89%A7%E8%A1%8C%E8%84%9A%E6%9C%AC%E6%8A%A5%E9%94%99command-not-found%E5%92%8C%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E9%97%AE%E9%A2%98/</guid><description>&lt;p>参考: &lt;a class="link" href="https://blog.csdn.net/nklinsirui/article/details/104673286" target="_blank" rel="noopener"
+>https://blog.csdn.net/nklinsirui/article/details/104673286&lt;/a>&lt;/p>
+&lt;h1 id="ssh远程执行脚本报错">SSH远程执行脚本报错&lt;/h1>
+&lt;p>SSH 远程执行脚本报错&amp;quot;command not found&amp;quot;。在宿主机可以执行命令。&lt;/p>
+&lt;p>原因是之前将环境变量配置在了 /etc/profile 中，但是SSH远程执行脚本时实际上执行的是 non-login shell，而 non-login shell不会读取 /etc/profile 配置文件，只读取 ~/.bashrc。&lt;/p>
+&lt;h1 id="login-shell和non-login-shell">login shell和non-login shell&lt;/h1>
+&lt;p>用SSH客户端登陆Linux系统时，要求输入用户名/密码登录或根据SSH key登录时，就是login shell。&lt;/p>
+&lt;p>而在A机器上再用SSH免密码登录B机器，在B机器上执行Shell脚本，就是non-login shell。&lt;/p>
+&lt;p>用Ansible在目标机器上远程执行Shell脚本时，也是non-login shell，因为Ansible是基于SSH的。&lt;/p>
+&lt;h2 id="login-shell和non-login-shell读取的环境变量配置文件">login shell和non-login shell读取的环境变量配置文件&lt;/h2>
+&lt;p>login-shell读取环境变量配置文件：&lt;/p>
+&lt;ul>
+&lt;li>/etc/profile&lt;/li>
+&lt;li>~/.bash_profile&lt;/li>
+&lt;li>~/.profile&lt;/li>
+&lt;li>~/.bashrc&lt;/li>
+&lt;li>/etc/bashrc&lt;/li>
+&lt;/ul>
+&lt;p>注意：~/.bash_profile中已经引入了~/.bashrc，而~/.bashrc引入了/etc/bashrc，因此login shell可以读取到~/.bashrc和/etc/bashrc的配置。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"># Get the aliases and functions
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">if [ -f ~/.bashrc ]; then
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> . ~/.bashrc
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">fi
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>non-login shell读取环境变量配置文件：&lt;/p>
+&lt;ul>
+&lt;li>/etc/bashrc&lt;/li>
+&lt;li>~/.bashrc&lt;/li>
+&lt;/ul>
+&lt;h1 id="解决non-login-shell的环境配置问题">解决non-login shell的环境配置问题&lt;/h1>
+&lt;p>方法一：&lt;/p>
+&lt;p>将login-shell和non-login shell都需要的环境配置放在~/.bashrc中，其它配置放在~/.bash_profile中。&lt;/p>
+&lt;p>方法二：&lt;/p>
+&lt;p>如果环境配置只放在~/.bash_profile中，需要执行non-login shell时先source ~/.bash_profile再执行命令。&lt;/p>
+&lt;p>方法三：&lt;/p>
+&lt;p>在 ~/.bashrc 里添加: . /etc/profile。（立即生效需要: source ~/.bashrc）&lt;/p></description></item><item><title>VLC播放器快捷键</title><link>https://changxiangyu.cn/p/vlc%E6%92%AD%E6%94%BE%E5%99%A8%E5%BF%AB%E6%8D%B7%E9%94%AE/</link><pubDate>Sun, 04 Sep 2022 16:25:18 +0800</pubDate><guid>https://changxiangyu.cn/p/vlc%E6%92%AD%E6%94%BE%E5%99%A8%E5%BF%AB%E6%8D%B7%E9%94%AE/</guid><description>&lt;p>参考: &lt;a class="link" href="https://www.cnblogs.com/pandabang/p/10441242.html" target="_blank" rel="noopener"
+>https://www.cnblogs.com/pandabang/p/10441242.html&lt;/a>&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>音量大/小：上/下&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>静音开/关：M&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>回退/快进：ALT+左/右（步进10s），CTRL+左/右（步进1min）&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>跳到指定时间：CTRL+T&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>播放/暂停：空格&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>停止播放：S（与暂停不同，按下停止后播放进度条回到视频最开始，且窗口不显示视频；而暂停时，窗口显示暂停时的视频）&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>播放速度：{或- 减慢，最慢速度0.02倍正常速度；} 加速，最快速度31.25倍正常速度； = 正常速度&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>全屏开/关：F&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>纵横比切换：A（默认、16:9、4:3、1:1、16:10、2.21:1、2:35:1、2.39:1、5:4）&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>窗口尺寸切换：Z（¼、½、原始尺寸、2倍原始尺寸）&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>显示播放时间/总时长：T&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>播放控件显示/不显示：CTRL+H&lt;/p>
+&lt;/li>
+&lt;/ul></description></item><item><title>linux 系统，使用源码安装 Python</title><link>https://changxiangyu.cn/p/linux-%E7%B3%BB%E7%BB%9F%E4%BD%BF%E7%94%A8%E6%BA%90%E7%A0%81%E5%AE%89%E8%A3%85-python/</link><pubDate>Fri, 26 Aug 2022 16:27:18 +0800</pubDate><guid>https://changxiangyu.cn/p/linux-%E7%B3%BB%E7%BB%9F%E4%BD%BF%E7%94%A8%E6%BA%90%E7%A0%81%E5%AE%89%E8%A3%85-python/</guid><description>&lt;p>参考：https://blog.csdn.net/wxhcyy/article/details/107718794&lt;/p>
+&lt;ol>
+&lt;li>下载安装文件&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"># 链接从官方找
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">wget https://www.python.org/ftp/python/3.6.8/Python-3.6.8.tar.xz
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ol start="2">
+&lt;li>解压&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">export d_path=&amp;#39;&amp;#39;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">tar xf Python-3.6.8.tar.xz -C $d_path
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ol start="3">
+&lt;li>安装&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">cd $d_path
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">./configure --prefix=$d_path/python3.6.8
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">make all
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">make install
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ol start="4">
+&lt;li>测试&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">$d_path/python3.6.8/python -V
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item><item><title>远程传输文件-rsync</title><link>https://changxiangyu.cn/p/%E8%BF%9C%E7%A8%8B%E4%BC%A0%E8%BE%93%E6%96%87%E4%BB%B6-rsync/</link><pubDate>Fri, 19 Aug 2022 17:03:18 +0800</pubDate><guid>https://changxiangyu.cn/p/%E8%BF%9C%E7%A8%8B%E4%BC%A0%E8%BE%93%E6%96%87%E4%BB%B6-rsync/</guid><description>&lt;p>参考链接&lt;/p>
+&lt;ul>
+&lt;li>&lt;a class="link" href="https://www.ruanyifeng.com/blog/2020/08/rsync.html" target="_blank" rel="noopener"
+>https://www.ruanyifeng.com/blog/2020/08/rsync.html&lt;/a>&lt;/li>
+&lt;li>How To Use Rsync to Sync Local and Remote Directories on a VPS, Justin Ellingwood&lt;/li>
+&lt;li>Mirror Your Web Site With rsync, Falko Timme&lt;/li>
+&lt;li>Examples on how to use Rsync, Egidio Docile&lt;/li>
+&lt;li>How to create incremental backups using rsync on Linux, Egidio Docile&lt;/li>
+&lt;/ul>
+&lt;h1 id="一简介">一、简介&lt;/h1>
+&lt;p>rsync 是一个常用的 Linux 应用程序，用于文件同步。&lt;/p>
+&lt;p>它可以在本地计算机与远程计算机之间，或者两个本地目录之间同步文件（但不支持两台远程计算机之间的同步）。它也可以当作文件复制工具，替代cp和mv命令。&lt;/p>
+&lt;p>它名称里面的r指的是 remote，rsync 其实就是&amp;quot;远程同步&amp;quot;（remote sync）的意思。与其他文件传输工具（如 FTP 或 scp）不同，rsync 的最大特点是会检查发送方和接收方已有的文件，仅传输有变动的部分（默认规则是文件大小或修改时间有变动）。&lt;/p>
+&lt;h1 id="二安装">二、安装&lt;/h1>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"># Ubuntu/Debian
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ sudo apt-get install rsync
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># CentOS/Red Hat
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ sudo yum install rsync
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>注意，传输的双方都必须安装 rsync。&lt;/p>
+&lt;h2 id="三基本用法">三、基本用法&lt;/h2>
+&lt;h2 id="31--r-参数">3.1 -r 参数&lt;/h2>
+&lt;p>本机使用 rsync 命令时，可以作为cp和mv命令的替代方法，将源目录同步到目标目录。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">$ rsync -r source destination
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>上面命令中，-r表示递归，即包含子目录。注意，-r是必须的，否则 rsync 运行不会成功。source目录表示源目录，destination表示目标目录。&lt;/p>
+&lt;p>如果有多个文件或目录需要同步，可以写成下面这样。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">$ rsync -r source1 source2 destination
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>上面命令中，source1、source2都会被同步到destination目录。&lt;/p>
+&lt;h2 id="32--a-参数">3.2 -a 参数&lt;/h2>
+&lt;p>-a参数可以替代-r，除了可以递归同步以外，还可以同步元信息（比如修改时间、权限等）。由于 rsync 默认使用文件大小和修改时间决定文件是否需要更新，所以-a比-r更有用。下面的用法才是常见的写法。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">$ rsync -a source destination
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>目标目录destination如果不存在，rsync 会自动创建。执行上面的命令后，源目录source被完整地复制到了目标目录destination下面，即形成了destination/source的目录结构。&lt;/p>
+&lt;p>如果只想同步源目录source里面的内容到目标目录destination，则需要在源目录后面加上斜杠。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">$ rsync -a source/ destination
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>上面命令执行后，source目录里面的内容，就都被复制到了destination目录里面，并不会在destination下面创建一个source子目录。&lt;/p>
+&lt;h2 id="33--n-参数">3.3 -n 参数&lt;/h2>
+&lt;p>如果不确定 rsync 执行后会产生什么结果，可以先用-n或&amp;ndash;dry-run参数模拟执行的结果。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">$ rsync -anv source/ destination
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>上面命令中，-n参数模拟命令执行的结果，并不真的执行命令。-v参数则是将结果输出到终端，这样就可以看到哪些内容会被同步。&lt;/p>
+&lt;h2 id="34---delete-参数">3.4 &amp;ndash;delete 参数&lt;/h2>
+&lt;p>默认情况下，rsync 只确保源目录的所有内容（明确排除的文件除外）都复制到目标目录。它不会使两个目录保持相同，并且不会删除文件。如果要使得目标目录成为源目录的镜像副本，则必须使用&amp;ndash;delete参数，这将删除只存在于目标目录、不存在于源目录的文件。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">$ rsync -av --delete source/ destination
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>上面命令中，&amp;ndash;delete参数会使得destination成为source的一个镜像。&lt;/p>
+&lt;h1 id="四排除文件">四、排除文件&lt;/h1>
+&lt;h2 id="41---exclude-参数">4.1 &amp;ndash;exclude 参数&lt;/h2>
+&lt;p>有时，我们希望同步时排除某些文件或目录，这时可以用&amp;ndash;exclude参数指定排除模式。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">$ rsync -av --exclude=&amp;#39;*.txt&amp;#39; source/ destination
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 或者
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ rsync -av --exclude &amp;#39;*.txt&amp;#39; source/ destination
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>上面命令排除了所有 TXT 文件。&lt;/p>
+&lt;p>注意，rsync 会同步以&amp;quot;点&amp;quot;开头的隐藏文件，如果要排除隐藏文件，可以这样写&amp;ndash;exclude=&amp;quot;.*&amp;quot;。&lt;/p>
+&lt;p>如果要排除某个目录里面的所有文件，但不希望排除目录本身，可以写成下面这样。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">$ rsync -av --exclude &amp;#39;dir1/*&amp;#39; source/ destination
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>多个排除模式，可以用多个&amp;ndash;exclude参数。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">$ rsync -av --exclude &amp;#39;file1.txt&amp;#39; --exclude &amp;#39;dir1/*&amp;#39; source/ destination
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>多个排除模式也可以利用 Bash 的大扩号的扩展功能，只用一个&amp;ndash;exclude参数。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">$ rsync -av --exclude={&amp;#39;file1.txt&amp;#39;,&amp;#39;dir1/*&amp;#39;} source/ destination
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>如果排除模式很多，可以将它们写入一个文件，每个模式一行，然后用&amp;ndash;exclude-from参数指定这个文件。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">$ rsync -av --exclude-from=&amp;#39;exclude-file.txt&amp;#39; source/ destination
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="42---include-参数">4.2 &amp;ndash;include 参数&lt;/h2>
+&lt;p>&amp;ndash;include参数用来指定必须同步的文件模式，往往与&amp;ndash;exclude结合使用。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">$ rsync -av --include=&amp;#34;*.txt&amp;#34; --exclude=&amp;#39;*&amp;#39; source/ destination
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>上面命令指定同步时，排除所有文件，但是会包括 TXT 文件。&lt;/p>
+&lt;h1 id="五远程同步">五、远程同步&lt;/h1>
+&lt;h2 id="51-ssh-协议">5.1 SSH 协议&lt;/h2>
+&lt;p>rsync 除了支持本地两个目录之间的同步，也支持远程同步。它可以将本地内容，同步到远程服务器。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">$ rsync -av source/ username@remote_host:destination
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>也可以将远程内容同步到本地。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">$ rsync -av username@remote_host:source/ destination
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>rsync 默认使用 SSH 进行远程登录和数据传输。&lt;/p>
+&lt;p>由于早期 rsync 不使用 SSH 协议，需要用-e参数指定协议，后来才改的。所以，下面-e ssh可以省略。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">$ rsync -av -e ssh source/ user@remote_host:/destination
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>但是，如果 ssh 命令有附加的参数，则必须使用-e参数指定所要执行的 SSH 命令。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">$ rsync -av -e &amp;#39;ssh -p 2234&amp;#39; source/ user@remote_host:/destination
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>上面命令中，-e参数指定 SSH 使用2234端口。&lt;/p>
+&lt;h2 id="52-rsync-协议">5.2 rsync 协议&lt;/h2>
+&lt;p>除了使用 SSH，如果另一台服务器安装并运行了 rsync 守护程序，则也可以用rsync://协议（默认端口873）进行传输。具体写法是服务器与目标目录之间使用双冒号分隔::。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">$ rsync -av source/ 192.168.122.32::module/destination
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>注意，上面地址中的module并不是实际路径名，而是 rsync 守护程序指定的一个资源名，由管理员分配。&lt;/p>
+&lt;p>如果想知道 rsync 守护程序分配的所有 module 列表，可以执行下面命令。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">$ rsync rsync://192.168.122.32
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>rsync 协议除了使用双冒号，也可以直接用rsync://协议指定地址。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">$ rsync -av source/ rsync://192.168.122.32/module/destination
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h1 id="六增量备份">六、增量备份&lt;/h1>
+&lt;p>rsync 的最大特点就是它可以完成增量备份，也就是默认只复制有变动的文件。&lt;/p>
+&lt;p>除了源目录与目标目录直接比较，rsync 还支持使用基准目录，即将源目录与基准目录之间变动的部分，同步到目标目录。&lt;/p>
+&lt;p>具体做法是，第一次同步是全量备份，所有文件在基准目录里面同步一份。以后每一次同步都是增量备份，只同步源目录与基准目录之间有变动的部分，将这部分保存在一个新的目标目录。这个新的目标目录之中，也是包含所有文件，但实际上，只有那些变动过的文件是存在于该目录，其他没有变动的文件都是指向基准目录文件的硬链接。&lt;/p>
+&lt;p>&amp;ndash;link-dest参数用来指定同步时的基准目录。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">$ rsync -a --delete --link-dest /compare/path /source/path /target/path
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>上面命令中，&amp;ndash;link-dest参数指定基准目录/compare/path，然后源目录/source/path跟基准目录进行比较，找出变动的文件，将它们拷贝到目标目录/target/path。那些没变动的文件则会生成硬链接。这个命令的第一次备份时是全量备份，后面就都是增量备份了。&lt;/p>
+&lt;p>下面是一个脚本示例，备份用户的主目录。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#!/bin/bash
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># A script to perform incremental backups using rsync&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">set&lt;/span> -o errexit
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">set&lt;/span> -o nounset
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">set&lt;/span> -o pipefail
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">readonly&lt;/span> &lt;span class="nv">SOURCE_DIR&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">HOME&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">readonly&lt;/span> &lt;span class="nv">BACKUP_DIR&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;/mnt/data/backups&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">readonly&lt;/span> &lt;span class="nv">DATETIME&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="k">$(&lt;/span>date &lt;span class="s1">&amp;#39;+%Y-%m-%d_%H:%M:%S&amp;#39;&lt;/span>&lt;span class="k">)&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">readonly&lt;/span> &lt;span class="nv">BACKUP_PATH&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">BACKUP_DIR&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">/&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">DATETIME&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">readonly&lt;/span> &lt;span class="nv">LATEST_LINK&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">BACKUP_DIR&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">/latest&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">mkdir -p &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">BACKUP_DIR&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">rsync -av --delete &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">SOURCE_DIR&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">/&amp;#34;&lt;/span> &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --link-dest &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">LATEST_LINK&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --exclude&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;.cache&amp;#34;&lt;/span> &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">BACKUP_PATH&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">rm -rf &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">LATEST_LINK&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">ln -s &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">BACKUP_PATH&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">LATEST_LINK&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>上面脚本中，每一次同步都会生成一个新目录${BACKUP_DIR}/${DATETIME}，并将软链接${BACKUP_DIR}/latest指向这个目录。下一次备份时，就将${BACKUP_DIR}/latest作为基准目录，生成新的备份目录。最后，再将软链接${BACKUP_DIR}/latest指向新的备份目录。&lt;/p>
+&lt;h1 id="七配置项">七、配置项&lt;/h1>
+&lt;p>-a、&amp;ndash;archive参数表示存档模式，保存所有的元数据，比如修改时间（modification time）、权限、所有者等，并且软链接也会同步过去。&lt;/p>
+&lt;p>&amp;ndash;append参数指定文件接着上次中断的地方，继续传输。&lt;/p>
+&lt;p>&amp;ndash;append-verify参数跟&amp;ndash;append参数类似，但会对传输完成后的文件进行一次校验。如果校验失败，将重新发送整个文件。&lt;/p>
+&lt;p>-b、&amp;ndash;backup参数指定在删除或更新目标目录已经存在的文件时，将该文件更名后进行备份，默认行为是删除。更名规则是添加由&amp;ndash;suffix参数指定的文件后缀名，默认是~。&lt;/p>
+&lt;p>&amp;ndash;backup-dir参数指定文件备份时存放的目录，比如&amp;ndash;backup-dir=/path/to/backups。&lt;/p>
+&lt;p>&amp;ndash;bwlimit参数指定带宽限制，默认单位是 KB/s，比如&amp;ndash;bwlimit=100。&lt;/p>
+&lt;p>-c、&amp;ndash;checksum参数改变rsync的校验方式。默认情况下，rsync 只检查文件的大小和最后修改日期是否发生变化，如果发生变化，就重新传输；使用这个参数以后，则通过判断文件内容的校验和，决定是否重新传输。&lt;/p>
+&lt;p>&amp;ndash;delete参数删除只存在于目标目录、不存在于源目标的文件，即保证目标目录是源目标的镜像。&lt;/p>
+&lt;p>-e参数指定使用 SSH 协议传输数据。&lt;/p>
+&lt;p>&amp;ndash;exclude参数指定排除不进行同步的文件，比如&amp;ndash;exclude=&amp;quot;*.iso&amp;quot;。&lt;/p>
+&lt;p>&amp;ndash;exclude-from参数指定一个本地文件，里面是需要排除的文件模式，每个模式一行。&lt;/p>
+&lt;p>&amp;ndash;existing、&amp;ndash;ignore-non-existing参数表示不同步目标目录中不存在的文件和目录。&lt;/p>
+&lt;p>-h参数表示以人类可读的格式输出。&lt;/p>
+&lt;p>-h、&amp;ndash;help参数返回帮助信息。&lt;/p>
+&lt;p>-i参数表示输出源目录与目标目录之间文件差异的详细情况。&lt;/p>
+&lt;p>&amp;ndash;ignore-existing参数表示只要该文件在目标目录中已经存在，就跳过去，不再同步这些文件。&lt;/p>
+&lt;p>&amp;ndash;include参数指定同步时要包括的文件，一般与&amp;ndash;exclude结合使用。&lt;/p>
+&lt;p>&amp;ndash;link-dest参数指定增量备份的基准目录。&lt;/p>
+&lt;p>-m参数指定不同步空目录。&lt;/p>
+&lt;p>&amp;ndash;max-size参数设置传输的最大文件的大小限制，比如不超过200KB（&amp;ndash;max-size=&amp;lsquo;200k&amp;rsquo;）。&lt;/p>
+&lt;p>&amp;ndash;min-size参数设置传输的最小文件的大小限制，比如不小于10KB（&amp;ndash;min-size=10k）。&lt;/p>
+&lt;p>-n参数或&amp;ndash;dry-run参数模拟将要执行的操作，而并不真的执行。配合-v参数使用，可以看到哪些内容会被同步过去。&lt;/p>
+&lt;p>-P参数是&amp;ndash;progress和&amp;ndash;partial这两个参数的结合。&lt;/p>
+&lt;p>&amp;ndash;partial参数允许恢复中断的传输。不使用该参数时，rsync会删除传输到一半被打断的文件；使用该参数后，传输到一半的文件也会同步到目标目录，下次同步时再恢复中断的传输。一般需要与&amp;ndash;append或&amp;ndash;append-verify配合使用。&lt;/p>
+&lt;p>&amp;ndash;partial-dir参数指定将传输到一半的文件保存到一个临时目录，比如&amp;ndash;partial-dir=.rsync-partial。一般需要与&amp;ndash;append或&amp;ndash;append-verify配合使用。&lt;/p>
+&lt;p>&amp;ndash;progress参数表示显示进展。&lt;/p>
+&lt;p>-r参数表示递归，即包含子目录。&lt;/p>
+&lt;p>&amp;ndash;remove-source-files参数表示传输成功后，删除发送方的文件。&lt;/p>
+&lt;p>&amp;ndash;size-only参数表示只同步大小有变化的文件，不考虑文件修改时间的差异。&lt;/p>
+&lt;p>&amp;ndash;suffix参数指定文件名备份时，对文件名添加的后缀，默认是~。&lt;/p>
+&lt;p>-u、&amp;ndash;update参数表示同步时跳过目标目录中修改时间更新的文件，即不同步这些有更新的时间戳的文件。&lt;/p>
+&lt;p>-v参数表示输出细节。-vv表示输出更详细的信息，-vvv表示输出最详细的信息。&lt;/p>
+&lt;p>&amp;ndash;version参数返回 rsync 的版本。&lt;/p>
+&lt;p>-z参数指定同步时压缩数据。&lt;/p></description></item><item><title>替换文件夹中所有文件内容的特定字符串</title><link>https://changxiangyu.cn/p/%E6%9B%BF%E6%8D%A2%E6%96%87%E4%BB%B6%E5%A4%B9%E4%B8%AD%E6%89%80%E6%9C%89%E6%96%87%E4%BB%B6%E5%86%85%E5%AE%B9%E7%9A%84%E7%89%B9%E5%AE%9A%E5%AD%97%E7%AC%A6%E4%B8%B2/</link><pubDate>Wed, 17 Aug 2022 17:38:18 +0800</pubDate><guid>https://changxiangyu.cn/p/%E6%9B%BF%E6%8D%A2%E6%96%87%E4%BB%B6%E5%A4%B9%E4%B8%AD%E6%89%80%E6%9C%89%E6%96%87%E4%BB%B6%E5%86%85%E5%AE%B9%E7%9A%84%E7%89%B9%E5%AE%9A%E5%AD%97%E7%AC%A6%E4%B8%B2/</guid><description>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">find . -type f -name &amp;#34;*.yaml&amp;#34; | xargs sed -i &amp;#34;s#host_path#$host_path#g&amp;#34;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item><item><title>Linux 下使用 awk 操作文件内容</title><link>https://changxiangyu.cn/p/linux-%E4%B8%8B%E4%BD%BF%E7%94%A8-awk-%E6%93%8D%E4%BD%9C%E6%96%87%E4%BB%B6%E5%86%85%E5%AE%B9/</link><pubDate>Wed, 17 Aug 2022 10:03:18 +0800</pubDate><guid>https://changxiangyu.cn/p/linux-%E4%B8%8B%E4%BD%BF%E7%94%A8-awk-%E6%93%8D%E4%BD%9C%E6%96%87%E4%BB%B6%E5%86%85%E5%AE%B9/</guid><description>&lt;p>参考: &lt;a class="link" href="https://blog.csdn.net/laobai1015/article/details/98628860" target="_blank" rel="noopener"
+>https://blog.csdn.net/laobai1015/article/details/98628860&lt;/a>&lt;/p>
+&lt;h2 id="需求">需求&lt;/h2>
+&lt;ol>
+&lt;li>把 /etc/rancher/k3s/k3s.yaml 文件的内容，每行前面加 4 个空格，追加到 ai-service-platform/yamls/config/kube-config.yaml 文件中；&lt;/li>
+&lt;li>把 ai-service-platform/yamls/config/kube-config.yaml 文件中的 127.0.0.1 替换成 $master_host_ip。&lt;/li>
+&lt;/ol>
+&lt;p>脚本：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">function fix_kube_config(){
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> sudo awk &amp;#39;{print &amp;#34; &amp;#34; $0 &amp;gt;&amp;gt; &amp;#34;ai-service-platform/yamls/config/kube-config.yaml&amp;#34;}&amp;#39; /etc/rancher/k3s/k3s.yaml
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> sed -i &amp;#34;s/127.0.0.1/$master_host_ip/g&amp;#34; ai-service-platform/yamls/config/kube-config.yaml
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="扩展">扩展&lt;/h2>
+&lt;p>在前面、后面、指定列添加相同字符&lt;/p>
+&lt;ol>
+&lt;li>给一个文件中的每一行开头插入字符的方法：awk &amp;lsquo;{print &amp;ldquo;需要添加的字符&amp;rdquo; $0}&amp;rsquo; fileName&lt;/li>
+&lt;li>给一个文件中的每一行结尾插入字符的方法：awk &amp;lsquo;{print $0 &amp;ldquo;需要添加的字符&amp;rdquo;}&amp;rsquo; fileName&lt;/li>
+&lt;li>给一个文件中的每一行的指定列插入字符的方法：awk &amp;lsquo;$0=$0 X&amp;quot;&amp;rsquo; fileName&lt;/li>
+&lt;/ol>
+&lt;p>删除某一个列&lt;/p>
+&lt;ol>
+&lt;li>删除文件中的第一列：awk &amp;lsquo;{$1=&amp;quot;&amp;quot;;print $0}&amp;rsquo; fileName 或者另一种方法 sed -e &amp;rsquo;s/[^ ]* //&amp;rsquo; text&lt;/li>
+&lt;li>删除指定列：awk &amp;lsquo;{$Num=&amp;quot;&amp;quot;;print $0}&amp;rsquo; fileName&lt;/li>
+&lt;/ol>
+&lt;p>把Num换成要删除的列数即可&lt;/p>
+&lt;h2 id="练习">练习&lt;/h2>
+&lt;p>给文件中的每一行开头添加drop tables&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">awk &amp;#39;{print &amp;#34;drop table &amp;#34;$0}&amp;#39; aa.txt &amp;gt; bb.txt
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>给文件中的每一行结尾添加分号&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">awk &amp;#39;{print $0&amp;#34;;&amp;#34;}&amp;#39; bb.txt &amp;gt; cc.txt
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item><item><title>Python 实现 Linux 的 'df -h' 命令</title><link>https://changxiangyu.cn/p/python-%E5%AE%9E%E7%8E%B0-linux-%E7%9A%84-df-h-%E5%91%BD%E4%BB%A4/</link><pubDate>Mon, 15 Aug 2022 17:03:18 +0800</pubDate><guid>https://changxiangyu.cn/p/python-%E5%AE%9E%E7%8E%B0-linux-%E7%9A%84-df-h-%E5%91%BD%E4%BB%A4/</guid><description>&lt;p>参考: &lt;a class="link" href="https://developer.aliyun.com/article/53579" target="_blank" rel="noopener"
+>https://developer.aliyun.com/article/53579&lt;/a>&lt;/p>
+&lt;p>mycode&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">import os
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">import math
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">if __name__ == &amp;#39;__main__&amp;#39;:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> vfs = os.statvfs(&amp;#34;/home/manager&amp;#34;)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> g = 1024 * 1024 * 1024
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> # 总容量
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> k_blocks = vfs.f_bsize * vfs.f_blocks / g
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> # Used,使用量，总容量减去空闲容量
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> used = vfs.f_bsize * (vfs.f_blocks - vfs.f_bfree) / g
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> # Available，有效容量
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> available = vfs.f_bsize * vfs.f_bavail / g
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> # use%,使用量，%,round(浮点数，精确到小数点后的位数）
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> use = round(used / (used + available) * 100, 2)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> print({
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;#34;容量&amp;#34;: k_blocks,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;#34;已用&amp;#34;: used,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;#34;可用&amp;#34;: available,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;#34;已用%&amp;#34;: use,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> })
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> print({
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;#34;容量&amp;#34;: f&amp;#39;{math.ceil(k_blocks)}G&amp;#39;,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;#34;已用&amp;#34;: f&amp;#39;{math.ceil(used)}G&amp;#39;,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;#34;可用&amp;#34;: f&amp;#39;{math.ceil(available)}G&amp;#39;,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;#34;已用%&amp;#34;: f&amp;#39;{math.ceil(use)}%&amp;#39;,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> })
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>运行测试&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">$ df -h /home/manager
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">文件系统 容量 已用 可用 已用% 挂载点
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">/dev/nvme0n1p2 457G 325G 110G 75% /
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">python test.py
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">{&amp;#39;容量&amp;#39;: 456.8854446411133, &amp;#39;已用&amp;#39;: 324.40053939819336, &amp;#39;可用&amp;#39;: 109.20629501342773, &amp;#39;已用%&amp;#39;: 74.81}
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">{&amp;#39;容量&amp;#39;: &amp;#39;457G&amp;#39;, &amp;#39;已用&amp;#39;: &amp;#39;325G&amp;#39;, &amp;#39;可用&amp;#39;: &amp;#39;110G&amp;#39;, &amp;#39;已用%&amp;#39;: &amp;#39;75%&amp;#39;}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item></channel></rss>
