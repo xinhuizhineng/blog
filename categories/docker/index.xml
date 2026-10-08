@@ -1,0 +1,1729 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Docker on 我的空间</title><link>https://changxiangyu.cn/categories/docker/</link><description>Recent content in Docker on 我的空间</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Sun, 20 Sep 2026 16:54:00 +0800</lastBuildDate><atom:link href="https://changxiangyu.cn/categories/docker/index.xml" rel="self" type="application/rss+xml"/><item><title>部署架构总结</title><link>https://changxiangyu.cn/p/%E9%83%A8%E7%BD%B2%E6%9E%B6%E6%9E%84%E6%80%BB%E7%BB%93/</link><pubDate>Sun, 20 Sep 2026 16:54:00 +0800</pubDate><guid>https://changxiangyu.cn/p/%E9%83%A8%E7%BD%B2%E6%9E%B6%E6%9E%84%E6%80%BB%E7%BB%93/</guid><description>&lt;h2 id="一基础设施">一、基础设施&lt;/h2>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>组件&lt;/th>
+&lt;th>值&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>服务器&lt;/td>
+&lt;td>AWS EC2 52.77.230.213&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>用户&lt;/td>
+&lt;td>ec2-user&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>SSH 密钥&lt;/td>
+&lt;td>c:\Users\chang.ssh\sg-xiangyu.pem&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>域名&lt;/td>
+&lt;td>wescores.net（HTTPS）&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>项目源码&lt;/td>
+&lt;td>C:\projects\stativo&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>项目路径（服务器）&lt;/td>
+&lt;td>/var/www/stativo/&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>部署脚本&lt;/td>
+&lt;td>scripts/deploy-remote.sh&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>PM2 配置&lt;/td>
+&lt;td>ecosystem.config.js&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>环境变量&lt;/td>
+&lt;td>.env.production（不在 Git 中）&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h2 id="二运行架构">二、运行架构&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">用户 → HTTPS(443) → Nginx → proxy_pass http://127.0.0.1:3000
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ↓
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> PM2 集群模式（4实例）
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ↓
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> Next.js Standalone Server
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="三服务器目录结构">三、服务器目录结构&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">/var/www/stativo/
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">├── current/ → 符号链接，指向最新 release
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">├── previous/ → 符号链接，指向上一个 release（回滚用）
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">├── releases/ → 按时间戳命名的发布版本（保留最近3个）
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">│ ├── 20260918112041/ → 最新部署
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">│ │ ├── .next/standalone/ ← PM2 实际运行入口
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">│ │ ├── .env.production ← 环境配置
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">│ │ ├── ecosystem.config.js ← PM2 配置
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">│ │ └── scripts/deploy-remote.sh ← 部署脚本
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">│ └── ...
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">└── shared/ ← SSL 验证等共享文件
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="四关键配置文件">四、关键配置文件&lt;/h2>
+&lt;h3 id="41-deploy-remotesh部署脚本">4.1 deploy-remote.sh（部署脚本）&lt;/h3>
+&lt;p>位置：&lt;code>scripts/deploy-remote.sh&lt;/code>&lt;/p>
+&lt;p>8 步流程：&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>步骤&lt;/th>
+&lt;th>操作&lt;/th>
+&lt;th>说明&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>1/8&lt;/td>
+&lt;td>解压源码&lt;/td>
+&lt;td>tar xzf 到新 release 目录，删除原始包&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>2/8&lt;/td>
+&lt;td>复制环境变量&lt;/td>
+&lt;td>优先 /tmp/.env.production &amp;gt; shared &amp;gt; current&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>3/8&lt;/td>
+&lt;td>pnpm install&lt;/td>
+&lt;td>&amp;ndash;frozen-lockfile，锁定依赖版本&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>4/8&lt;/td>
+&lt;td>pnpm build&lt;/td>
+&lt;td>source .env.production 后构建&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>5/8&lt;/td>
+&lt;td>验证 standalone&lt;/td>
+&lt;td>检查 server.js 存在，复制 static + public&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>6/8&lt;/td>
+&lt;td>切换 current&lt;/td>
+&lt;td>旧 current 存为 previous，新 release 链为 current&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>7/8&lt;/td>
+&lt;td>PM2 重启&lt;/td>
+&lt;td>删除旧进程，从新 release 的 ecosystem.config.js 启动&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>8/8&lt;/td>
+&lt;td>健康检查&lt;/td>
+&lt;td>curl 127.0.0.1:3000，2xx 即成功，清理旧 release&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>失败时输出回滚命令：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">ln -sfn &lt;span class="k">$(&lt;/span>readlink /var/www/stativo/previous&lt;span class="k">)&lt;/span> /var/www/stativo/current &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> pm2 reload stativo
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="42-ecosystemconfigjspm2-配置">4.2 ecosystem.config.js（PM2 配置）&lt;/h3>
+&lt;p>位置：&lt;code>ecosystem.config.js&lt;/code>&lt;/p>
+&lt;ul>
+&lt;li>4 实例集群模式（cluster）&lt;/li>
+&lt;li>端口 3000&lt;/li>
+&lt;li>HOSTNAME 强制 0.0.0.0（避免系统 HOSTNAME 干扰健康检查）&lt;/li>
+&lt;li>内存重启阈值 1G&lt;/li>
+&lt;li>日志模式可配：off / error / all（默认 off，写 /dev/null）&lt;/li>
+&lt;li>环境变量由部署脚本注入：PM2_APP_NAME、PM2_APP_PORT、PM2_APP_CWD&lt;/li>
+&lt;/ul>
+&lt;h3 id="43-nextconfigts构建配置">4.3 next.config.ts（构建配置）&lt;/h3>
+&lt;ul>
+&lt;li>&lt;code>typescript.ignoreBuildErrors: true&lt;/code>（临时关闭，遗留类型错误较多，后续修复后改回 false）&lt;/li>
+&lt;li>&lt;code>eslint.ignoreDuringBuilds: true&lt;/code>&lt;/li>
+&lt;li>&lt;code>outputFileTracingIncludes&lt;/code> 包含 jose 模块（Next.js standalone 不自动追踪）&lt;/li>
+&lt;li>standalone 模式构建&lt;/li>
+&lt;/ul>
+&lt;h3 id="44-nginx-配置">4.4 Nginx 配置&lt;/h3>
+&lt;p>位置：&lt;code>/etc/nginx/conf.d/stativo.conf&lt;/code>&lt;/p>
+&lt;ul>
+&lt;li>proxy_pass 指向 127.0.0.1:3000&lt;/li>
+&lt;li>SSL 证书：/etc/pki/tls/certs/wescores.net-origin.pem&lt;/li>
+&lt;li>HTTPS 443 → HTTP 3000 反向代理&lt;/li>
+&lt;/ul>
+&lt;h3 id="45-envproduction环境变量">4.5 .env.production（环境变量）&lt;/h3>
+&lt;p>关键配置：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">NEXT_PUBLIC_SITE_NAME=wescores
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NEXT_PUBLIC_SITE_DOMAIN=wescores.net
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NEXT_PUBLIC_SITE_URL=https://wescores.net
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NEXT_PUBLIC_API_URL=https://api.6wn.net/api
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">AUTH_API_URL=https://api.6wn.net/api
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">AUTH_TRUST_HOST=true
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NEXTAUTH_URL=https://wescores.net
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="五更新部署流程">五、更新部署流程&lt;/h2>
+&lt;h3 id="51-前置条件">5.1 前置条件&lt;/h3>
+&lt;p>&lt;strong>必须先提交代码。&lt;/strong> 部署基于 &lt;code>git archive HEAD&lt;/code>，只有已提交的代码才会参与部署。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd &lt;/span>&lt;span class="n">C:&lt;/span>&lt;span class="p">\&lt;/span>&lt;span class="n">projects&lt;/span>&lt;span class="p">\&lt;/span>&lt;span class="n">stativo&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">git&lt;/span> &lt;span class="n">add&lt;/span> &lt;span class="p">.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">git&lt;/span> &lt;span class="n">commit&lt;/span> &lt;span class="n">-m&lt;/span> &lt;span class="s2">&amp;#34;type(scope): description&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">git&lt;/span> &lt;span class="n">status&lt;/span> &lt;span class="c"># 确认 &amp;#34;working tree clean&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="52-方式一说更新部署发布">5.2 方式一：说&amp;quot;更新部署发布&amp;quot;&lt;/h3>
+&lt;p>先装个 AI 搭档
+我推荐 [Trae] (&lt;a class="link" href="https://www.trae.cn/?utm_source=advertising&amp;amp;utm_medium=xiaolincoding_ug_cpa&amp;amp;utm_term=hw_trae_xiaolincoding" target="_blank" rel="noopener"
+>https://www.trae.cn/?utm_source=advertising&amp;utm_medium=xiaolincoding_ug_cpa&amp;utm_term=hw_trae_xiaolincoding&lt;/a>, &amp;ldquo;中文友好，界面简洁&amp;rdquo;)。
+对trae-ai说&amp;quot;更新部署发布&amp;quot;，trae自动执行全部步骤：&lt;/p>
+&lt;ol>
+&lt;li>&lt;code>git status&lt;/code> 确认工作区干净&lt;/li>
+&lt;li>&lt;code>git archive --format=tar.gz HEAD&lt;/code> 打包最新提交&lt;/li>
+&lt;li>&lt;code>scp&lt;/code> 上传三个文件到服务器 /tmp：
+&lt;ul>
+&lt;li>stativo-deploy.tar.gz（代码包）&lt;/li>
+&lt;li>.env.production（环境变量）&lt;/li>
+&lt;li>scripts/deploy-remote.sh（部署脚本）&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>SSH 执行 &lt;code>bash /tmp/deploy-remote.sh&lt;/code>&lt;/li>
+&lt;li>等待 8 步完成，检查 DEPLOY_SUCCESS 或 HEALTH_FAIL&lt;/li>
+&lt;li>验证 &lt;a class="link" href="https://wescores.net" target="_blank" rel="noopener"
+>https://wescores.net&lt;/a> 返回 200&lt;/li>
+&lt;li>清理本地临时文件&lt;/li>
+&lt;/ol>
+&lt;h3 id="53-方式二手动部署">5.3 方式二：手动部署&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># 0. 确保代码已提交&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd &lt;/span>&lt;span class="n">C:&lt;/span>&lt;span class="p">\&lt;/span>&lt;span class="n">projects&lt;/span>&lt;span class="p">\&lt;/span>&lt;span class="n">stativo&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">git&lt;/span> &lt;span class="n">status&lt;/span> &lt;span class="c"># 应显示 &amp;#34;working tree clean&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c"># 1. 打包代码（git archive HEAD，只含已提交代码）&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">git&lt;/span> &lt;span class="n">archive&lt;/span> &lt;span class="p">-&lt;/span>&lt;span class="n">-format&lt;/span>&lt;span class="p">=&lt;/span>&lt;span class="n">tar&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">gz&lt;/span> &lt;span class="n">HEAD&lt;/span> &lt;span class="n">-o&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$env:TEMP&lt;/span>&lt;span class="s2">\stativo-deploy.tar.gz&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c"># 2. 上传三个文件&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">scp&lt;/span> &lt;span class="n">-i&lt;/span> &lt;span class="s2">&amp;#34;c:\Users\chang\.ssh\sg-xiangyu.pem&amp;#34;&lt;/span> &lt;span class="n">-o&lt;/span> &lt;span class="n">ConnectTimeout&lt;/span>&lt;span class="p">=&lt;/span>&lt;span class="mf">15&lt;/span> &lt;span class="n">-o&lt;/span> &lt;span class="n">ServerAliveInterval&lt;/span>&lt;span class="p">=&lt;/span>&lt;span class="mf">5&lt;/span> &lt;span class="p">`&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$env:TEMP&lt;/span>&lt;span class="s2">\stativo-deploy.tar.gz&amp;#34;&lt;/span> &lt;span class="nb">ec2-user&lt;/span>&lt;span class="nv">@52&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">77&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">230&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="mf">213&lt;/span>&lt;span class="err">:&lt;/span>&lt;span class="p">/&lt;/span>&lt;span class="n">tmp&lt;/span>&lt;span class="p">/&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">scp&lt;/span> &lt;span class="n">-i&lt;/span> &lt;span class="s2">&amp;#34;c:\Users\chang\.ssh\sg-xiangyu.pem&amp;#34;&lt;/span> &lt;span class="n">-o&lt;/span> &lt;span class="n">ConnectTimeout&lt;/span>&lt;span class="p">=&lt;/span>&lt;span class="mf">15&lt;/span> &lt;span class="n">-o&lt;/span> &lt;span class="n">ServerAliveInterval&lt;/span>&lt;span class="p">=&lt;/span>&lt;span class="mf">5&lt;/span> &lt;span class="p">`&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;C:\projects\stativo\.env.production&amp;#34;&lt;/span> &lt;span class="nb">ec2-user&lt;/span>&lt;span class="nv">@52&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">77&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">230&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="mf">213&lt;/span>&lt;span class="err">:&lt;/span>&lt;span class="p">/&lt;/span>&lt;span class="n">tmp&lt;/span>&lt;span class="p">/&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">scp&lt;/span> &lt;span class="n">-i&lt;/span> &lt;span class="s2">&amp;#34;c:\Users\chang\.ssh\sg-xiangyu.pem&amp;#34;&lt;/span> &lt;span class="n">-o&lt;/span> &lt;span class="n">ConnectTimeout&lt;/span>&lt;span class="p">=&lt;/span>&lt;span class="mf">15&lt;/span> &lt;span class="n">-o&lt;/span> &lt;span class="n">ServerAliveInterval&lt;/span>&lt;span class="p">=&lt;/span>&lt;span class="mf">5&lt;/span> &lt;span class="p">`&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;C:\projects\stativo\scripts\deploy-remote.sh&amp;#34;&lt;/span> &lt;span class="nb">ec2-user&lt;/span>&lt;span class="nv">@52&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">77&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">230&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="mf">213&lt;/span>&lt;span class="err">:&lt;/span>&lt;span class="p">/&lt;/span>&lt;span class="n">tmp&lt;/span>&lt;span class="p">/&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c"># 3. 执行部署&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">ssh&lt;/span> &lt;span class="n">-i&lt;/span> &lt;span class="s2">&amp;#34;c:\Users\chang\.ssh\sg-xiangyu.pem&amp;#34;&lt;/span> &lt;span class="n">-o&lt;/span> &lt;span class="n">ConnectTimeout&lt;/span>&lt;span class="p">=&lt;/span>&lt;span class="mf">15&lt;/span> &lt;span class="n">-o&lt;/span> &lt;span class="n">ServerAliveInterval&lt;/span>&lt;span class="p">=&lt;/span>&lt;span class="mf">5&lt;/span> &lt;span class="p">`&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">ec2-user&lt;/span>&lt;span class="nv">@52&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">77&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">230&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">213&lt;/span> &lt;span class="s2">&amp;#34;bash /tmp/deploy-remote.sh&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="54-部署成功标志">5.4 部署成功标志&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;span class="lnt">9
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">[1/8] extracting... ✓
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[2/8] copying env... ✓
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[3/8] pnpm install... ✓
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[4/8] pnpm build... ✓
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[5/8] verifying standalone... ✓
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[6/8] switching current... ✓
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[7/8] PM2 restart... ✓ (4 instances online)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[8/8] health check... HEALTH_OK: HTTP 200
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">DEPLOY_SUCCESS: /var/www/stativo/releases/YYYYMMDDHHMMSS
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="55-部署失败处理">5.5 部署失败处理&lt;/h3>
+&lt;p>如果 HEALTH_FAIL，脚本会输出回滚命令，手动执行：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">ssh&lt;/span> &lt;span class="n">-i&lt;/span> &lt;span class="s2">&amp;#34;c:\Users\chang\.ssh\sg-xiangyu.pem&amp;#34;&lt;/span> &lt;span class="nb">ec2-user&lt;/span>&lt;span class="nv">@52&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">77&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">230&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">213&lt;/span> &lt;span class="p">`&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;ln -sfn &lt;/span>&lt;span class="se">`$&lt;/span>&lt;span class="s2">(readlink /var/www/stativo/previous) /var/www/stativo/current &amp;amp;&amp;amp; pm2 reload stativo&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>常见失败原因：&lt;/p>
+&lt;ul>
+&lt;li>TypeScript 类型错误 → next.config.ts 当前已临时关闭&lt;/li>
+&lt;li>pnpm install 失败 → 检查网络或 lockfile&lt;/li>
+&lt;li>standalone server.js 缺失 → 构建失败&lt;/li>
+&lt;li>健康检查超时 → 检查 PM2 日志或端口冲突&lt;/li>
+&lt;/ul>
+&lt;h2 id="六同步环境变量单独更新-envproduction">六、同步环境变量（单独更新 .env.production）&lt;/h2>
+&lt;p>修改了 .env.production 但不想重新部署代码时：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># 上传到服务器并同步到 shared 目录&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">scp&lt;/span> &lt;span class="n">-i&lt;/span> &lt;span class="s2">&amp;#34;c:\Users\chang\.ssh\sg-xiangyu.pem&amp;#34;&lt;/span> &lt;span class="p">`&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;C:\projects\stativo\.env.production&amp;#34;&lt;/span> &lt;span class="nb">ec2-user&lt;/span>&lt;span class="nv">@52&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">77&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">230&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="mf">213&lt;/span>&lt;span class="err">:&lt;/span>&lt;span class="p">/&lt;/span>&lt;span class="n">tmp&lt;/span>&lt;span class="p">/.&lt;/span>&lt;span class="py">env&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">production&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">ssh&lt;/span> &lt;span class="n">-i&lt;/span> &lt;span class="s2">&amp;#34;c:\Users\chang\.ssh\sg-xiangyu.pem&amp;#34;&lt;/span> &lt;span class="nb">ec2-user&lt;/span>&lt;span class="nv">@52&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">77&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">230&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">213&lt;/span> &lt;span class="p">`&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;sudo cp /tmp/.env.production /var/www/stativo/shared/.env.production &amp;amp;&amp;amp; sudo chown ec2-user:ec2-user /var/www/stativo/shared/.env.production &amp;amp;&amp;amp; rm /tmp/.env.production&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>注意：环境变量更新后需要重新部署或重启才能生效：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">ssh&lt;/span> &lt;span class="n">-i&lt;/span> &lt;span class="s2">&amp;#34;c:\Users\chang\.ssh\sg-xiangyu.pem&amp;#34;&lt;/span> &lt;span class="nb">ec2-user&lt;/span>&lt;span class="nv">@52&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">77&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">230&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">213&lt;/span> &lt;span class="s2">&amp;#34;pm2 reload stativo --update-env&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="七回滚到上一版本">七、回滚到上一版本&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">ssh&lt;/span> &lt;span class="n">-i&lt;/span> &lt;span class="s2">&amp;#34;c:\Users\chang\.ssh\sg-xiangyu.pem&amp;#34;&lt;/span> &lt;span class="nb">ec2-user&lt;/span>&lt;span class="nv">@52&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">77&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">230&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">213&lt;/span> &lt;span class="p">`&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;ln -sfn &lt;/span>&lt;span class="se">`$&lt;/span>&lt;span class="s2">(readlink /var/www/stativo/previous) /var/www/stativo/current &amp;amp;&amp;amp; pm2 reload stativo&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="八常用运维命令">八、常用运维命令&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># SSH 连接服务器&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">ssh&lt;/span> &lt;span class="n">-i&lt;/span> &lt;span class="s2">&amp;#34;c:\Users\chang\.ssh\sg-xiangyu.pem&amp;#34;&lt;/span> &lt;span class="nb">ec2-user&lt;/span>&lt;span class="nv">@52&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">77&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">230&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">213&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c"># 查看 PM2 状态&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">pm2&lt;/span> &lt;span class="n">list&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c"># 查看实时日志&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">pm2&lt;/span> &lt;span class="n">logs&lt;/span> &lt;span class="n">stativo&lt;/span> &lt;span class="p">-&lt;/span>&lt;span class="n">-lines&lt;/span> &lt;span class="mf">50&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c"># 重启应用（不重新部署）&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">pm2&lt;/span> &lt;span class="n">reload&lt;/span> &lt;span class="n">stativo&lt;/span> &lt;span class="p">-&lt;/span>&lt;span class="n">-update-env&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c"># 检查 Nginx 配置&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">sudo&lt;/span> &lt;span class="n">nginx&lt;/span> &lt;span class="n">-t&lt;/span> &lt;span class="p">&amp;amp;&amp;amp;&lt;/span> &lt;span class="n">sudo&lt;/span> &lt;span class="n">systemctl&lt;/span> &lt;span class="n">reload&lt;/span> &lt;span class="n">nginx&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c"># 查看健康状态&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">curl &lt;/span>&lt;span class="n">-s&lt;/span> &lt;span class="n">-o&lt;/span> &lt;span class="p">/&lt;/span>&lt;span class="n">dev&lt;/span>&lt;span class="p">/&lt;/span>&lt;span class="n">null&lt;/span> &lt;span class="n">-w&lt;/span> &lt;span class="s1">&amp;#39;%{http_code}&amp;#39;&lt;/span> &lt;span class="n">http&lt;/span>&lt;span class="err">:&lt;/span>&lt;span class="p">//&lt;/span>&lt;span class="mf">127.0&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">0&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="mf">1&lt;/span>&lt;span class="err">:&lt;/span>&lt;span class="mf">3000&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">curl &lt;/span>&lt;span class="n">-s&lt;/span> &lt;span class="n">-o&lt;/span> &lt;span class="p">/&lt;/span>&lt;span class="n">dev&lt;/span>&lt;span class="p">/&lt;/span>&lt;span class="n">null&lt;/span> &lt;span class="n">-w&lt;/span> &lt;span class="s1">&amp;#39;%{http_code}&amp;#39;&lt;/span> &lt;span class="n">https&lt;/span>&lt;span class="err">:&lt;/span>&lt;span class="p">//&lt;/span>&lt;span class="n">wescores&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">net&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c"># 查看当前 release&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">readlink&lt;/span> &lt;span class="o">-f&lt;/span> &lt;span class="p">/&lt;/span>&lt;span class="n">var&lt;/span>&lt;span class="p">/&lt;/span>&lt;span class="n">www&lt;/span>&lt;span class="p">/&lt;/span>&lt;span class="n">stativo&lt;/span>&lt;span class="p">/&lt;/span>&lt;span class="n">current&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c"># 查看所有 releases&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">ls &lt;/span>&lt;span class="o">-lt&lt;/span> &lt;span class="p">/&lt;/span>&lt;span class="n">var&lt;/span>&lt;span class="p">/&lt;/span>&lt;span class="n">www&lt;/span>&lt;span class="p">/&lt;/span>&lt;span class="n">stativo&lt;/span>&lt;span class="p">/&lt;/span>&lt;span class="n">releases&lt;/span>&lt;span class="p">/&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c"># 查看磁盘空间&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">df&lt;/span> &lt;span class="n">-h&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="九注意事项">九、注意事项&lt;/h2>
+&lt;ol>
+&lt;li>
+&lt;p>&lt;strong>必须先提交代码&lt;/strong>：&lt;code>git archive HEAD&lt;/code> 只打包已提交代码，未提交的修改不会部署。部署前确保 &lt;code>git status&lt;/code> 显示 &amp;ldquo;working tree clean&amp;rdquo;。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>.env.production 不在 Git 中&lt;/strong>：.gitignore 的 .env* 规则排除了它。部署脚本从 /tmp/.env.production 读取，每次部署都会上传本地版本。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>deploy-remote.sh 随代码一起部署&lt;/strong>：脚本在 scripts/ 目录下，git archive 会包含它。但实际执行的是上传到 /tmp/deploy-remote.sh 的版本。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>TypeScript 类型检查已临时关闭&lt;/strong>：next.config.ts 中 &lt;code>ignoreBuildErrors: true&lt;/code>，遗留类型错误不阻断构建。修复完所有类型错误后改回 false。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>端口统一为 3000&lt;/strong>：PM2、Nginx proxy_pass、Docker 配置全部使用 3000。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>HOSTNAME 强制 0.0.0.0&lt;/strong>：ecosystem.config.js 中强制设置，避免系统 HOSTNAME（如 ip-172-31-xx-xx）导致应用只绑定内网 IP，健康检查和 Nginx 代理失效。&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;h2 id="十已踩过的坑">十、已踩过的坑&lt;/h2>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>问题&lt;/th>
+&lt;th>原因&lt;/th>
+&lt;th>解决方案&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>jose 模块缺失&lt;/td>
+&lt;td>Next.js standalone 未自动追踪&lt;/td>
+&lt;td>next.config.ts 添加 outputFileTracingIncludes&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>localhost:3001 泄露&lt;/td>
+&lt;td>源码 defaultConfig 默认值被编译进产物&lt;/td>
+&lt;td>运行时被 production 配置覆盖，不影响实际运行&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>.env.production 不同步&lt;/td>
+&lt;td>.gitignore 排除，服务器旧版覆盖新版&lt;/td>
+&lt;td>部署脚本改为优先从 /tmp/.env.production 读取&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>AUTH_TRUST_HOST 缺失&lt;/td>
+&lt;td>NextAuth v5 生产环境必需&lt;/td>
+&lt;td>已添加到 .env.production&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>HTTPS 502&lt;/td>
+&lt;td>Nginx proxy_pass 端口与 PM2 不一致&lt;/td>
+&lt;td>统一为 3000&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>PM2 启动失败&lt;/td>
+&lt;td>日志目录权限&lt;/td>
+&lt;td>sudo chown -R ec2-user:ec2-user /var/log/stativo&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>HOSTNAME 绑定内网 IP&lt;/td>
+&lt;td>系统 HOSTNAME 环境变量覆盖&lt;/td>
+&lt;td>ecosystem.config.js 强制 HOSTNAME=0.0.0.0&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>TypeScript 类型错误&lt;/td>
+&lt;td>代码有类型不兼容问题&lt;/td>
+&lt;td>临时关闭 ignoreBuildErrors，后续逐个修复&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>未提交代码未部署&lt;/td>
+&lt;td>git archive HEAD 只含已提交代码&lt;/td>
+&lt;td>部署前必须 git commit&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h2 id="十一docker-配置备用">十一、Docker 配置（备用）&lt;/h2>
+&lt;p>项目在 &lt;code>.docker/&lt;/code> 目录下保留了完整的 Docker 部署配置，端口已统一为 3000，当前未启用。&lt;/p>
+&lt;h3 id="111-文件清单">11.1 文件清单&lt;/h3>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>文件&lt;/th>
+&lt;th>说明&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;code>.docker/Dockerfile&lt;/code>&lt;/td>
+&lt;td>多阶段构建（deps → builder → runner），Alpine + dumb-init&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>.docker/docker-compose.yml&lt;/code>&lt;/td>
+&lt;td>容器编排，含应用容器 + Nginx + Certbot（SSL profile）&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>.docker/env.docker&lt;/code>&lt;/td>
+&lt;td>Docker 环境变量（从 .env.production 复制，不提交 Git）&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>.docker/env.example&lt;/code>&lt;/td>
+&lt;td>环境变量模板（已更新为 wescores.net 域名）&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>.docker/deploy.sh&lt;/code>&lt;/td>
+&lt;td>Docker 一键部署脚本（git pull + docker compose）&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>.docker/init-ssl.sh&lt;/code>&lt;/td>
+&lt;td>Let&amp;rsquo;s Encrypt SSL 证书首次签发脚本（6 步自动化）&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>.docker/nginx/nginx.conf&lt;/code>&lt;/td>
+&lt;td>Docker Nginx 配置（HTTP 重定向 + HTTPS 反向代理 + 静态缓存）&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>.docker/deploy-guide.html&lt;/code>&lt;/td>
+&lt;td>Docker 部署可视化指南&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>.dockerignore&lt;/code>&lt;/td>
+&lt;td>排除依赖、构建产物、secrets&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h3 id="112-dockerfile-多阶段构建说明">11.2 Dockerfile 多阶段构建说明&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">Stage 1: deps → 安装全量依赖（含 devDependencies），BuildKit 缓存 pnpm store
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Stage 2: builder → 复制源码，pnpm run build:prod，BuildKit 缓存 .next/cache
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Stage 3: runner → Alpine + dumb-init，复制 standalone 产物，非 root 用户运行
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>关键设计：&lt;/p>
+&lt;ul>
+&lt;li>BuildKit 缓存挂载：pnpm store 和 .next/cache 跨构建复用，增量构建快&lt;/li>
+&lt;li>依赖层与源码层分离：改代码不重装依赖&lt;/li>
+&lt;li>standalone 模式：镜像不含 node_modules，仅 standalone 追踪的文件&lt;/li>
+&lt;li>outputFileTracingIncludes 已在 next.config.ts 配置 jose 模块&lt;/li>
+&lt;li>dumb-init 作为 PID 1，正确转发 SIGTERM 实现优雅退出&lt;/li>
+&lt;/ul>
+&lt;h3 id="113-两种-docker-部署模式">11.3 两种 Docker 部署模式&lt;/h3>
+&lt;h4 id="模式-a纯容器复用系统-nginx--ssl">模式 A：纯容器（复用系统 Nginx + SSL）&lt;/h4>
+&lt;p>Docker 只跑应用容器，SSL 和域名继续用系统 Nginx（与 PM2 方案一致）。&lt;/p>
+&lt;p>适用场景：服务器已有系统 Nginx + SSL 证书，只想把进程管理从 PM2 换成 Docker。&lt;/p>
+&lt;h4 id="模式-b全容器docker-nginx--certbot-自动-ssl">模式 B：全容器（Docker Nginx + Certbot 自动 SSL）&lt;/h4>
+&lt;p>Docker 管理全部：应用容器 + Nginx 反向代理 + Let&amp;rsquo;s Encrypt 证书自动签发和续期。&lt;/p>
+&lt;p>适用场景：全新服务器，不想手动配 Nginx 和 SSL，一切交给 Docker Compose。&lt;/p>
+&lt;h3 id="114-切换到-docker-部署的完整步骤">11.4 切换到 Docker 部署的完整步骤&lt;/h3>
+&lt;h4 id="前置准备">前置准备&lt;/h4>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># 1. SSH 连接服务器&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">ssh&lt;/span> &lt;span class="n">-i&lt;/span> &lt;span class="s2">&amp;#34;c:\Users\chang\.ssh\sg-xiangyu.pem&amp;#34;&lt;/span> &lt;span class="nb">ec2-user&lt;/span>&lt;span class="nv">@52&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">77&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">230&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">213&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c"># 2. 安装 Docker + Docker Compose v2（如未安装）&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">sudo&lt;/span> &lt;span class="n">yum&lt;/span> &lt;span class="n">update&lt;/span> &lt;span class="n">-y&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">sudo&lt;/span> &lt;span class="n">yum&lt;/span> &lt;span class="n">install&lt;/span> &lt;span class="n">-y&lt;/span> &lt;span class="n">docker&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">sudo&lt;/span> &lt;span class="n">systemctl&lt;/span> &lt;span class="n">enable&lt;/span> &lt;span class="n">docker&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">sudo&lt;/span> &lt;span class="n">systemctl&lt;/span> &lt;span class="nb">start &lt;/span>&lt;span class="n">docker&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">sudo&lt;/span> &lt;span class="n">usermod&lt;/span> &lt;span class="n">-aG&lt;/span> &lt;span class="n">docker&lt;/span> &lt;span class="nb">ec2-user&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c"># 重新登录使 docker 组生效&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">exit&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">ssh&lt;/span> &lt;span class="n">-i&lt;/span> &lt;span class="s2">&amp;#34;c:\Users\chang\.ssh\sg-xiangyu.pem&amp;#34;&lt;/span> &lt;span class="nb">ec2-user&lt;/span>&lt;span class="nv">@52&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">77&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">230&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">213&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">docker&lt;/span> &lt;span class="p">-&lt;/span>&lt;span class="n">-version&lt;/span> &lt;span class="c"># 验证安装&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c"># 3. git clone 项目（如服务器上没有）&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd &lt;/span>&lt;span class="p">~&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">git&lt;/span> &lt;span class="n">clone&lt;/span> &lt;span class="p">&amp;lt;&lt;/span>&lt;span class="err">仓库地址&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="n">stativo&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd &lt;/span>&lt;span class="p">~/&lt;/span>&lt;span class="n">stativo&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h4 id="创建环境变量">创建环境变量&lt;/h4>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> ~/stativo/.docker
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">cp env.example env.docker
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">vi env.docker
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 填入真实值，参考 .env.production（域名 wescores.net、API 地址、鉴权密钥等）&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 关键项：&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># NEXT_PUBLIC_SITE_URL=https://wescores.net&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># NEXTAUTH_URL=https://wescores.net&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># AUTH_TRUST_HOST=true&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># NEXTAUTH_SECRET=NIUGOyvfaUH2Aq5DA75E9+Lh/nUy7jxxrvK2qeHdLwg=&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># AUTH_GOOGLE_ID=428668096460-mdonea4qtvcoacvqru8vrvf8mkia9n75.apps.googleusercontent.com&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h4 id="停止-pm2如从-pm2-方案切换">停止 PM2（如从 PM2 方案切换）&lt;/h4>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">pm2 delete stativo
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">pm2 save
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 可选：如不再使用 PM2，卸载&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># npm uninstall -g pm2&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h4 id="模式-a纯容器部署">模式 A：纯容器部署&lt;/h4>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> ~/stativo
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 拉取最新代码&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">git pull origin main
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 构建并启动（不启用 SSL profile）&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker compose -f .docker/docker-compose.yml up -d --build
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 等待健康检查（约 40 秒）&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker compose -f .docker/docker-compose.yml ps
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 状态应显示 &amp;#34;healthy&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 验证&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">curl -s -o /dev/null -w &lt;span class="s1">&amp;#39;%{http_code}&amp;#39;&lt;/span> http://localhost:3000
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 应返回 200&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>系统 Nginx proxy_pass 指向 127.0.0.1:3000，与 PM2 方案一致，无需修改 Nginx 配置。&lt;/p>
+&lt;h4 id="模式-b全容器部署含-ssl">模式 B：全容器部署（含 SSL）&lt;/h4>
+&lt;p>&lt;strong>首次签发 SSL 证书：&lt;/strong>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> ~/stativo
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 确保域名 DNS 已指向服务器&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">dig wescores.net &lt;span class="c1"># 应解析到 52.77.230.213&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 停止占用 80 端口的服务&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sudo systemctl stop nginx &lt;span class="c1"># 如有系统 Nginx&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 签发证书（6 步自动化）&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">bash .docker/init-ssl.sh
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 脚本会：&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 1. 停止现有容器&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 2. 创建 certbot 目录&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 3. 启动临时 Nginx 处理 ACME 验证&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 4. Certbot 签发证书&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 5. 清理临时 Nginx&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 6. 验证证书文件&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;strong>启动完整部署：&lt;/strong>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> ~/stativo
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 启动（含 SSL profile：应用 + Nginx + Certbot）&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker compose -f .docker/docker-compose.yml --profile ssl up -d --build
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 查看容器状态&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker compose -f .docker/docker-compose.yml --profile ssl ps
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 应看到 3 个容器：stativo-web (healthy), stativo-nginx, stativo-certbot&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 验证&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">curl -s -o /dev/null -w &lt;span class="s1">&amp;#39;%{http_code}&amp;#39;&lt;/span> https://wescores.net
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 应返回 200&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;strong>SSL 证书自动续期：&lt;/strong>&lt;/p>
+&lt;p>Certbot 容器会每 12 小时自动检查并续期证书，无需手动操作。证书路径：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">.docker/certbot/conf/live/wescores.net/
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">├── fullchain.pem
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">└── privkey.pem
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="115-docker-日常更新部署">11.5 Docker 日常更新部署&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 服务器上执行&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> ~/stativo
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">git pull origin main
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker compose -f .docker/docker-compose.yml up -d --build
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 或如使用 SSL profile：&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># docker compose -f .docker/docker-compose.yml --profile ssl up -d --build&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>或从本地一键触发（使用 deploy.sh）：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd &lt;/span>&lt;span class="n">C:&lt;/span>&lt;span class="p">\&lt;/span>&lt;span class="n">projects&lt;/span>&lt;span class="p">\&lt;/span>&lt;span class="n">stativo&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">ssh&lt;/span> &lt;span class="n">-i&lt;/span> &lt;span class="s2">&amp;#34;c:\Users\chang\.ssh\sg-xiangyu.pem&amp;#34;&lt;/span> &lt;span class="nb">ec2-user&lt;/span>&lt;span class="nv">@52&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">77&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">230&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">213&lt;/span> &lt;span class="s2">&amp;#34;cd ~/stativo &amp;amp;&amp;amp; git pull origin main &amp;amp;&amp;amp; docker compose -f .docker/docker-compose.yml up -d --build&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="116-docker-常用运维命令">11.6 Docker 常用运维命令&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 查看容器状态&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker compose -f .docker/docker-compose.yml ps
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 含 SSL：docker compose -f .docker/docker-compose.yml --profile ssl ps&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 查看应用日志&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker compose -f .docker/docker-compose.yml logs -f stativo
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 重启应用容器&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker compose -f .docker/docker-compose.yml restart stativo
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 停止全部容器&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker compose -f .docker/docker-compose.yml down
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 含 SSL：docker compose -f .docker/docker-compose.yml --profile ssl down&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 重建（无缓存，解决构建缓存问题）&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker compose -f .docker/docker-compose.yml build --no-cache
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker compose -f .docker/docker-compose.yml up -d
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 进入容器调试&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker &lt;span class="nb">exec&lt;/span> -it stativo-web sh
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 查看容器资源使用&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker stats stativo-web
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 清理构建缓存（释放磁盘）&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker builder prune -f
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 清理悬空镜像&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker image prune -f
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="117-docker-与-pm2-方案对比">11.7 Docker 与 PM2 方案对比&lt;/h3>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>维度&lt;/th>
+&lt;th style="text-align:center">PM2（当前）&lt;/th>
+&lt;th style="text-align:center">Docker&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>服务器依赖&lt;/td>
+&lt;td style="text-align:center">pnpm + node + pm2 + curl&lt;/td>
+&lt;td style="text-align:center">Docker + Docker Compose&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>环境一致性&lt;/td>
+&lt;td style="text-align:center">服务器直接构建&lt;/td>
+&lt;td style="text-align:center">✅ 容器隔离，多环境一致&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>多实例&lt;/td>
+&lt;td style="text-align:center">✅ 4 实例集群&lt;/td>
+&lt;td style="text-align:center">❌ 单实例（需配 replicas 或 nginx upstream）&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>部署命令&lt;/td>
+&lt;td style="text-align:center">git archive + scp + ssh&lt;/td>
+&lt;td style="text-align:center">git pull + docker compose up&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>构建速度&lt;/td>
+&lt;td style="text-align:center">服务器全量 build&lt;/td>
+&lt;td style="text-align:center">BuildKit 缓存，增量快&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>资源限制&lt;/td>
+&lt;td style="text-align:center">PM2 max_memory_restart&lt;/td>
+&lt;td style="text-align:center">✅ 内存/CPU 硬限制&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>日志管理&lt;/td>
+&lt;td style="text-align:center">pm2 logs&lt;/td>
+&lt;td style="text-align:center">docker logs（自动轮转）&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>回滚&lt;/td>
+&lt;td style="text-align:center">previous 软链，秒级回滚&lt;/td>
+&lt;td style="text-align:center">切镜像 tag&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>SSL 管理&lt;/td>
+&lt;td style="text-align:center">手动配置系统 Nginx&lt;/td>
+&lt;td style="text-align:center">✅ Certbot 自动签发续期&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>部署方式&lt;/td>
+&lt;td style="text-align:center">打包上传（不依赖服务器 git）&lt;/td>
+&lt;td style="text-align:center">服务器 git pull（需仓库访问权限）&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h3 id="118-docker-部署注意事项">11.8 Docker 部署注意事项&lt;/h3>
+&lt;ol>
+&lt;li>
+&lt;p>&lt;strong>端口冲突&lt;/strong>：模式 A 和 B 不能同时使用。模式 B 的 Nginx 容器会占用 80/443 端口，与系统 Nginx 冲突。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>env.docker 不提交 Git&lt;/strong>：&lt;code>.dockerignore&lt;/code> 已排除 &lt;code>env.docker&lt;/code> 和 &lt;code>.docker/env.docker&lt;/code>，需要在服务器上手动创建。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>git pull 部署 vs git archive 部署&lt;/strong>：Docker 的 deploy.sh 使用 &lt;code>git pull&lt;/code>，需要服务器有仓库访问权限（部署密钥或 HTTPS 认证）。PM2 方案用 &lt;code>git archive&lt;/code> 打包上传，不需要服务器访问 Git 仓库。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>数据卷&lt;/strong>：SSL 证书存在 &lt;code>.docker/certbot/conf/&lt;/code> 目录，Docker 容器重建不会丢失证书。但 &lt;code>docker compose down&lt;/code> 删除容器后，目录文件仍在。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>内存限制&lt;/strong>：docker-compose.yml 配置了 512M 内存上限。如应用 OOM，调整 &lt;code>deploy.resources.limits.memory&lt;/code>。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>从 PM2 迁移到 Docker&lt;/strong>：必须先 &lt;code>pm2 delete stativo&lt;/code> 释放端口 3000，否则 Docker 容器端口映射会失败。&lt;/p>
+&lt;/li>
+&lt;/ol></description></item><item><title>Windows 11 上配置 Docker</title><link>https://changxiangyu.cn/p/windows-11-%E4%B8%8A%E9%85%8D%E7%BD%AE-docker/</link><pubDate>Tue, 20 Jan 2026 10:50:00 +0800</pubDate><guid>https://changxiangyu.cn/p/windows-11-%E4%B8%8A%E9%85%8D%E7%BD%AE-docker/</guid><description>&lt;h1 id="一系统要求与准备">一、系统要求与准备&lt;/h1>
+&lt;h2 id="1-系统要求">1. 系统要求&lt;/h2>
+&lt;ul>
+&lt;li>&lt;strong>操作系统&lt;/strong>：Windows 11 64 位（家庭版 / 专业版 / 企业版）&lt;/li>
+&lt;li>&lt;strong>虚拟化&lt;/strong>：必须启用硬件虚拟化（BIOS/UEFI 中开启 Intel VT-x / AMD-V）&lt;/li>
+&lt;li>&lt;strong>WSL 2 要求&lt;/strong>：Windows 10 版本 1903 或更高（Windows 11 已内置）&lt;/li>
+&lt;li>&lt;strong>内存&lt;/strong>：至少 4 GB（建议 8 GB 以上）&lt;/li>
+&lt;li>&lt;strong>存储空间&lt;/strong>：至少 20 GB 可用空间&lt;/li>
+&lt;/ul>
+&lt;h2 id="2-检查虚拟化是否开启">2. 检查虚拟化是否开启&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"># 打开 PowerShell（管理员）
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">systeminfo
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h1 id="或使用任务管理器查看">或使用任务管理器查看&lt;/h1>
+&lt;h1 id="ctrlshiftesc--性能--cpu--虚拟化-已启用">Ctrl+Shift+Esc → 性能 → CPU → &amp;ldquo;虚拟化: 已启用&amp;rdquo;&lt;/h1>
+&lt;p>如果未启用，需要重启进入 BIOS/UEFI 开启：&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>Intel CPU：开启 &lt;code>Intel Virtualization Technology (VT-x)&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>AMD CPU：开启 &lt;code>AMD-V&lt;/code>&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h1 id="二安装-docker-desktop-for-windows">二、安装 Docker Desktop for Windows&lt;/h1>
+&lt;h2 id="方法1官方安装推荐">方法1：官方安装（推荐）&lt;/h2>
+&lt;p>下载 Docker Desktop&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"># 官方下载地址（最新稳定版）
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>运行安装程序&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>双击安装文件&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>勾选 &amp;ldquo;Use WSL 2 instead of Hyper-V&amp;rdquo;（推荐）&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>安装完成后不要立即启动&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;p>启用 WSL 2 功能&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"># 以管理员身份打开 PowerShell
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 重启电脑
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">shutdown /r /t 0
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>设置 WSL 2 为默认版本&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">wsl --set-default-version 2
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>方法2：使用 Winget 安装&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"># 搜索 Docker Desktop
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">winget search Docker.Desktop
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 安装
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">winget install Docker.DockerDesktop
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h1 id="三安装后的配置">三、安装后的配置&lt;/h1>
+&lt;h2 id="1-首次启动配置">1. 首次启动配置&lt;/h2>
+&lt;p>启动 Docker Desktop&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>接受服务条款&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>选择 &amp;ldquo;Use WSL 2 based engine&amp;rdquo;（推荐）&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>配置 WSL 集成：&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">[x] Enable integration with my default WSL distro
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[x] Ubuntu (或你安装的其他 WSL 发行版)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="2-验证安装">2. 验证安装&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"># 打开 PowerShell 或 CMD
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker --version
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># Docker version 24.0.6, build ed223bc
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker-compose --version
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># Docker Compose version v2.21.0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker run hello-world
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 如果看到欢迎信息，说明安装成功
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 查看 Docker 信息
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker info
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="3-wsl-2-后端配置">3. WSL 2 后端配置&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"># 查看 WSL 状态
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">wsl -l -v
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 应该显示：
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># NAME STATE VERSION
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># * Ubuntu Running 2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># docker-desktop-data Running 2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># docker-desktop Running 2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 如果版本不是2，升级：
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">wsl --set-version Ubuntu 2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 设置默认发行版
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">wsl --set-default Ubuntu
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h1 id="四docker-desktop-设置优化">四、Docker Desktop 设置优化&lt;/h1>
+&lt;h2 id="1-资源分配">1. 资源分配&lt;/h2>
+&lt;p>打开 Docker Desktop → Settings → Resources：&lt;/p>
+&lt;p>CPU：建议分配 4-8 核（根据你的 CPU 核心数）&lt;/p>
+&lt;p>Memory：建议分配 4-8 GB（不要超过总内存的50%）&lt;/p>
+&lt;p>Swap：1-2 GB&lt;/p>
+&lt;p>Disk image size：至少 50 GB&lt;/p>
+&lt;h2 id="2-docker-engine-配置">2. Docker Engine 配置&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">// Settings → Docker Engine
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">{
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;#34;registry-mirrors&amp;#34;: [
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;#34;https://docker.mirrors.ustc.edu.cn&amp;#34;,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;#34;https://hub-mirror.c.163.com&amp;#34;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ],
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;#34;insecure-registries&amp;#34;: [],
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;#34;debug&amp;#34;: false,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;#34;experimental&amp;#34;: false,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;#34;features&amp;#34;: {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;#34;buildkit&amp;#34;: true
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> },
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;#34;builder&amp;#34;: {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;#34;gc&amp;#34;: {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;#34;enabled&amp;#34;: true,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;#34;defaultKeepStorage&amp;#34;: &amp;#34;10GB&amp;#34;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="3-wsl-2-设置">3. WSL 2 设置&lt;/h2>
+&lt;ul>
+&lt;li>
+&lt;p>Enable integration with additional WSL 2 distros：选择要集成的发行版&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Start Docker Desktop when you log in：根据需要开启&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Expose daemon on tcp://localhost:2375 without TLS：不建议开启&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h1 id="五常用命令与操作">五、常用命令与操作&lt;/h1>
+&lt;p>基础命令&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"># 镜像操作
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker images # 查看镜像
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker pull ubuntu:latest # 拉取镜像
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker rmi &amp;lt;image_id&amp;gt; # 删除镜像
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 容器操作
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker ps # 查看运行中的容器
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker ps -a # 查看所有容器
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker run -it ubuntu bash # 运行交互式容器
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker start &amp;lt;container_id&amp;gt; # 启动容器
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker stop &amp;lt;container_id&amp;gt; # 停止容器
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker rm &amp;lt;container_id&amp;gt; # 删除容器
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 清理
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker system prune -a # 清理所有未使用的资源
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>Windows 特有命令&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"># WSL 与 Docker 交互
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">wsl --shutdown # 关闭所有 WSL 发行版
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">wsl -d docker-desktop # 进入 docker-desktop WSL
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">wsl -d docker-desktop-data # 进入数据卷 WSL
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 重启 Docker 服务
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">net stop com.docker.service
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">net start com.docker.service
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h1 id="六开发环境配置">六、开发环境配置&lt;/h1>
+&lt;h2 id="1-项目结构示例">1. 项目结构示例&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">my-project/
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">├── docker-compose.yml
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">├── Dockerfile
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">├── .dockerignore
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">├── src/
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">└── data/
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="2-简单-dockerfile-示例">2. 简单 Dockerfile 示例&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"># 基础镜像
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">FROM python:3.11-slim
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 设置工作目录
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">WORKDIR /app
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 复制依赖文件
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">COPY requirements.txt .
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 安装依赖
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">RUN pip install --no-cache-dir -r requirements.txt
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 复制源代码
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">COPY . .
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 暴露端口
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">EXPOSE 8000
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 启动命令
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CMD [&amp;#34;python&amp;#34;, &amp;#34;app.py&amp;#34;]
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="3-docker-compose-示例">3. Docker Compose 示例&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">yaml
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">version: &amp;#39;3.8&amp;#39;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">services:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> web:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> build: .
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ports:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> - &amp;#34;8000:8000&amp;#34;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> volumes:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> - ./src:/app/src
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> environment:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> - DEBUG=1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> depends_on:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> - db
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> db:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> image: postgres:15
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> environment:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> POSTGRES_PASSWORD: example
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> volumes:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> - postgres_data:/var/lib/postgresql/data
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">volumes:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> postgres_data:
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h1 id="七常见问题解决">七、常见问题解决&lt;/h1>
+&lt;h2 id="1-docker-启动失败">1. Docker 启动失败&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"># 1. 检查 WSL 2 是否正常
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">wsl --status
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 2. 重置 Docker
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Docker Desktop → Troubleshoot → Reset to factory defaults
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 3. 重新安装 WSL 2 内核
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 下载：https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="2-网络问题">2. 网络问题&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"># 查看 Docker 网络
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker network ls
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 创建自定义网络
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker network create my-network
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 配置 DNS（在 Docker Desktop Settings → Docker Engine）
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">{
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;#34;dns&amp;#34;: [&amp;#34;8.8.8.8&amp;#34;, &amp;#34;114.114.114.114&amp;#34;]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="3-磁盘空间不足">3. 磁盘空间不足&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"># 清理 Docker 数据
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker system prune --all --volumes
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 或通过 Docker Desktop
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Settings → Resources → Advanced → Disk image location
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 可以移动到更大的磁盘
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="4-权限问题">4. 权限问题&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"># 以管理员运行 Docker Desktop
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 或在 PowerShell 中：
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">net localgroup docker-users &amp;#34;你的用户名&amp;#34; /add
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="5-端口被占用">5. 端口被占用&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"># 查看端口占用
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">netstat -ano | findstr :端口号
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 停止占用进程
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">taskkill /PID 进程号 /F
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h1 id="八性能优化建议">八、性能优化建议&lt;/h1>
+&lt;h2 id="1-文件系统性能">1. 文件系统性能&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"># 在 Dockerfile 中使用 .dockerignore
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># .dockerignore 文件内容：
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">.git
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">node_modules
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">*.log
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">*.tmp
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="2-卷映射优化">2. 卷映射优化&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">yaml
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># docker-compose.yml
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">version: &amp;#39;3.8&amp;#39;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">services:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> app:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> volumes:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> # 使用命名卷（性能更好）
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> - app_data:/data
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> # 特定文件映射（避免整个目录）
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> - ./config:/app/config:ro # 只读
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">volumes:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> app_data:
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="3-wsl-2-性能优化">3. WSL 2 性能优化&lt;/h2>
+&lt;p>创建 %UserProfile%.wslconfig：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">ini
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[wsl2]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">memory=8GB # 限制内存使用
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">processors=4 # 分配 CPU 核心
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">swap=2GB # 交换空间
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">localhostForwarding=true
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h1 id="九gui-应用支持">九、GUI 应用支持&lt;/h1>
+&lt;h2 id="1-运行-gui-应用">1. 运行 GUI 应用&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"># Dockerfile 示例（运行 Firefox）
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">FROM ubuntu:22.04
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">RUN apt update &amp;amp;&amp;amp; apt install -y firefox
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 允许连接到主机 X11 服务器
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">ENV DISPLAY=host.docker.internal:0
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="2-安装-windows-的-x-服务器">2. 安装 Windows 的 X 服务器&lt;/h2>
+&lt;ul>
+&lt;li>
+&lt;p>安装 VcXsrv 或 XMing&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>启动 XLaunch，选择 &amp;ldquo;Disable access control&amp;rdquo;&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>在 WSL 中设置：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">bash
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">export DISPLAY=$(cat /etc/resolv.conf | grep nameserver | awk &amp;#39;{print $2}&amp;#39;):0
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h1 id="十常用工具扩展">十、常用工具扩展&lt;/h1>
+&lt;h2 id="1-安装-docker-扩展">1. 安装 Docker 扩展&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"># 安装 dive（查看镜像层）
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker run --rm -it wagoodman/dive:latest
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 安装 lazydocker（TUI 管理工具）
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker run --rm -it lazyteam/lazydocker
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="2-vs-code-集成">2. VS Code 集成&lt;/h2>
+&lt;ul>
+&lt;li>
+&lt;p>安装 Docker 和 Dev Containers 扩展&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>在项目根目录创建 .devcontainer/devcontainer.json&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>按 F1 → Reopen in Container&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h1 id="十一备份与迁移">十一、备份与迁移&lt;/h1>
+&lt;h2 id="1-导出导入镜像">1. 导出/导入镜像&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;span class="lnt">9
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"># 导出镜像
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker save -o myimage.tar myimage:tag
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 导入镜像
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker load -i myimage.tar
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 导出容器
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker export -o mycontainer.tar container_id
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker import mycontainer.tar
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="2-备份-docker-数据">2. 备份 Docker 数据&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">powershell
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 备份所有镜像
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker save $(docker images -q) -o all_images.tar
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># 备份卷数据
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker run --rm -v my_volume:/data -v $(pwd):/backup ubuntu tar czf /backup/backup.tar.gz /data
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>快速检查清单
+虚拟化已启用&lt;/p>
+&lt;p>WSL 2 已安装并设为默认&lt;/p>
+&lt;p>Docker Desktop 使用 WSL 2 后端&lt;/p>
+&lt;p>资源分配合理（内存/CPU/磁盘）&lt;/p>
+&lt;p>配置了国内镜像加速器&lt;/p>
+&lt;p>防火墙允许 Docker 通信&lt;/p></description></item><item><title>Docker容器占用大量存储</title><link>https://changxiangyu.cn/p/docker%E5%AE%B9%E5%99%A8%E5%8D%A0%E7%94%A8%E5%A4%A7%E9%87%8F%E5%AD%98%E5%82%A8/</link><pubDate>Tue, 17 Jan 2023 11:02:00 +0800</pubDate><guid>https://changxiangyu.cn/p/docker%E5%AE%B9%E5%99%A8%E5%8D%A0%E7%94%A8%E5%A4%A7%E9%87%8F%E5%AD%98%E5%82%A8/</guid><description>&lt;p>服务产生大量core文件，导致存储空间被占满
+可通过命令&lt;code>find /home/docker -name core.*&lt;/code>查看产生core文件的路径（docker数据目录以现场配置为准）&lt;/p>
+&lt;ol>
+&lt;li>删除所有容器，包含base和c3目录下的
+&lt;code>docker-compose down&lt;/code>&lt;/li>
+&lt;li>使用df -h检查空间是否已经恢复&lt;/li>
+&lt;li>修改&lt;code>docker-compose.yml&lt;/code>,在每个服务的最后增加以下配置：&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"> ulimits:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> core: 0
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://changxiangyu.cn/images/web/docker-1.png"
+loading="lazy"
+>
+5. 启动docker容器
+&lt;code>docker-compose up -d&lt;/code>&lt;/p></description></item></channel></rss>

@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>git on 我的空间</title><link>https://changxiangyu.cn/tags/git/</link><description>Recent content in git on 我的空间</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Sun, 26 Nov 2023 14:36:18 +0800</lastBuildDate><atom:link href="https://changxiangyu.cn/tags/git/index.xml" rel="self" type="application/rss+xml"/><item><title>Git常用命令总结</title><link>https://changxiangyu.cn/p/git%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93/</link><pubDate>Sun, 26 Nov 2023 14:36:18 +0800</pubDate><guid>https://changxiangyu.cn/p/git%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93/</guid><description>&lt;h2 id="1-全局与局部配置-git-config">1. 全局与局部配置 (git config)&lt;/h2>
+&lt;p>&lt;code>git config&lt;/code> 命令的作用是配置 Git 的相关信息。&lt;/p>
+&lt;h3 id="用户名与邮箱配置">用户名与邮箱配置&lt;/h3>
+&lt;p>&lt;strong>全局配置&lt;/strong> (适用于所有项目):
+Mac 下可通过终端输入 &lt;code>cat ~/.gitconfig&lt;/code> 查看。&lt;/p>
+&lt;p>&lt;code>git config --global user.name &amp;quot;name&amp;quot;&lt;/code>&lt;/p>
+&lt;p>&lt;code>git config --global user.email &amp;quot;email&amp;quot;&lt;/code>&lt;/p>
+&lt;p>&lt;strong>单个仓库配置&lt;/strong> (仅适用于当前项目): 进入项目根目录，输入 cat .git/config 查看。&lt;/p>
+&lt;p>&lt;code>git config user.name &amp;quot;name&amp;quot;&lt;/code>&lt;/p>
+&lt;p>&lt;code>git config user.email &amp;quot;email&amp;quot;&lt;/code>&lt;/p>
+&lt;h3 id="查看配置">查看配置&lt;/h3>
+&lt;p>查看所有配置信息&lt;/p>
+&lt;p>&lt;code> git config --list&lt;/code>&lt;/p>
+&lt;p>查看当前配置的用户名&lt;/p>
+&lt;p>&lt;code>git config user.name&lt;/code>&lt;/p>
+&lt;p>查看当前配置的用户邮箱&lt;/p>
+&lt;p>&lt;code>git config user.email &lt;/code>&lt;/p>
+&lt;h3 id="定义命令别名-alias">定义命令别名 (Alias)&lt;/h3>
+&lt;p>为了提高效率，可以给常用命令设置简写：&lt;/p>
+&lt;p>&lt;code>git config --global alias.st status # git st = git status&lt;/code>&lt;/p>
+&lt;p>&lt;code>git config --global alias.co checkout # git co = git checkout&lt;/code>&lt;/p>
+&lt;p>&lt;code>git config --global alias.ci commit # git ci = git commit&lt;/code>&lt;/p>
+&lt;p>&lt;code>git config --global alias.br branch # git br = git branch&lt;/code>&lt;/p>
+&lt;h2 id="2-初始化与远程连接-git-init">2. 初始化与远程连接 (git init)&lt;/h2>
+&lt;p>&lt;code>git init&lt;/code> 用于在当前目录初始化仓库，生成 &lt;code>.git&lt;/code> 目录。&lt;/p>
+&lt;p>初始化仓库&lt;/p>
+&lt;p>&lt;code>git init&lt;/code>&lt;/p>
+&lt;p>连接远程项目 (origin 后接仓库地址)&lt;/p>
+&lt;p>&lt;code>git remote add origin &amp;lt;git项目链接&amp;gt;&lt;/code>&lt;/p>
+&lt;p>从远程项目拉取文件 (首次拉取建议加 &amp;ndash;rebase)&lt;/p>
+&lt;p>&lt;code>git pull --rebase origin master&lt;/code>&lt;/p>
+&lt;p>推送本地仓库到 Github (首次推送需 -u 绑定上游分支)&lt;/p>
+&lt;p>&lt;code>git push -u origin master&lt;/code>&lt;/p>
+&lt;h2 id="3-查看文件状态-git-status">3. 查看文件状态 (git status)&lt;/h2>
+&lt;p>红色表示工作区修改未提交到暂存区，绿色表示已提交到暂存区。&lt;/p>
+&lt;p>标准显示&lt;/p>
+&lt;p>&lt;code>git status&lt;/code>&lt;/p>
+&lt;p>极简方式显示&lt;/p>
+&lt;p>&lt;code>git status -s&lt;/code>&lt;/p>
+&lt;p>状态标识说明：&lt;/p>
+&lt;ol>
+&lt;li>本地新增的文件&lt;/li>
+&lt;li>文件的一个新拷贝&lt;/li>
+&lt;li>本地删除的文件&lt;/li>
+&lt;li>修改过的文件 (红色：未暂存；绿色：已暂存)&lt;/li>
+&lt;li>文件名被修改&lt;/li>
+&lt;li>文件类型被修改&lt;/li>
+&lt;li>文件未合并 (需解决冲突)&lt;/li>
+&lt;li>未被 Git 管理的文件
+已被修改但未暂存的文件，可用 &lt;code>git checkout -- fileName&lt;/code> 撤销更改。&lt;/li>
+&lt;/ol>
+&lt;h2 id="4-添加到暂存区-git-add">4. 添加到暂存区 (git add)&lt;/h2>
+&lt;p>把所有修改的信息添加到暂存区&lt;/p>
+&lt;p>&lt;code>git add .&lt;/code>&lt;/p>
+&lt;p>仅添加被跟踪文件中被修改或删除的信息 (不处理新文件)&lt;/p>
+&lt;p>&lt;code>git add -u&lt;/code>&lt;/p>
+&lt;p>添加所有变化 (修改、删除、新增)&lt;/p>
+&lt;p>&lt;code>git add -A&lt;/code>&lt;/p>
+&lt;p>已提交到暂存区的文件，可以通过 &lt;code>git reset HEAD -- fileName&lt;/code> 撤销提交（移出暂存区）。&lt;/p>
+&lt;h2 id="5-提交代码-git-commit">5. 提交代码 (git commit)&lt;/h2>
+&lt;p>将暂存区的修改提交到本地仓库，生成 commit-id。&lt;/p>
+&lt;p>提交暂存区修改&lt;/p>
+&lt;p>&lt;code>git commit -m &amp;quot;message&amp;quot;&lt;/code>&lt;/p>
+&lt;p>跳过 git add，直接将工作区修改提交 (不包含新文件)&lt;/p>
+&lt;p>&lt;code>git commit -a -m &amp;quot;message&amp;quot;&lt;/code>&lt;/p>
+&lt;p>修改最后一次提交 (用于漏掉文件或修改 commit 信息)&lt;/p>
+&lt;p>&lt;code>git commit --amend&lt;/code>&lt;/p>
+&lt;h2 id="6-拉取与获取-git-pull--git-fetch">6. 拉取与获取 (git pull &amp;amp; git fetch)&lt;/h2>
+&lt;h3 id="git-pull">git pull&lt;/h3>
+&lt;p>获取远程更新并与本地分支合并。逻辑上等于 git fetch + git merge。&lt;/p>
+&lt;p>格式: git pull &amp;lt;远程主机名&amp;gt; &amp;lt;远程分支名&amp;gt;:&amp;lt;本地分支名&amp;gt;&lt;/p>
+&lt;p>取回远程 dev 分支与本地 master 合并&lt;/p>
+&lt;p>&lt;code>git pull origin dev:master&lt;/code>&lt;/p>
+&lt;p>取回远程 dev 分支与当前分支合并&lt;/p>
+&lt;p>&lt;code>git pull origin dev&lt;/code>&lt;/p>
+&lt;h3 id="git-fetch">git fetch&lt;/h3>
+&lt;p>仅将远程更新取回本地，不自动合并。&lt;/p>
+&lt;p>获取远程 master 分支代码&lt;/p>
+&lt;p>&lt;code>git fetch origin&lt;/code>&lt;/p>
+&lt;p>获取远程 master 代码到本地新建的 test 分支&lt;/p>
+&lt;p>&lt;code>git fetch origin master:test&lt;/code>&lt;/p>
+&lt;h2 id="7-推送代码-git-push">7. 推送代码 (git push)&lt;/h2>
+&lt;p>将本地 master 分支推送到远程&lt;/p>
+&lt;p>&lt;code>git push origin master&lt;/code>&lt;/p>
+&lt;p>删除远程 dev 分支&lt;/p>
+&lt;p>&lt;code>git push origin --delete dev&lt;/code>&lt;/p>
+&lt;h2 id="8-分支管理-git-branch">8. 分支管理 (git branch)&lt;/h2>
+&lt;p>查看本地分支&lt;/p>
+&lt;p>&lt;code>git branch&lt;/code>
+查看本地和远程分支&lt;/p>
+&lt;p>&lt;code>git branch -a&lt;/code>
+新建分支&lt;/p>
+&lt;p>&lt;code>git branch test&lt;/code>
+重命名分支 (test 改为 dev)&lt;/p>
+&lt;p>&lt;code>git branch -m test dev&lt;/code>
+删除分支 (本地)&lt;/p>
+&lt;p>&lt;code>git branch -d dev&lt;/code>&lt;/p>
+&lt;h2 id="9-切换与撤销-git-checkout">9. 切换与撤销 (git checkout)&lt;/h2>
+&lt;p>切换到指定 tag&lt;/p>
+&lt;p>&lt;code>git checkout v1.0.0&lt;/code>&lt;/p>
+&lt;p>基于 v1.0.0 创建并切换到 test 分支&lt;/p>
+&lt;p>&lt;code>git checkout -b test v1.0.0&lt;/code>&lt;/p>
+&lt;p>放弃工作区所有修改 (慎用)&lt;/p>
+&lt;p>&lt;code>git checkout .&lt;/code>&lt;/p>
+&lt;p>放弃指定文件的修改&lt;/p>
+&lt;p>&lt;code>git checkout -- fileName&lt;/code>&lt;/p>
+&lt;h2 id="10-标签管理-git-tag">10. 标签管理 (git tag)&lt;/h2>
+&lt;p>查看已有标签&lt;/p>
+&lt;p>&lt;code>git tag&lt;/code>&lt;/p>
+&lt;p>#给最新 commit 打标签&lt;/p>
+&lt;p>&lt;code>git tag v1.0.0&lt;/code>&lt;/p>
+&lt;p>#给指定 commit id 打标签&lt;/p>
+&lt;p>&lt;code>git tag v0.9.0 &amp;lt;commit-id&amp;gt;&lt;/code>&lt;/p>
+&lt;h2 id="11-查看日志-git-log">11. 查看日志 (git log)&lt;/h2>
+&lt;p>查看详细历史&lt;/p>
+&lt;p>&lt;code>git log&lt;/code>&lt;/p>
+&lt;p>单行显示 (简洁)&lt;/p>
+&lt;p>&lt;code>git log --oneline&lt;/code>&lt;/p>
+&lt;p>查看特定作者&lt;/p>
+&lt;p>&lt;code>git log --author=&amp;quot;name&amp;quot;&lt;/code>&lt;/p>
+&lt;p>#图形化显示分支合并历史&lt;/p>
+&lt;p>&lt;code>git log --graph&lt;/code>&lt;/p>
+&lt;p>显示前 n 条&lt;/p>
+&lt;p>&lt;code>git log -n 5&lt;/code>&lt;/p>
+&lt;p>按日期筛选&lt;/p>
+&lt;p>&lt;code>git log --after=&amp;quot;2018-10-1&amp;quot;&lt;/code>&lt;/p>
+&lt;p>&lt;code>git log --before=&amp;quot;2018-10-7&amp;quot;&lt;/code>&lt;/p>
+&lt;h2 id="12-版本回退-git-reset">12. 版本回退 (git reset)&lt;/h2>
+&lt;p>&lt;code>git reset&lt;/code> 用于撤销暂存区修改或本地仓库提交。&lt;/p>
+&lt;h3 id="撤销暂存区-git-add-后">撤销暂存区 (git add 后):&lt;/h3>
+&lt;p>&lt;code>git reset HEAD fileName&lt;/code>&lt;/p>
+&lt;p>&lt;code>git reset HEAD .&lt;/code>&lt;/p>
+&lt;h3 id="撤销本地提交-git-commit-后">撤销本地提交 (git commit 后):&lt;/h3>
+&lt;ul>
+&lt;li>&amp;ndash;soft: 仅重置 HEAD 指针，保留暂存区和工作区内容 (相当于撤销 commit 命令)。&lt;/li>
+&lt;li>&amp;ndash;mixed (默认): 重置 HEAD 指针和暂存区，保留工作区内容。&lt;/li>
+&lt;li>&amp;ndash;hard: 重置 HEAD、暂存区和工作区，所有修改丢失。
+回退到上一个版本&lt;/li>
+&lt;/ul>
+&lt;p>&lt;code>git reset --soft HEAD~1&lt;/code>&lt;/p>
+&lt;p>回退到指定 commit-id&lt;/p>
+&lt;p>&lt;code>git reset --hard a1b2c3d&lt;/code>&lt;/p>
+&lt;h2 id="13-远程仓库管理-git-remote">13. 远程仓库管理 (git remote)&lt;/h2>
+&lt;p>查看远程仓库名称&lt;/p>
+&lt;p>&lt;code>git remote&lt;/code>&lt;/p>
+&lt;p>查看详细信息 (fetch/push 地址)&lt;/p>
+&lt;p>&lt;code>git remote -v&lt;/code>&lt;/p>
+&lt;p>添加远程仓库&lt;/p>
+&lt;p>&lt;code>git remote add origin &amp;lt;url&amp;gt;&lt;/code>&lt;/p>
+&lt;p>删除远程关联&lt;/p>
+&lt;p>&lt;code>git remote remove origin&lt;/code>&lt;/p>
+&lt;p>修改远程仓库地址&lt;/p>
+&lt;p>&lt;code>git remote set-url origin &amp;lt;new-url&amp;gt;&lt;/code>&lt;/p>
+&lt;p>清理远程已删除分支的本地缓存&lt;/p>
+&lt;p>&lt;code>git remote update origin --prune&lt;/code>&lt;/p>
+&lt;h2 id="14-合并-git-merge">14. 合并 (git merge)&lt;/h2>
+&lt;p>将 dev 分支合并到当前分支
+&lt;code>git merge dev&lt;/code>&lt;/p>
+&lt;h2 id="15-暂存更改-git-stash">15. 暂存更改 (git stash)&lt;/h2>
+&lt;p>当需要切换分支但不想提交当前工作时使用。&lt;/p>
+&lt;p>保存当前进度&lt;/p>
+&lt;p>&lt;code>git stash&lt;/code>&lt;/p>
+&lt;p>查看保存列表&lt;/p>
+&lt;p>&lt;code>git stash list&lt;/code>&lt;/p>
+&lt;p>恢复最近进度并删除记录&lt;/p>
+&lt;p>&lt;code>git stash pop&lt;/code>&lt;/p>
+&lt;p>恢复指定进度 (不删除记录)&lt;/p>
+&lt;p>&lt;code>git stash apply stash@{0}&lt;/code>&lt;/p>
+&lt;p>删除指定进度&lt;/p>
+&lt;p>&lt;code>git stash drop stash@{0}&lt;/code>&lt;/p>
+&lt;p>清空所有进度&lt;/p>
+&lt;p>&lt;code>git stash clear&lt;/code>&lt;/p>
+&lt;h2 id="16-忽略文件-gitignore">16. 忽略文件 (.gitignore)&lt;/h2>
+&lt;p>在项目根目录创建 &lt;code>.gitignore&lt;/code> 文件，列出不需要 Git 管理的文件或目录（如系统文件、编译产物、密钥等）。GitHub 提供了标准模板。&lt;/p>
+&lt;h2 id="17-实战新建项目并提交">17. 实战：新建项目并提交&lt;/h2>
+&lt;ol>
+&lt;li>初始化本地仓库: &lt;code>git init&lt;/code>&lt;/li>
+&lt;li>添加文件到暂存区: &lt;code>git add .&lt;/code>&lt;/li>
+&lt;li>提交到本地仓库: &lt;code>git commit -m &amp;quot;first commit&amp;quot;&lt;/code>&lt;/li>
+&lt;li>关联远程仓库: &lt;code>git remote add origin https://github.com/user/repo.git&lt;/code>&lt;/li>
+&lt;li>推送到远程: &lt;code>git push -u origin master&lt;/code>&lt;/li>
+&lt;/ol>
+&lt;h2 id="18-ssh-秘钥配置">18. SSH 秘钥配置&lt;/h2>
+&lt;ol>
+&lt;li>检查现有秘钥:
+&lt;code>cd ~/.ssh ls&lt;/code>&lt;/li>
+&lt;li>生成新秘钥:
+&lt;code>ssh-keygen -t rsa -C &amp;quot;your_email@example.com&amp;quot;&lt;/code>
+一路回车使用默认值即可。&lt;/li>
+&lt;li>获取公钥:
+&lt;code>cat ~/.ssh/id_rsa.pub&lt;/code>
+复制输出内容配置到 GitHub/GitLab 的 SSH Keys 中。&lt;/li>
+&lt;/ol>
+&lt;h2 id="19-常见问题与修复">19. 常见问题与修复&lt;/h2>
+&lt;p>Push 失败 (本地与远程分支不一致)
+通常发生在远程&lt;/p></description></item><item><title>git http方式免密提交</title><link>https://changxiangyu.cn/p/git-http%E6%96%B9%E5%BC%8F%E5%85%8D%E5%AF%86%E6%8F%90%E4%BA%A4/</link><pubDate>Fri, 26 Aug 2022 14:36:18 +0800</pubDate><guid>https://changxiangyu.cn/p/git-http%E6%96%B9%E5%BC%8F%E5%85%8D%E5%AF%86%E6%8F%90%E4%BA%A4/</guid><description>&lt;p>转载：https://juejin.cn/post/6844903602968854542&lt;/p>
+&lt;h2 id="设置记住密码默认15分钟">设置记住密码（默认15分钟）&lt;/h2>
+&lt;p>可以将你的密码缓存下来，只用输一次密码，以后都可以不用输入了。缺点就是密码都明文保存在 &lt;code>~/.git-credential&lt;/code> 文件中。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">git config --global credential.helper cache
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>如果想自己设置时间，可以使用以下命令：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">git config credential.helper &amp;#39;cache --timeout=3600&amp;#39;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>这样就设置一个小时之后失效&lt;/p>
+&lt;h2 id="长期存储密码">长期存储密码：&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">git config --global credential.helper store
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>增加远程地址的时候带上密码也是可以的。(推荐)&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">http://yourname:password@git.oschina.net/name/project.git
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>补充：使用客户端也可以存储密码。&lt;/p>
+&lt;h2 id="如果你正在使用ssh而且想体验https带来的高速那么你可以这样做">如果你正在使用ssh而且想体验https带来的高速，那么你可以这样做：&lt;/h2>
+&lt;p>切换到项目目录下 ：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">cd project/
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>移除远程ssh方式的仓库地址&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">git remote rm origin
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>复制代码增加https远程仓库地址&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">git remote add origin http://yourname:password@git.oschina.net/name/project.git
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item></channel></rss>

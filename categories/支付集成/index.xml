@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>支付集成 on 我的空间</title><link>https://changxiangyu.cn/categories/%E6%94%AF%E4%BB%98%E9%9B%86%E6%88%90/</link><description>Recent content in 支付集成 on 我的空间</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Sun, 12 Mar 2023 13:05:18 +0800</lastBuildDate><atom:link href="https://changxiangyu.cn/categories/%E6%94%AF%E4%BB%98%E9%9B%86%E6%88%90/index.xml" rel="self" type="application/rss+xml"/><item><title>微信支付接入指南：JSAPI、H5与小程序</title><link>https://changxiangyu.cn/p/%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97jsapih5%E4%B8%8E%E5%B0%8F%E7%A8%8B%E5%BA%8F/</link><pubDate>Sun, 12 Mar 2023 13:05:18 +0800</pubDate><guid>https://changxiangyu.cn/p/%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97jsapih5%E4%B8%8E%E5%B0%8F%E7%A8%8B%E5%BA%8F/</guid><description>&lt;p>本文总结了前端开发中常见的微信支付三种接入场景及其核心流程。&lt;/p>
+&lt;h2 id="1-公众号支付-jsapi">1. 公众号支付 (JSAPI)&lt;/h2>
+&lt;p>&lt;strong>适用场景&lt;/strong>：微信内置浏览器、微信客户端扫码、企业微信网页。&lt;/p>
+&lt;h3 id="核心流程">核心流程&lt;/h3>
+&lt;ol>
+&lt;li>&lt;strong>网页授权获取 Code&lt;/strong>：
+引导用户访问微信授权链接，获取 &lt;code>code&lt;/code>。
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-http" data-lang="http">&lt;span class="line">&lt;span class="cl">&lt;span class="err">https://open.weixin.qq.com/connect/oauth2/authorize?appid=APPID&amp;amp;redirect_uri=REDIRECT_URI&amp;amp;response_type=code&amp;amp;scope=snsapi_base&amp;amp;state=123#wechat_redirect
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;li>&lt;strong>获取 OpenID&lt;/strong>：
+后端使用 &lt;code>appid&lt;/code>、&lt;code>secret&lt;/code> 和前端传来的 &lt;code>code&lt;/code> 换取用户的 &lt;code>openid&lt;/code>。&lt;/li>
+&lt;li>&lt;strong>统一下单&lt;/strong>：
+后端调用微信统一下单接口，获取支付参数（&lt;code>timeStamp&lt;/code>, &lt;code>nonceStr&lt;/code>, &lt;code>package&lt;/code>, &lt;code>signType&lt;/code>, &lt;code>paySign&lt;/code>）。&lt;/li>
+&lt;li>&lt;strong>唤起支付&lt;/strong>：
+前端使用 &lt;code>WeixinJSBridge.invoke&lt;/code> 或 &lt;code>wx.chooseWXPay&lt;/code> 调起支付窗口。&lt;/li>
+&lt;/ol>
+&lt;h3 id="-注意事项">⚠️ 注意事项&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>授权域名&lt;/strong>：&lt;code>redirect_uri&lt;/code> 的域名必须在&lt;strong>微信公众平台&lt;/strong>的“网页授权域名”中配置。&lt;/li>
+&lt;li>&lt;strong>支付目录&lt;/strong>：支付页面的路径必须在&lt;strong>微信商户平台&lt;/strong>配置“JSAPI支付授权目录”。&lt;/li>
+&lt;li>&lt;strong>AppID&lt;/strong>：此处使用&lt;strong>公众号&lt;/strong>的 AppID。&lt;/li>
+&lt;/ul>
+&lt;hr>
+&lt;h2 id="2-h5-支付">2. H5 支付&lt;/h2>
+&lt;p>&lt;strong>适用场景&lt;/strong>：外部移动端浏览器（如 Safari, Chrome）、App 内嵌 H5（非微信环境）。&lt;/p>
+&lt;h3 id="核心流程-1">核心流程&lt;/h3>
+&lt;ol>
+&lt;li>&lt;strong>后端下单&lt;/strong>：
+后端调用微信统一下单接口（交易类型为 &lt;code>MWEB&lt;/code>）。&lt;/li>
+&lt;li>&lt;strong>获取跳转链接&lt;/strong>：
+接口返回 &lt;code>mweb_url&lt;/code>（即原文中的 &lt;code>pay_url&lt;/code>）。&lt;/li>
+&lt;li>&lt;strong>跳转支付&lt;/strong>：
+前端直接跳转该链接，微信会中间页唤起微信客户端进行支付。
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-javascript" data-lang="javascript">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 示例：跳转并指定支付后的回调页
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="nb">window&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">location&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">href&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nx">mweb_url&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="s1">&amp;#39;&amp;amp;redirect_url=&amp;#39;&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="nb">encodeURIComponent&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">window&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">location&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">href&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;/ol>
+&lt;h3 id="-注意事项-1">⚠️ 注意事项&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>Referer 校验&lt;/strong>：微信会校验发起支付请求的域名（Referer），需在商户平台配置“H5支付域名”。&lt;/li>
+&lt;li>&lt;strong>AppID&lt;/strong>：此处使用&lt;strong>商户绑定的移动应用或公众号&lt;/strong> AppID。&lt;/li>
+&lt;/ul>
+&lt;hr>
+&lt;h2 id="3-小程序支付">3. 小程序支付&lt;/h2>
+&lt;p>&lt;strong>适用场景&lt;/strong>：微信小程序原生环境。&lt;/p>
+&lt;h3 id="核心流程-2">核心流程&lt;/h3>
+&lt;ol>
+&lt;li>&lt;strong>获取登录凭证&lt;/strong>：
+前端调用 &lt;code>wx.login()&lt;/code> 获取 &lt;code>code&lt;/code>。&lt;/li>
+&lt;li>&lt;strong>获取 OpenID&lt;/strong>：
+后端通过 &lt;code>appid&lt;/code>、&lt;code>secret&lt;/code> 和 &lt;code>code&lt;/code> 换取 &lt;code>openid&lt;/code>。&lt;/li>
+&lt;li>&lt;strong>后端下单&lt;/strong>：
+后端调用统一下单接口，返回支付核心参数（&lt;code>paySign&lt;/code> 等）。&lt;/li>
+&lt;li>&lt;strong>唤起支付&lt;/strong>：
+前端调用小程序 API 进行支付：
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;span class="lnt">9
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-javascript" data-lang="javascript">&lt;span class="line">&lt;span class="cl">&lt;span class="nx">wx&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">requestPayment&lt;/span>&lt;span class="p">({&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">timeStamp&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="s1">&amp;#39;&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">nonceStr&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="s1">&amp;#39;&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kr">package&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="s1">&amp;#39;&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">signType&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="s1">&amp;#39;MD5&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">paySign&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="s1">&amp;#39;&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">success&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nx">res&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span> &lt;span class="p">},&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">fail&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nx">res&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">})&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;/ol>
+&lt;h3 id="-注意事项-2">⚠️ 注意事项&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>AppID&lt;/strong>：此处必须使用&lt;strong>小程序&lt;/strong>的 AppID。&lt;/li>
+&lt;li>&lt;strong>账号关联&lt;/strong>：小程序必须已关联到微信商户号。&lt;/li>
+&lt;/ul>
+&lt;h2 id="4-附录前端环境判断工具">4. 附录：前端环境判断工具&lt;/h2>
+&lt;p>在发起支付前，我们需要根据当前运行环境（User Agent）来决定调用 JSAPI 支付还是 H5 支付。可以使用以下工具函数进行判断：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">/**
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> * 获取当前运行平台
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> * @returns {string} &amp;#39;wecom&amp;#39; | &amp;#39;wechat&amp;#39; | &amp;#39;h5&amp;#39;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> */
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">function getPlat() {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const ua = window.navigator.userAgent.toLowerCase();
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (ua.includes(&amp;#39;wxwork&amp;#39;)) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> return &amp;#39;wecom&amp;#39;; // 企业微信环境（需使用企业微信JS-SDK或兼容JSAPI）
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> } else if (ua.includes(&amp;#39;micromessenger&amp;#39;)) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> return &amp;#39;wechat&amp;#39;; // 微信内置浏览器（使用 JSAPI 支付）
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> } else {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> return &amp;#39;h5&amp;#39;; // 普通浏览器（使用 H5 支付）
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">// 业务逻辑调用示例
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">const platform = getPlat();
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">if (platform === &amp;#39;wechat&amp;#39; || platform === &amp;#39;wecom&amp;#39;) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 执行 JSAPI 支付逻辑
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> console.log(&amp;#34;检测到微信环境，准备唤起 JSAPI 支付&amp;#34;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // doJSAPIPay();
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">} else {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 执行 H5 支付逻辑
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> console.log(&amp;#34;检测到外部浏览器，准备唤起 H5 支付&amp;#34;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // doH5Pay();
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="补充说明">补充说明&lt;/h3>
+&lt;ul>
+&lt;li>企业微信兼容性：在企业微信（wxwork）中，通常也兼容微信的 JSAPI 支付，但建议参考企业微信官方文档确认是否需要引入特定的 jweixin-module。&lt;/li>
+&lt;li>小程序环境判断：如果您还需要判断是否在小程序 Webview 中，可以增加一个判断条件：&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">if (ua.includes(&amp;#39;miniprogram&amp;#39;) || window.__wxjs_environment === &amp;#39;miniprogram&amp;#39;) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> return &amp;#39;miniprogram&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item></channel></rss>

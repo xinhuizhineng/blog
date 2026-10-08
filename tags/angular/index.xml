@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Angular on 我的空间</title><link>https://changxiangyu.cn/tags/angular/</link><description>Recent content in Angular on 我的空间</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Mon, 22 Jan 2024 10:05:18 +0800</lastBuildDate><atom:link href="https://changxiangyu.cn/tags/angular/index.xml" rel="self" type="application/rss+xml"/><item><title>Angular + Ng-Zorro 模态框拖拽功能</title><link>https://changxiangyu.cn/p/angular--ng-zorro-%E6%A8%A1%E6%80%81%E6%A1%86%E6%8B%96%E6%8B%BD%E5%8A%9F%E8%83%BD/</link><pubDate>Mon, 22 Jan 2024 10:05:18 +0800</pubDate><guid>https://changxiangyu.cn/p/angular--ng-zorro-%E6%A8%A1%E6%80%81%E6%A1%86%E6%8B%96%E6%8B%BD%E5%8A%9F%E8%83%BD/</guid><description>&lt;h2 id="基本原理">基本原理&lt;/h2>
+&lt;p>通过监听鼠标的按下（mousedown），弹起（mouseup），移动（mousemove）三个事件来计算移动的距离，从而调整模态框的新位置。&lt;/p>
+&lt;ul>
+&lt;li>鼠标按下（mousedown）：
+&lt;ul>
+&lt;li>记录鼠标按下时的位置和弹窗当前的位置，并设置弹窗左侧和顶部边距为当前位置；&lt;/li>
+&lt;li>将 &lt;code>canMove&lt;/code> 标志设置为 &lt;code>true&lt;/code>，表示模态框可以移动。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>鼠标弹起（mouseup）：
+&lt;ul>
+&lt;li>将 &lt;code>canMove&lt;/code> 标志设置为 &lt;code>false&lt;/code>，表示停止移动模态框。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>鼠标移动（mousemove）：
+&lt;ul>
+&lt;li>如果 &lt;code>canMove&lt;/code> 为 &lt;code>true&lt;/code>，则计算鼠标移动距离。&lt;/li>
+&lt;li>根据鼠标的移动距离调整模态框的新位置，使用渲染器设置模态框的新左侧和顶部偏移值，从而实现拖拽效果。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="通过nz-modal模板生成的弹窗">通过nz-modal模板生成的弹窗&lt;/h2>
+&lt;p>实现步骤：&lt;/p>
+&lt;h3 id="1通过指令来绑定拖拽方法-drag-modaldirectivets-">1.通过指令来绑定拖拽方法( drag-modal.directive.ts )：&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">import { Directive, Input } from &amp;#39;@angular/core&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">import { NzModalRef } from &amp;#39;ng-zorro-antd/modal&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">import { ModalDragService } from &amp;#39;./drag-modal.service.ts&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">@Directive({
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> selector: &amp;#39;[dragModal]&amp;#39;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">})
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">export class DragModalDirective {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> @Input() dragModal: NzModalRef;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> constructor(private modalDragService: ModalDragService) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ngAfterViewInit() {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> setTimeout(() =&amp;gt; {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.modalDragService.enableModalDrag(this.dragModal);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }, 1000);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="2注册模块-modal-dragmodulets">2.注册模块 (modal-drag.module.ts)&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">import { NgModule } from &amp;#39;@angular/core&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">import { CommonModule } from &amp;#39;@angular/common&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">import { DragModalDirective } from &amp;#34;./drag-modal.directive&amp;#34;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">import { ModalDragService } from &amp;#39;./drag-modal.service.ts&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">@NgModule({
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> providers: [ModalDragService],
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> declarations: [DragModalDirective],
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> imports: [
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> CommonModule,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ],
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> exports: [DragModalDirective]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">})
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">export class ModalDragModule { }
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>使用方法：&lt;/p>
+&lt;ol>
+&lt;li>将 &lt;code>ModalDragModule&lt;/code> 导入到需要使用弹窗拖拽的功能模块中。&lt;/li>
+&lt;li>在 &lt;code>&amp;lt;nz-modal&amp;gt;&lt;/code> 标签中增加一个模板引用变量（例如 &lt;code>#modal&lt;/code>）。&lt;/li>
+&lt;li>将该变量传递给 &lt;code>dragModal&lt;/code> 指令。&lt;/li>
+&lt;/ol>
+&lt;p>&lt;img src="https://changxiangyu.cn/images/web/popupdrag-1.png"
+loading="lazy"
+>&lt;/p>
+&lt;p>&lt;img src="https://changxiangyu.cn/images/web/popupdrag-2.png"
+loading="lazy"
+>&lt;/p>
+&lt;h2 id="通过nzmodalservice服务创建的弹窗">通过NzModalService服务创建的弹窗&lt;/h2>
+&lt;p>实现步骤：
+利用服务把事件绑定在modal的header上，通过控制mousedown,mouseup,mousemove，来实现拖拽&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;span class="lnt">43
+&lt;/span>&lt;span class="lnt">44
+&lt;/span>&lt;span class="lnt">45
+&lt;/span>&lt;span class="lnt">46
+&lt;/span>&lt;span class="lnt">47
+&lt;/span>&lt;span class="lnt">48
+&lt;/span>&lt;span class="lnt">49
+&lt;/span>&lt;span class="lnt">50
+&lt;/span>&lt;span class="lnt">51
+&lt;/span>&lt;span class="lnt">52
+&lt;/span>&lt;span class="lnt">53
+&lt;/span>&lt;span class="lnt">54
+&lt;/span>&lt;span class="lnt">55
+&lt;/span>&lt;span class="lnt">56
+&lt;/span>&lt;span class="lnt">57
+&lt;/span>&lt;span class="lnt">58
+&lt;/span>&lt;span class="lnt">59
+&lt;/span>&lt;span class="lnt">60
+&lt;/span>&lt;span class="lnt">61
+&lt;/span>&lt;span class="lnt">62
+&lt;/span>&lt;span class="lnt">63
+&lt;/span>&lt;span class="lnt">64
+&lt;/span>&lt;span class="lnt">65
+&lt;/span>&lt;span class="lnt">66
+&lt;/span>&lt;span class="lnt">67
+&lt;/span>&lt;span class="lnt">68
+&lt;/span>&lt;span class="lnt">69
+&lt;/span>&lt;span class="lnt">70
+&lt;/span>&lt;span class="lnt">71
+&lt;/span>&lt;span class="lnt">72
+&lt;/span>&lt;span class="lnt">73
+&lt;/span>&lt;span class="lnt">74
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">import { Injectable, RendererFactory2 } from &amp;#39;@angular/core&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">@Injectable({
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> providedIn: &amp;#39;root&amp;#39;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">})
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">export class ModalDragService {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> constructor(private rendererFactory2: RendererFactory2,) { }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 激活弹窗拖拽
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> enableModalDrag(refModal) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> refModal.afterOpen.subscribe(() =&amp;gt; {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const render = this.rendererFactory2.createRenderer(null, null);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 整个悬浮层的dom
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const modalBackground = refModal.getElement();
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 弹窗的dom
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const modalElement = refModal.getElement().querySelector(&amp;#39;.ant-modal-content&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 弹窗header的dom
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const modalTitleElement = this.createModalTitleElement(render, modalElement);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 绑定拖拽事件
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.dragListen(render, modalTitleElement, modalElement, modalBackground);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> })
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 自定义弹窗header拖拽区域的大小
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> createModalTitleElement(render, modalElement) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> let element = document.createElement(&amp;#39;div&amp;#39;) as any;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.setStyle(element, &amp;#39;width&amp;#39;, &amp;#39;100%&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.setStyle(element, &amp;#39;height&amp;#39;, &amp;#39;54px&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.setStyle(element, &amp;#39;position&amp;#39;, &amp;#39;absolute&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.setStyle(element, &amp;#39;top&amp;#39;, &amp;#39;0&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.setStyle(element, &amp;#39;left&amp;#39;, &amp;#39;0&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.setStyle(element, &amp;#39;cursor&amp;#39;, &amp;#39;move&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.setStyle(element, &amp;#39;-moz-user-select&amp;#39;, &amp;#39;none&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.setStyle(element, &amp;#39;-webkit-user-select&amp;#39;, &amp;#39;none&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.setStyle(element, &amp;#39;-ms-user-select&amp;#39;, &amp;#39;none&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.setStyle(element, &amp;#39;-khtml-user-select&amp;#39;, &amp;#39;none&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.setStyle(element, &amp;#39;user-select&amp;#39;, &amp;#39;none&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.appendChild(modalElement, element);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> return element;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 监听鼠标的mousedown，mouseup，mousemove事件
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> dragListen(render, modalTitleElement, modalElement, modalBackground) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.listen(modalTitleElement, &amp;#39;mousedown&amp;#39;, function (event) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 记录了鼠标按下时的位置（mouseDownX 和 mouseDownY）。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 获取了模态框当前的位置（modalX 和 modalY）。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 设置模态框的左侧和顶部边距为当前位置。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 将 canMove 标志设置为 true，表示模态框可以移动。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.mouseDownX = event.clientX;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.mouseDownY = event.clientY;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.modalX = modalElement.offsetLeft;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.modalY = modalElement.offsetTop;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.setStyle(modalElement, &amp;#39;left&amp;#39;, `${this.modalX}px`);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.setStyle(modalElement, &amp;#39;top&amp;#39;, `${this.modalY}px`);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.canMove = true;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }.bind(this));
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.listen(modalTitleElement, &amp;#39;mouseup&amp;#39;, function (event) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 将 canMove 标志设置为 false，表示停止移动模态框
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this.canMove = false;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }.bind(this));
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.listen(modalBackground, &amp;#39;mousemove&amp;#39;, function (event) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 如果 canMove 为 true，则计算鼠标移动距离。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 根据鼠标的移动距离调整模态框的新位置。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 使用渲染器设置模态框的新左侧和顶部偏移值，从而实现拖拽效果。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (this.canMove) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> let moveX = event.clientX - this.mouseDownX;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> let moveY = event.clientY - this.mouseDownY;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> let newModalX = this.modalX + moveX;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> let newModalY = this.modalY + moveY;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.setStyle(modalElement, &amp;#39;left&amp;#39;, `${newModalX}px`);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> render.setStyle(modalElement, &amp;#39;top&amp;#39;, `${newModalY}px`);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }.bind(this));
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>在初始化&lt;code>modal&lt;/code>时，使用&lt;code>modalDragService&lt;/code>的&lt;code>enableModalDrag&lt;/code>方法激活拖拽功能；&lt;/p>
+&lt;p>&lt;img src="https://changxiangyu.cn/images/web/popupdrag-3.png"
+loading="lazy"
+>&lt;/p>
+&lt;p>使用方法：&lt;/p>
+&lt;p>&lt;img src="https://changxiangyu.cn/images/web/popupdrag-4.png"
+loading="lazy"
+>&lt;/p></description></item></channel></rss>

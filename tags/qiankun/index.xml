@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Qiankun on 我的空间</title><link>https://changxiangyu.cn/tags/qiankun/</link><description>Recent content in Qiankun on 我的空间</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Thu, 27 Apr 2023 13:05:18 +0800</lastBuildDate><atom:link href="https://changxiangyu.cn/tags/qiankun/index.xml" rel="self" type="application/rss+xml"/><item><title>乾坤(Qiankun)微前端路由</title><link>https://changxiangyu.cn/p/%E4%B9%BE%E5%9D%A4qiankun%E5%BE%AE%E5%89%8D%E7%AB%AF%E8%B7%AF%E7%94%B1/</link><pubDate>Thu, 27 Apr 2023 13:05:18 +0800</pubDate><guid>https://changxiangyu.cn/p/%E4%B9%BE%E5%9D%A4qiankun%E5%BE%AE%E5%89%8D%E7%AB%AF%E8%B7%AF%E7%94%B1/</guid><description>&lt;p>在微前端架构中，主应用与子应用的技术栈差异往往会带来一些意想不到的路由同步问题。本文将分享一个在 Vue3 主应用 + Angular 子应用 场景下，遇到的“三级路由回退导致导航失效”的各种坑及其解决方案。&lt;/p>
+&lt;h2 id="1-问题描述">1. 问题描述&lt;/h2>
+&lt;p>场景&lt;/p>
+&lt;ul>
+&lt;li>主应用：Vue3 + Vue Router (Hash 模式)&lt;/li>
+&lt;li>子应用：Angular (使用 Qiankun 接入)&lt;/li>
+&lt;li>操作路径：进入 Angular 子应用 -&amp;gt; 进入二级页面 -&amp;gt; 进入三级页面 -&amp;gt; 点击“返回”按钮回退到上一级。
+症状
+当从三级路由回退后，再次点击主应用侧边栏或其他菜单时，页面无反应。查看浏览器控制台，出现类似 &lt;code>route undefined&lt;/code> 的报错。&lt;/li>
+&lt;/ul>
+&lt;h2 id="2-原因深度分析">2. 原因深度分析&lt;/h2>
+&lt;p>经过源码排查，发现问题的根源在于 &lt;strong>Vue Router&lt;/strong> 与 &lt;strong>Angular Router&lt;/strong> 对底层 &lt;strong>History API&lt;/strong> 的使用差异。&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>&lt;strong>Vue Router 的机制&lt;/strong>： Vue3 的路由跳转底层调用了 &lt;code>changeLocation&lt;/code> 函数。该函数在执行时，高度依赖 &lt;code>history.state&lt;/code> 来获取路由信息。如果 &lt;code>history.state&lt;/code> 为空或缺少关键字段（如 &lt;code>current&lt;/code>），Vue Router 可能无法正确识别当前位置，从而导致跳转逻辑中断。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Angular Router 的差异&lt;/strong>： Angular 的默认路由跳转（特别是使用 HTML 中的 &lt;code>[routerLink]=&amp;quot;['../']&amp;quot;&lt;/code> 指令时），并不会默认向 &lt;code>history.state&lt;/code> 中写入 Vue Router 所需的元数据。&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;p>结论：当在 Angular 子应用中进行路由回退时，由于没有正确更新 &lt;code>history.state&lt;/code>，导致主应用（Vue3）接管路由时读取到了空状态或错误状态，最终引发路由报错。&lt;/p>
+&lt;h2 id="3-解决方案">3. 解决方案&lt;/h2>
+&lt;p>为了解决这个问题，我们需要在“子应用跳转”和“主应用监听”两个层面进行改造。&lt;/p>
+&lt;h3 id="步骤一改造-angular-子应用的跳转方式">步骤一：改造 Angular 子应用的跳转方式&lt;/h3>
+&lt;p>&lt;strong>核心策略&lt;/strong>：放弃 HTML 模板中的 &lt;code>[routerLink]&lt;/code> 跳转，改用 API 编程式导航，并手动注入 &lt;code>state&lt;/code>。&lt;/p>
+&lt;p>Angular 的 &lt;code>Router.navigate&lt;/code> 方法允许我们传递 &lt;code>NavigationExtras&lt;/code>，其中的 &lt;code>state&lt;/code> 属性可以让我们自定义路由状态。这正好可以用来模拟 Vue Router 所需的数据结构。&lt;br>
+代码实现 (Angular 子应用)：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">// 在组件中注入 Router
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">import { Router } from &amp;#39;@angular/router&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">constructor(private _router: Router) {}
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">// 替代原本的 [routerLink]=&amp;#34;[&amp;#39;../&amp;#39;]&amp;#34;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">back() {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 手动构建 state 对象，模拟 Vue Router 的 current 字段
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 注意：这里的路径需要根据实际业务调整
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const state = { current: &amp;#39;/kq/kqGroup&amp;#39; };
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 使用 navigate 跳转，并带上 state
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> this._router.navigate([&amp;#39;/kqGroup&amp;#39;], { state: state });
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>注意：建议三级路由跳转时，URL 中尽量不要直接携带参数，可以考虑通过 Service 或 State 传递数据，以减少路由匹配的复杂度。&lt;/p>
+&lt;h3 id="步骤二改造-vue3-主应用的路由守卫">步骤二：改造 Vue3 主应用的路由守卫&lt;/h3>
+&lt;p>&lt;strong>核心策略&lt;/strong>：在主应用的全局路由守卫中，主动检测并修复 &lt;code>history.state&lt;/code>。&lt;/p>
+&lt;p>我们需要在 &lt;code>router.beforeEach&lt;/code> 中监听路由变化。如果发现 &lt;code>history.state&lt;/code> 丢失或不完整（缺少 current 字段），则使用 &lt;code>history.replaceState&lt;/code> 强制补全，确保 Vue Router 能正常工作。&lt;/p>
+&lt;p>代码实现 (Vue3 主应用)：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;span class="lnt">43
+&lt;/span>&lt;span class="lnt">44
+&lt;/span>&lt;span class="lnt">45
+&lt;/span>&lt;span class="lnt">46
+&lt;/span>&lt;span class="lnt">47
+&lt;/span>&lt;span class="lnt">48
+&lt;/span>&lt;span class="lnt">49
+&lt;/span>&lt;span class="lnt">50
+&lt;/span>&lt;span class="lnt">51
+&lt;/span>&lt;span class="lnt">52
+&lt;/span>&lt;span class="lnt">53
+&lt;/span>&lt;span class="lnt">54
+&lt;/span>&lt;span class="lnt">55
+&lt;/span>&lt;span class="lnt">56
+&lt;/span>&lt;span class="lnt">57
+&lt;/span>&lt;span class="lnt">58
+&lt;/span>&lt;span class="lnt">59
+&lt;/span>&lt;span class="lnt">60
+&lt;/span>&lt;span class="lnt">61
+&lt;/span>&lt;span class="lnt">62
+&lt;/span>&lt;span class="lnt">63
+&lt;/span>&lt;span class="lnt">64
+&lt;/span>&lt;span class="lnt">65
+&lt;/span>&lt;span class="lnt">66
+&lt;/span>&lt;span class="lnt">67
+&lt;/span>&lt;span class="lnt">68
+&lt;/span>&lt;span class="lnt">69
+&lt;/span>&lt;span class="lnt">70
+&lt;/span>&lt;span class="lnt">71
+&lt;/span>&lt;span class="lnt">72
+&lt;/span>&lt;span class="lnt">73
+&lt;/span>&lt;span class="lnt">74
+&lt;/span>&lt;span class="lnt">75
+&lt;/span>&lt;span class="lnt">76
+&lt;/span>&lt;span class="lnt">77
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">import { createRouter, createWebHashHistory } from &amp;#39;vue-router&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">const router = createRouter({
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> history: createWebHashHistory(),
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> routes,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">});
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">router.beforeEach(async (to, from, next) =&amp;gt; {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 1. 核心修复逻辑：补全 history.state
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 如果 state 存在但没有 current 字段，说明可能是子应用过来的跳转，手动补全
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (history.state &amp;amp;&amp;amp; !history.state.current) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> console.log(&amp;#39;检测到 state 缺失，执行 replaceState 修复&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> window.history.replaceState({ current: to.path }, &amp;#39;&amp;#39;, to.path);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 调试日志
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> console.log(&amp;#39;微前端 history.state ===&amp;#39;, history.state);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> console.log(&amp;#39;微前端 window.location ===&amp;#39;, window.location);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 2. 特殊业务场景修复（如巡更业务）
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 修复通过菜单切换后，history.state 丢失应用前缀信息的问题
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const current = history.state?.current;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const pathname = window.location.pathname;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (pathname &amp;amp;&amp;amp; pathname.startsWith(&amp;#39;/xg&amp;#39;)) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (current !== pathname) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> history.replaceState(
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> { back: from.path, current: window.location.pathname },
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> to.path,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &amp;#39;&amp;#39;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> );
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 3. 常规鉴权与路由分发逻辑
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (!verifyToken() &amp;amp;&amp;amp; to.path !== &amp;#39;/login&amp;#39;) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // ... 处理登录逻辑
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (noLoginPage.includes(to.path)) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> next();
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> } else {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> next({ path: &amp;#39;/login&amp;#39;, query: { fromPath: to.fullPath } });
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> } else {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 清理缓存逻辑
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (to.path === &amp;#39;/home&amp;#39;) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> sessionStorage.removeItem(&amp;#39;currentMenu&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> sessionStorage.removeItem(&amp;#39;currentPage&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 动态路由加载逻辑
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (store.state.menus.routers.length === 0 &amp;amp;&amp;amp; to.path !== &amp;#39;/login&amp;#39;) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 处理菜单基合菜单列表
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const res = await store.dispatch(&amp;#39;menus/getMenus&amp;#39;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> res.forEach((route) =&amp;gt; {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (router.hasRoute(&amp;#39;Main&amp;#39;)) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> router.addRoute(&amp;#39;Main&amp;#39;, route);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> });
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const routers = router.getRoutes();
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // Tips不检查门禁监控菜单
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (routers.find((item) =&amp;gt; item.path === to.path || /\/monitor\/mj\//.test(to.path))) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> next({ ...to, replace: true });
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> } else {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> next({ path: &amp;#39;/not-find&amp;#39; });
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> } else {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 404 检测
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> const routers = router.getRoutes();
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> // 简单的白名单检查
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> if (routers.find(item =&amp;gt; item.path === to.path || /\/monitor\/mj\//.test(to.path))) {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> next();
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> } else {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> next({ path: &amp;#39;/not-find&amp;#39; });
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">});
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="4-总结">4. 总结&lt;/h2>
+&lt;p>在乾坤微前端架构中，不同框架对 &lt;code>History API&lt;/code> 的操作习惯不同是导致路由不同步的常见原因。&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Angular&lt;/strong> 侧：利用 &lt;code>navigate&lt;/code> 的 &lt;code>state&lt;/code> 参数主动配合主应用的路由机制。&lt;/li>
+&lt;li>&lt;strong>Vue&lt;/strong> 侧：利用 &lt;code>beforeEach&lt;/code> 守卫进行兜底，确保 &lt;code>history.state&lt;/code> 始终包含 &lt;code>current&lt;/code> 字段。
+通过双向奔赴的改造，我们成功解决了三级路由回退后的“死锁”问题，保证了微前端应用的流畅体验。&lt;/li>
+&lt;/ul></description></item></channel></rss>

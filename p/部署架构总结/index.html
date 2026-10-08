@@ -1,0 +1,440 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="远程构建部署（deploy-remote.sh）和 Docker部署,项目中的地址只是实例换成自己的"><title>部署架构总结</title><link rel=canonical href=https://changxiangyu.cn/p/%E9%83%A8%E7%BD%B2%E6%9E%B6%E6%9E%84%E6%80%BB%E7%BB%93/><link rel=stylesheet href=/scss/style.min.ac77dcf8b111b51da39a92990f431923f210f3876d85798a2125667f96dc33a4.css><meta property="og:title" content="部署架构总结"><meta property="og:description" content="远程构建部署（deploy-remote.sh）和 Docker部署,项目中的地址只是实例换成自己的"><meta property="og:url" content="https://changxiangyu.cn/p/%E9%83%A8%E7%BD%B2%E6%9E%B6%E6%9E%84%E6%80%BB%E7%BB%93/"><meta property="og:site_name" content="我的空间"><meta property="og:type" content="article"><meta property="article:section" content="Post"><meta property="article:tag" content="Docker"><meta property="article:published_time" content="2026-09-20T16:54:00+08:00"><meta property="article:modified_time" content="2026-09-20T00:00:00+00:00"><meta name=twitter:title content="部署架构总结"><meta name=twitter:description content="远程构建部署（deploy-remote.sh）和 Docker部署,项目中的地址只是实例换成自己的"><link rel="shortcut icon" href=/images/favicon.ico></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=/img/1_hu8b5a3db4a21c8e092ed8817bbbdf793a_61250_300x0_resize_q75_box.jpg width=300 height=300 class=site-logo loading=lazy alt=Avatar></a>
+<span class=emoji>🍥</span></figure><div class=site-meta><h1 class=site-name><a href=/>我的空间</a></h1><h2 class=site-description>常香玉&陈金鑫.</h2></div></header><ol class=social-menu><li><a href=https://github.com/changxiangyu666 target=_blank title=GitHub><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://twitter.com target=_blank title=Twitter><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M22 4.01c-1 .49-1.98.689-3 .99-1.121-1.265-2.783-1.335-4.38-.737S11.977 6.323 12 8v1c-3.245.083-6.135-1.395-8-4 0 0-4.182 7.433 4 11-1.872 1.247-3.739 2.088-6 2 3.308 1.803 6.913 2.423 10.034 1.517 3.58-1.04 6.522-3.723 7.651-7.742a13.84 13.84.0 00.497-3.753C20.18 7.773 21.692 5.25 22 4.009z"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg><span>主页</span></a></li><li><a href=/%E5%85%B3%E4%BA%8E/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg><span>关于</span></a></li><li><a href=/archives/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg><span>Archives</span></a></li><li><a href=/search/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg><span>Search</span></a></li><li><a href=/links/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg><span>Links</span></a></li><div class=menu-bottom-section><li id=i18n-switch><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 5h7"/><path d="M9 3v2c0 4.418-2.239 8-5 8"/><path d="M5 9c-.003 2.144 2.952 3.908 6.7 4"/><path d="M12 20l4-9 4 9"/><path d="M19.1 18h-6.2"/></svg><select name=language onchange="window.location.href=this.selectedOptions[0].value"><option value=https://changxiangyu.cn/en/>English</option><option value=https://changxiangyu.cn/ selected>中文</option></select></li><li id=dark-mode-toggle><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg><span>暗色模式</span></li></div></ol></aside><main class="main full-width"><article class=main-article><header class=article-header><div class=article-details><header class=article-category><a href=/categories/docker/>Docker</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/p/%E9%83%A8%E7%BD%B2%E6%9E%B6%E6%9E%84%E6%80%BB%E7%BB%93/>部署架构总结</a></h2><h3 class=article-subtitle>远程构建部署（deploy-remote.sh）和 Docker部署,项目中的地址只是实例换成自己的</h3></div><footer class=article-time><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg><time class=article-time--published>Sep 20, 2026</time></div><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg><time class=article-time--reading>阅读时长: 8 分钟</time></div></footer></div></header><section class=article-content><h2 id=一基础设施>一、基础设施</h2><div class=table-wrapper><table><thead><tr><th>组件</th><th>值</th></tr></thead><tbody><tr><td>服务器</td><td>AWS EC2 52.77.230.213</td></tr><tr><td>用户</td><td>ec2-user</td></tr><tr><td>SSH 密钥</td><td>c:\Users\chang.ssh\sg-xiangyu.pem</td></tr><tr><td>域名</td><td>wescores.net（HTTPS）</td></tr><tr><td>项目源码</td><td>C:\projects\stativo</td></tr><tr><td>项目路径（服务器）</td><td>/var/www/stativo/</td></tr><tr><td>部署脚本</td><td>scripts/deploy-remote.sh</td></tr><tr><td>PM2 配置</td><td>ecosystem.config.js</td></tr><tr><td>环境变量</td><td>.env.production（不在 Git 中）</td></tr></tbody></table></div><h2 id=二运行架构>二、运行架构</h2><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>用户 → HTTPS(443) → Nginx → proxy_pass http://127.0.0.1:3000
+</span></span><span class=line><span class=cl>                                      ↓
+</span></span><span class=line><span class=cl>                              PM2 集群模式（4实例）
+</span></span><span class=line><span class=cl>                                      ↓
+</span></span><span class=line><span class=cl>                      Next.js Standalone Server
+</span></span></code></pre></td></tr></table></div></div><h2 id=三服务器目录结构>三、服务器目录结构</h2><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>/var/www/stativo/
+</span></span><span class=line><span class=cl>├── current/              → 符号链接，指向最新 release
+</span></span><span class=line><span class=cl>├── previous/             → 符号链接，指向上一个 release（回滚用）
+</span></span><span class=line><span class=cl>├── releases/             → 按时间戳命名的发布版本（保留最近3个）
+</span></span><span class=line><span class=cl>│   ├── 20260918112041/   → 最新部署
+</span></span><span class=line><span class=cl>│   │   ├── .next/standalone/  ← PM2 实际运行入口
+</span></span><span class=line><span class=cl>│   │   ├── .env.production   ← 环境配置
+</span></span><span class=line><span class=cl>│   │   ├── ecosystem.config.js ← PM2 配置
+</span></span><span class=line><span class=cl>│   │   └── scripts/deploy-remote.sh ← 部署脚本
+</span></span><span class=line><span class=cl>│   └── ...
+</span></span><span class=line><span class=cl>└── shared/              ← SSL 验证等共享文件
+</span></span></code></pre></td></tr></table></div></div><h2 id=四关键配置文件>四、关键配置文件</h2><h3 id=41-deploy-remotesh部署脚本>4.1 deploy-remote.sh（部署脚本）</h3><p>位置：<code>scripts/deploy-remote.sh</code></p><p>8 步流程：</p><div class=table-wrapper><table><thead><tr><th>步骤</th><th>操作</th><th>说明</th></tr></thead><tbody><tr><td>1/8</td><td>解压源码</td><td>tar xzf 到新 release 目录，删除原始包</td></tr><tr><td>2/8</td><td>复制环境变量</td><td>优先 /tmp/.env.production > shared > current</td></tr><tr><td>3/8</td><td>pnpm install</td><td>&ndash;frozen-lockfile，锁定依赖版本</td></tr><tr><td>4/8</td><td>pnpm build</td><td>source .env.production 后构建</td></tr><tr><td>5/8</td><td>验证 standalone</td><td>检查 server.js 存在，复制 static + public</td></tr><tr><td>6/8</td><td>切换 current</td><td>旧 current 存为 previous，新 release 链为 current</td></tr><tr><td>7/8</td><td>PM2 重启</td><td>删除旧进程，从新 release 的 ecosystem.config.js 启动</td></tr><tr><td>8/8</td><td>健康检查</td><td>curl 127.0.0.1:3000，2xx 即成功，清理旧 release</td></tr></tbody></table></div><p>失败时输出回滚命令：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>ln -sfn <span class=k>$(</span>readlink /var/www/stativo/previous<span class=k>)</span> /var/www/stativo/current <span class=o>&amp;&amp;</span> pm2 reload stativo
+</span></span></code></pre></td></tr></table></div></div><h3 id=42-ecosystemconfigjspm2-配置>4.2 ecosystem.config.js（PM2 配置）</h3><p>位置：<code>ecosystem.config.js</code></p><ul><li>4 实例集群模式（cluster）</li><li>端口 3000</li><li>HOSTNAME 强制 0.0.0.0（避免系统 HOSTNAME 干扰健康检查）</li><li>内存重启阈值 1G</li><li>日志模式可配：off / error / all（默认 off，写 /dev/null）</li><li>环境变量由部署脚本注入：PM2_APP_NAME、PM2_APP_PORT、PM2_APP_CWD</li></ul><h3 id=43-nextconfigts构建配置>4.3 next.config.ts（构建配置）</h3><ul><li><code>typescript.ignoreBuildErrors: true</code>（临时关闭，遗留类型错误较多，后续修复后改回 false）</li><li><code>eslint.ignoreDuringBuilds: true</code></li><li><code>outputFileTracingIncludes</code> 包含 jose 模块（Next.js standalone 不自动追踪）</li><li>standalone 模式构建</li></ul><h3 id=44-nginx-配置>4.4 Nginx 配置</h3><p>位置：<code>/etc/nginx/conf.d/stativo.conf</code></p><ul><li>proxy_pass 指向 127.0.0.1:3000</li><li>SSL 证书：/etc/pki/tls/certs/wescores.net-origin.pem</li><li>HTTPS 443 → HTTP 3000 反向代理</li></ul><h3 id=45-envproduction环境变量>4.5 .env.production（环境变量）</h3><p>关键配置：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>NEXT_PUBLIC_SITE_NAME=wescores
+</span></span><span class=line><span class=cl>NEXT_PUBLIC_SITE_DOMAIN=wescores.net
+</span></span><span class=line><span class=cl>NEXT_PUBLIC_SITE_URL=https://wescores.net
+</span></span><span class=line><span class=cl>NEXT_PUBLIC_API_URL=https://api.6wn.net/api
+</span></span><span class=line><span class=cl>AUTH_API_URL=https://api.6wn.net/api
+</span></span><span class=line><span class=cl>AUTH_TRUST_HOST=true
+</span></span><span class=line><span class=cl>NEXTAUTH_URL=https://wescores.net
+</span></span></code></pre></td></tr></table></div></div><h2 id=五更新部署流程>五、更新部署流程</h2><h3 id=51-前置条件>5.1 前置条件</h3><p><strong>必须先提交代码。</strong> 部署基于 <code>git archive HEAD</code>，只有已提交的代码才会参与部署。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-powershell data-lang=powershell><span class=line><span class=cl><span class=nb>cd </span><span class=n>C:</span><span class=p>\</span><span class=n>projects</span><span class=p>\</span><span class=n>stativo</span>
+</span></span><span class=line><span class=cl><span class=n>git</span> <span class=n>add</span> <span class=p>.</span>
+</span></span><span class=line><span class=cl><span class=n>git</span> <span class=n>commit</span> <span class=n>-m</span> <span class=s2>&#34;type(scope): description&#34;</span>
+</span></span><span class=line><span class=cl><span class=n>git</span> <span class=n>status</span>  <span class=c># 确认 &#34;working tree clean&#34;</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=52-方式一说更新部署发布>5.2 方式一：说"更新部署发布"</h3><p>先装个 AI 搭档
+我推荐 [Trae] (<a class=link href="https://www.trae.cn/?utm_source=advertising&amp;utm_medium=xiaolincoding_ug_cpa&amp;utm_term=hw_trae_xiaolincoding" target=_blank rel=noopener>https://www.trae.cn/?utm_source=advertising&utm_medium=xiaolincoding_ug_cpa&utm_term=hw_trae_xiaolincoding</a>, &ldquo;中文友好，界面简洁&rdquo;)。
+对trae-ai说"更新部署发布"，trae自动执行全部步骤：</p><ol><li><code>git status</code> 确认工作区干净</li><li><code>git archive --format=tar.gz HEAD</code> 打包最新提交</li><li><code>scp</code> 上传三个文件到服务器 /tmp：<ul><li>stativo-deploy.tar.gz（代码包）</li><li>.env.production（环境变量）</li><li>scripts/deploy-remote.sh（部署脚本）</li></ul></li><li>SSH 执行 <code>bash /tmp/deploy-remote.sh</code></li><li>等待 8 步完成，检查 DEPLOY_SUCCESS 或 HEALTH_FAIL</li><li>验证 <a class=link href=https://wescores.net target=_blank rel=noopener>https://wescores.net</a> 返回 200</li><li>清理本地临时文件</li></ol><h3 id=53-方式二手动部署>5.3 方式二：手动部署</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-powershell data-lang=powershell><span class=line><span class=cl><span class=c># 0. 确保代码已提交</span>
+</span></span><span class=line><span class=cl><span class=nb>cd </span><span class=n>C:</span><span class=p>\</span><span class=n>projects</span><span class=p>\</span><span class=n>stativo</span>
+</span></span><span class=line><span class=cl><span class=n>git</span> <span class=n>status</span>  <span class=c># 应显示 &#34;working tree clean&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c># 1. 打包代码（git archive HEAD，只含已提交代码）</span>
+</span></span><span class=line><span class=cl><span class=n>git</span> <span class=n>archive</span> <span class=p>-</span><span class=n>-format</span><span class=p>=</span><span class=n>tar</span><span class=p>.</span><span class=py>gz</span> <span class=n>HEAD</span> <span class=n>-o</span> <span class=s2>&#34;</span><span class=nv>$env:TEMP</span><span class=s2>\stativo-deploy.tar.gz&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c># 2. 上传三个文件</span>
+</span></span><span class=line><span class=cl><span class=n>scp</span> <span class=n>-i</span> <span class=s2>&#34;c:\Users\chang\.ssh\sg-xiangyu.pem&#34;</span> <span class=n>-o</span> <span class=n>ConnectTimeout</span><span class=p>=</span><span class=mf>15</span> <span class=n>-o</span> <span class=n>ServerAliveInterval</span><span class=p>=</span><span class=mf>5</span> <span class=p>`</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;</span><span class=nv>$env:TEMP</span><span class=s2>\stativo-deploy.tar.gz&#34;</span> <span class=nb>ec2-user</span><span class=nv>@52</span><span class=p>.</span><span class=py>77</span><span class=p>.</span><span class=py>230</span><span class=p>.</span><span class=mf>213</span><span class=err>:</span><span class=p>/</span><span class=n>tmp</span><span class=p>/</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>scp</span> <span class=n>-i</span> <span class=s2>&#34;c:\Users\chang\.ssh\sg-xiangyu.pem&#34;</span> <span class=n>-o</span> <span class=n>ConnectTimeout</span><span class=p>=</span><span class=mf>15</span> <span class=n>-o</span> <span class=n>ServerAliveInterval</span><span class=p>=</span><span class=mf>5</span> <span class=p>`</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;C:\projects\stativo\.env.production&#34;</span> <span class=nb>ec2-user</span><span class=nv>@52</span><span class=p>.</span><span class=py>77</span><span class=p>.</span><span class=py>230</span><span class=p>.</span><span class=mf>213</span><span class=err>:</span><span class=p>/</span><span class=n>tmp</span><span class=p>/</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>scp</span> <span class=n>-i</span> <span class=s2>&#34;c:\Users\chang\.ssh\sg-xiangyu.pem&#34;</span> <span class=n>-o</span> <span class=n>ConnectTimeout</span><span class=p>=</span><span class=mf>15</span> <span class=n>-o</span> <span class=n>ServerAliveInterval</span><span class=p>=</span><span class=mf>5</span> <span class=p>`</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;C:\projects\stativo\scripts\deploy-remote.sh&#34;</span> <span class=nb>ec2-user</span><span class=nv>@52</span><span class=p>.</span><span class=py>77</span><span class=p>.</span><span class=py>230</span><span class=p>.</span><span class=mf>213</span><span class=err>:</span><span class=p>/</span><span class=n>tmp</span><span class=p>/</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c># 3. 执行部署</span>
+</span></span><span class=line><span class=cl><span class=n>ssh</span> <span class=n>-i</span> <span class=s2>&#34;c:\Users\chang\.ssh\sg-xiangyu.pem&#34;</span> <span class=n>-o</span> <span class=n>ConnectTimeout</span><span class=p>=</span><span class=mf>15</span> <span class=n>-o</span> <span class=n>ServerAliveInterval</span><span class=p>=</span><span class=mf>5</span> <span class=p>`</span>
+</span></span><span class=line><span class=cl>  <span class=nb>ec2-user</span><span class=nv>@52</span><span class=p>.</span><span class=py>77</span><span class=p>.</span><span class=py>230</span><span class=p>.</span><span class=py>213</span> <span class=s2>&#34;bash /tmp/deploy-remote.sh&#34;</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=54-部署成功标志>5.4 部署成功标志</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>[1/8] extracting... ✓
+</span></span><span class=line><span class=cl>[2/8] copying env... ✓
+</span></span><span class=line><span class=cl>[3/8] pnpm install... ✓
+</span></span><span class=line><span class=cl>[4/8] pnpm build... ✓
+</span></span><span class=line><span class=cl>[5/8] verifying standalone... ✓
+</span></span><span class=line><span class=cl>[6/8] switching current... ✓
+</span></span><span class=line><span class=cl>[7/8] PM2 restart... ✓ (4 instances online)
+</span></span><span class=line><span class=cl>[8/8] health check... HEALTH_OK: HTTP 200
+</span></span><span class=line><span class=cl>DEPLOY_SUCCESS: /var/www/stativo/releases/YYYYMMDDHHMMSS
+</span></span></code></pre></td></tr></table></div></div><h3 id=55-部署失败处理>5.5 部署失败处理</h3><p>如果 HEALTH_FAIL，脚本会输出回滚命令，手动执行：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-powershell data-lang=powershell><span class=line><span class=cl><span class=n>ssh</span> <span class=n>-i</span> <span class=s2>&#34;c:\Users\chang\.ssh\sg-xiangyu.pem&#34;</span> <span class=nb>ec2-user</span><span class=nv>@52</span><span class=p>.</span><span class=py>77</span><span class=p>.</span><span class=py>230</span><span class=p>.</span><span class=py>213</span> <span class=p>`</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;ln -sfn </span><span class=se>`$</span><span class=s2>(readlink /var/www/stativo/previous) /var/www/stativo/current &amp;&amp; pm2 reload stativo&#34;</span>
+</span></span></code></pre></td></tr></table></div></div><p>常见失败原因：</p><ul><li>TypeScript 类型错误 → next.config.ts 当前已临时关闭</li><li>pnpm install 失败 → 检查网络或 lockfile</li><li>standalone server.js 缺失 → 构建失败</li><li>健康检查超时 → 检查 PM2 日志或端口冲突</li></ul><h2 id=六同步环境变量单独更新-envproduction>六、同步环境变量（单独更新 .env.production）</h2><p>修改了 .env.production 但不想重新部署代码时：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-powershell data-lang=powershell><span class=line><span class=cl><span class=c># 上传到服务器并同步到 shared 目录</span>
+</span></span><span class=line><span class=cl><span class=n>scp</span> <span class=n>-i</span> <span class=s2>&#34;c:\Users\chang\.ssh\sg-xiangyu.pem&#34;</span> <span class=p>`</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;C:\projects\stativo\.env.production&#34;</span> <span class=nb>ec2-user</span><span class=nv>@52</span><span class=p>.</span><span class=py>77</span><span class=p>.</span><span class=py>230</span><span class=p>.</span><span class=mf>213</span><span class=err>:</span><span class=p>/</span><span class=n>tmp</span><span class=p>/.</span><span class=py>env</span><span class=p>.</span><span class=py>production</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>ssh</span> <span class=n>-i</span> <span class=s2>&#34;c:\Users\chang\.ssh\sg-xiangyu.pem&#34;</span> <span class=nb>ec2-user</span><span class=nv>@52</span><span class=p>.</span><span class=py>77</span><span class=p>.</span><span class=py>230</span><span class=p>.</span><span class=py>213</span> <span class=p>`</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;sudo cp /tmp/.env.production /var/www/stativo/shared/.env.production &amp;&amp; sudo chown ec2-user:ec2-user /var/www/stativo/shared/.env.production &amp;&amp; rm /tmp/.env.production&#34;</span>
+</span></span></code></pre></td></tr></table></div></div><p>注意：环境变量更新后需要重新部署或重启才能生效：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-powershell data-lang=powershell><span class=line><span class=cl><span class=n>ssh</span> <span class=n>-i</span> <span class=s2>&#34;c:\Users\chang\.ssh\sg-xiangyu.pem&#34;</span> <span class=nb>ec2-user</span><span class=nv>@52</span><span class=p>.</span><span class=py>77</span><span class=p>.</span><span class=py>230</span><span class=p>.</span><span class=py>213</span> <span class=s2>&#34;pm2 reload stativo --update-env&#34;</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=七回滚到上一版本>七、回滚到上一版本</h2><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-powershell data-lang=powershell><span class=line><span class=cl><span class=n>ssh</span> <span class=n>-i</span> <span class=s2>&#34;c:\Users\chang\.ssh\sg-xiangyu.pem&#34;</span> <span class=nb>ec2-user</span><span class=nv>@52</span><span class=p>.</span><span class=py>77</span><span class=p>.</span><span class=py>230</span><span class=p>.</span><span class=py>213</span> <span class=p>`</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;ln -sfn </span><span class=se>`$</span><span class=s2>(readlink /var/www/stativo/previous) /var/www/stativo/current &amp;&amp; pm2 reload stativo&#34;</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=八常用运维命令>八、常用运维命令</h2><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-powershell data-lang=powershell><span class=line><span class=cl><span class=c># SSH 连接服务器</span>
+</span></span><span class=line><span class=cl><span class=n>ssh</span> <span class=n>-i</span> <span class=s2>&#34;c:\Users\chang\.ssh\sg-xiangyu.pem&#34;</span> <span class=nb>ec2-user</span><span class=nv>@52</span><span class=p>.</span><span class=py>77</span><span class=p>.</span><span class=py>230</span><span class=p>.</span><span class=py>213</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c># 查看 PM2 状态</span>
+</span></span><span class=line><span class=cl><span class=n>pm2</span> <span class=n>list</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c># 查看实时日志</span>
+</span></span><span class=line><span class=cl><span class=n>pm2</span> <span class=n>logs</span> <span class=n>stativo</span> <span class=p>-</span><span class=n>-lines</span> <span class=mf>50</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c># 重启应用（不重新部署）</span>
+</span></span><span class=line><span class=cl><span class=n>pm2</span> <span class=n>reload</span> <span class=n>stativo</span> <span class=p>-</span><span class=n>-update-env</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c># 检查 Nginx 配置</span>
+</span></span><span class=line><span class=cl><span class=n>sudo</span> <span class=n>nginx</span> <span class=n>-t</span> <span class=p>&amp;&amp;</span> <span class=n>sudo</span> <span class=n>systemctl</span> <span class=n>reload</span> <span class=n>nginx</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c># 查看健康状态</span>
+</span></span><span class=line><span class=cl><span class=nb>curl </span><span class=n>-s</span> <span class=n>-o</span> <span class=p>/</span><span class=n>dev</span><span class=p>/</span><span class=n>null</span> <span class=n>-w</span> <span class=s1>&#39;%{http_code}&#39;</span> <span class=n>http</span><span class=err>:</span><span class=p>//</span><span class=mf>127.0</span><span class=p>.</span><span class=py>0</span><span class=p>.</span><span class=mf>1</span><span class=err>:</span><span class=mf>3000</span>
+</span></span><span class=line><span class=cl><span class=nb>curl </span><span class=n>-s</span> <span class=n>-o</span> <span class=p>/</span><span class=n>dev</span><span class=p>/</span><span class=n>null</span> <span class=n>-w</span> <span class=s1>&#39;%{http_code}&#39;</span> <span class=n>https</span><span class=err>:</span><span class=p>//</span><span class=n>wescores</span><span class=p>.</span><span class=py>net</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c># 查看当前 release</span>
+</span></span><span class=line><span class=cl><span class=n>readlink</span> <span class=o>-f</span> <span class=p>/</span><span class=n>var</span><span class=p>/</span><span class=n>www</span><span class=p>/</span><span class=n>stativo</span><span class=p>/</span><span class=n>current</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c># 查看所有 releases</span>
+</span></span><span class=line><span class=cl><span class=nb>ls </span><span class=o>-lt</span> <span class=p>/</span><span class=n>var</span><span class=p>/</span><span class=n>www</span><span class=p>/</span><span class=n>stativo</span><span class=p>/</span><span class=n>releases</span><span class=p>/</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c># 查看磁盘空间</span>
+</span></span><span class=line><span class=cl><span class=n>df</span> <span class=n>-h</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=九注意事项>九、注意事项</h2><ol><li><p><strong>必须先提交代码</strong>：<code>git archive HEAD</code> 只打包已提交代码，未提交的修改不会部署。部署前确保 <code>git status</code> 显示 &ldquo;working tree clean&rdquo;。</p></li><li><p><strong>.env.production 不在 Git 中</strong>：.gitignore 的 .env* 规则排除了它。部署脚本从 /tmp/.env.production 读取，每次部署都会上传本地版本。</p></li><li><p><strong>deploy-remote.sh 随代码一起部署</strong>：脚本在 scripts/ 目录下，git archive 会包含它。但实际执行的是上传到 /tmp/deploy-remote.sh 的版本。</p></li><li><p><strong>TypeScript 类型检查已临时关闭</strong>：next.config.ts 中 <code>ignoreBuildErrors: true</code>，遗留类型错误不阻断构建。修复完所有类型错误后改回 false。</p></li><li><p><strong>端口统一为 3000</strong>：PM2、Nginx proxy_pass、Docker 配置全部使用 3000。</p></li><li><p><strong>HOSTNAME 强制 0.0.0.0</strong>：ecosystem.config.js 中强制设置，避免系统 HOSTNAME（如 ip-172-31-xx-xx）导致应用只绑定内网 IP，健康检查和 Nginx 代理失效。</p></li></ol><h2 id=十已踩过的坑>十、已踩过的坑</h2><div class=table-wrapper><table><thead><tr><th>问题</th><th>原因</th><th>解决方案</th></tr></thead><tbody><tr><td>jose 模块缺失</td><td>Next.js standalone 未自动追踪</td><td>next.config.ts 添加 outputFileTracingIncludes</td></tr><tr><td>localhost:3001 泄露</td><td>源码 defaultConfig 默认值被编译进产物</td><td>运行时被 production 配置覆盖，不影响实际运行</td></tr><tr><td>.env.production 不同步</td><td>.gitignore 排除，服务器旧版覆盖新版</td><td>部署脚本改为优先从 /tmp/.env.production 读取</td></tr><tr><td>AUTH_TRUST_HOST 缺失</td><td>NextAuth v5 生产环境必需</td><td>已添加到 .env.production</td></tr><tr><td>HTTPS 502</td><td>Nginx proxy_pass 端口与 PM2 不一致</td><td>统一为 3000</td></tr><tr><td>PM2 启动失败</td><td>日志目录权限</td><td>sudo chown -R ec2-user:ec2-user /var/log/stativo</td></tr><tr><td>HOSTNAME 绑定内网 IP</td><td>系统 HOSTNAME 环境变量覆盖</td><td>ecosystem.config.js 强制 HOSTNAME=0.0.0.0</td></tr><tr><td>TypeScript 类型错误</td><td>代码有类型不兼容问题</td><td>临时关闭 ignoreBuildErrors，后续逐个修复</td></tr><tr><td>未提交代码未部署</td><td>git archive HEAD 只含已提交代码</td><td>部署前必须 git commit</td></tr></tbody></table></div><h2 id=十一docker-配置备用>十一、Docker 配置（备用）</h2><p>项目在 <code>.docker/</code> 目录下保留了完整的 Docker 部署配置，端口已统一为 3000，当前未启用。</p><h3 id=111-文件清单>11.1 文件清单</h3><div class=table-wrapper><table><thead><tr><th>文件</th><th>说明</th></tr></thead><tbody><tr><td><code>.docker/Dockerfile</code></td><td>多阶段构建（deps → builder → runner），Alpine + dumb-init</td></tr><tr><td><code>.docker/docker-compose.yml</code></td><td>容器编排，含应用容器 + Nginx + Certbot（SSL profile）</td></tr><tr><td><code>.docker/env.docker</code></td><td>Docker 环境变量（从 .env.production 复制，不提交 Git）</td></tr><tr><td><code>.docker/env.example</code></td><td>环境变量模板（已更新为 wescores.net 域名）</td></tr><tr><td><code>.docker/deploy.sh</code></td><td>Docker 一键部署脚本（git pull + docker compose）</td></tr><tr><td><code>.docker/init-ssl.sh</code></td><td>Let&rsquo;s Encrypt SSL 证书首次签发脚本（6 步自动化）</td></tr><tr><td><code>.docker/nginx/nginx.conf</code></td><td>Docker Nginx 配置（HTTP 重定向 + HTTPS 反向代理 + 静态缓存）</td></tr><tr><td><code>.docker/deploy-guide.html</code></td><td>Docker 部署可视化指南</td></tr><tr><td><code>.dockerignore</code></td><td>排除依赖、构建产物、secrets</td></tr></tbody></table></div><h3 id=112-dockerfile-多阶段构建说明>11.2 Dockerfile 多阶段构建说明</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>Stage 1: deps        → 安装全量依赖（含 devDependencies），BuildKit 缓存 pnpm store
+</span></span><span class=line><span class=cl>Stage 2: builder     → 复制源码，pnpm run build:prod，BuildKit 缓存 .next/cache
+</span></span><span class=line><span class=cl>Stage 3: runner     → Alpine + dumb-init，复制 standalone 产物，非 root 用户运行
+</span></span></code></pre></td></tr></table></div></div><p>关键设计：</p><ul><li>BuildKit 缓存挂载：pnpm store 和 .next/cache 跨构建复用，增量构建快</li><li>依赖层与源码层分离：改代码不重装依赖</li><li>standalone 模式：镜像不含 node_modules，仅 standalone 追踪的文件</li><li>outputFileTracingIncludes 已在 next.config.ts 配置 jose 模块</li><li>dumb-init 作为 PID 1，正确转发 SIGTERM 实现优雅退出</li></ul><h3 id=113-两种-docker-部署模式>11.3 两种 Docker 部署模式</h3><h4 id=模式-a纯容器复用系统-nginx--ssl>模式 A：纯容器（复用系统 Nginx + SSL）</h4><p>Docker 只跑应用容器，SSL 和域名继续用系统 Nginx（与 PM2 方案一致）。</p><p>适用场景：服务器已有系统 Nginx + SSL 证书，只想把进程管理从 PM2 换成 Docker。</p><h4 id=模式-b全容器docker-nginx--certbot-自动-ssl>模式 B：全容器（Docker Nginx + Certbot 自动 SSL）</h4><p>Docker 管理全部：应用容器 + Nginx 反向代理 + Let&rsquo;s Encrypt 证书自动签发和续期。</p><p>适用场景：全新服务器，不想手动配 Nginx 和 SSL，一切交给 Docker Compose。</p><h3 id=114-切换到-docker-部署的完整步骤>11.4 切换到 Docker 部署的完整步骤</h3><h4 id=前置准备>前置准备</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-powershell data-lang=powershell><span class=line><span class=cl><span class=c># 1. SSH 连接服务器</span>
+</span></span><span class=line><span class=cl><span class=n>ssh</span> <span class=n>-i</span> <span class=s2>&#34;c:\Users\chang\.ssh\sg-xiangyu.pem&#34;</span> <span class=nb>ec2-user</span><span class=nv>@52</span><span class=p>.</span><span class=py>77</span><span class=p>.</span><span class=py>230</span><span class=p>.</span><span class=py>213</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c># 2. 安装 Docker + Docker Compose v2（如未安装）</span>
+</span></span><span class=line><span class=cl><span class=n>sudo</span> <span class=n>yum</span> <span class=n>update</span> <span class=n>-y</span>
+</span></span><span class=line><span class=cl><span class=n>sudo</span> <span class=n>yum</span> <span class=n>install</span> <span class=n>-y</span> <span class=n>docker</span>
+</span></span><span class=line><span class=cl><span class=n>sudo</span> <span class=n>systemctl</span> <span class=n>enable</span> <span class=n>docker</span>
+</span></span><span class=line><span class=cl><span class=n>sudo</span> <span class=n>systemctl</span> <span class=nb>start </span><span class=n>docker</span>
+</span></span><span class=line><span class=cl><span class=n>sudo</span> <span class=n>usermod</span> <span class=n>-aG</span> <span class=n>docker</span> <span class=nb>ec2-user</span>
+</span></span><span class=line><span class=cl><span class=c># 重新登录使 docker 组生效</span>
+</span></span><span class=line><span class=cl><span class=n>exit</span>
+</span></span><span class=line><span class=cl><span class=n>ssh</span> <span class=n>-i</span> <span class=s2>&#34;c:\Users\chang\.ssh\sg-xiangyu.pem&#34;</span> <span class=nb>ec2-user</span><span class=nv>@52</span><span class=p>.</span><span class=py>77</span><span class=p>.</span><span class=py>230</span><span class=p>.</span><span class=py>213</span>
+</span></span><span class=line><span class=cl><span class=n>docker</span> <span class=p>-</span><span class=n>-version</span>  <span class=c># 验证安装</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c># 3. git clone 项目（如服务器上没有）</span>
+</span></span><span class=line><span class=cl><span class=nb>cd </span><span class=p>~</span>
+</span></span><span class=line><span class=cl><span class=n>git</span> <span class=n>clone</span> <span class=p>&lt;</span><span class=err>仓库地址</span><span class=p>&gt;</span> <span class=n>stativo</span>
+</span></span><span class=line><span class=cl><span class=nb>cd </span><span class=p>~/</span><span class=n>stativo</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=创建环境变量>创建环境变量</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nb>cd</span> ~/stativo/.docker
+</span></span><span class=line><span class=cl>cp env.example env.docker
+</span></span><span class=line><span class=cl>vi env.docker
+</span></span><span class=line><span class=cl><span class=c1># 填入真实值，参考 .env.production（域名 wescores.net、API 地址、鉴权密钥等）</span>
+</span></span><span class=line><span class=cl><span class=c1># 关键项：</span>
+</span></span><span class=line><span class=cl><span class=c1>#   NEXT_PUBLIC_SITE_URL=https://wescores.net</span>
+</span></span><span class=line><span class=cl><span class=c1>#   NEXTAUTH_URL=https://wescores.net</span>
+</span></span><span class=line><span class=cl><span class=c1>#   AUTH_TRUST_HOST=true</span>
+</span></span><span class=line><span class=cl><span class=c1>#   NEXTAUTH_SECRET=NIUGOyvfaUH2Aq5DA75E9+Lh/nUy7jxxrvK2qeHdLwg=</span>
+</span></span><span class=line><span class=cl><span class=c1>#   AUTH_GOOGLE_ID=428668096460-mdonea4qtvcoacvqru8vrvf8mkia9n75.apps.googleusercontent.com</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=停止-pm2如从-pm2-方案切换>停止 PM2（如从 PM2 方案切换）</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>pm2 delete stativo
+</span></span><span class=line><span class=cl>pm2 save
+</span></span><span class=line><span class=cl><span class=c1># 可选：如不再使用 PM2，卸载</span>
+</span></span><span class=line><span class=cl><span class=c1># npm uninstall -g pm2</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=模式-a纯容器部署>模式 A：纯容器部署</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nb>cd</span> ~/stativo
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 拉取最新代码</span>
+</span></span><span class=line><span class=cl>git pull origin main
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 构建并启动（不启用 SSL profile）</span>
+</span></span><span class=line><span class=cl>docker compose -f .docker/docker-compose.yml up -d --build
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 等待健康检查（约 40 秒）</span>
+</span></span><span class=line><span class=cl>docker compose -f .docker/docker-compose.yml ps
+</span></span><span class=line><span class=cl><span class=c1># 状态应显示 &#34;healthy&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 验证</span>
+</span></span><span class=line><span class=cl>curl -s -o /dev/null -w <span class=s1>&#39;%{http_code}&#39;</span> http://localhost:3000
+</span></span><span class=line><span class=cl><span class=c1># 应返回 200</span>
+</span></span></code></pre></td></tr></table></div></div><p>系统 Nginx proxy_pass 指向 127.0.0.1:3000，与 PM2 方案一致，无需修改 Nginx 配置。</p><h4 id=模式-b全容器部署含-ssl>模式 B：全容器部署（含 SSL）</h4><p><strong>首次签发 SSL 证书：</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nb>cd</span> ~/stativo
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 确保域名 DNS 已指向服务器</span>
+</span></span><span class=line><span class=cl>dig wescores.net  <span class=c1># 应解析到 52.77.230.213</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 停止占用 80 端口的服务</span>
+</span></span><span class=line><span class=cl>sudo systemctl stop nginx  <span class=c1># 如有系统 Nginx</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 签发证书（6 步自动化）</span>
+</span></span><span class=line><span class=cl>bash .docker/init-ssl.sh
+</span></span><span class=line><span class=cl><span class=c1># 脚本会：</span>
+</span></span><span class=line><span class=cl><span class=c1>#   1. 停止现有容器</span>
+</span></span><span class=line><span class=cl><span class=c1>#   2. 创建 certbot 目录</span>
+</span></span><span class=line><span class=cl><span class=c1>#   3. 启动临时 Nginx 处理 ACME 验证</span>
+</span></span><span class=line><span class=cl><span class=c1>#   4. Certbot 签发证书</span>
+</span></span><span class=line><span class=cl><span class=c1>#   5. 清理临时 Nginx</span>
+</span></span><span class=line><span class=cl><span class=c1>#   6. 验证证书文件</span>
+</span></span></code></pre></td></tr></table></div></div><p><strong>启动完整部署：</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nb>cd</span> ~/stativo
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 启动（含 SSL profile：应用 + Nginx + Certbot）</span>
+</span></span><span class=line><span class=cl>docker compose -f .docker/docker-compose.yml --profile ssl up -d --build
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 查看容器状态</span>
+</span></span><span class=line><span class=cl>docker compose -f .docker/docker-compose.yml --profile ssl ps
+</span></span><span class=line><span class=cl><span class=c1># 应看到 3 个容器：stativo-web (healthy), stativo-nginx, stativo-certbot</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 验证</span>
+</span></span><span class=line><span class=cl>curl -s -o /dev/null -w <span class=s1>&#39;%{http_code}&#39;</span> https://wescores.net
+</span></span><span class=line><span class=cl><span class=c1># 应返回 200</span>
+</span></span></code></pre></td></tr></table></div></div><p><strong>SSL 证书自动续期：</strong></p><p>Certbot 容器会每 12 小时自动检查并续期证书，无需手动操作。证书路径：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>.docker/certbot/conf/live/wescores.net/
+</span></span><span class=line><span class=cl>├── fullchain.pem
+</span></span><span class=line><span class=cl>└── privkey.pem
+</span></span></code></pre></td></tr></table></div></div><h3 id=115-docker-日常更新部署>11.5 Docker 日常更新部署</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 服务器上执行</span>
+</span></span><span class=line><span class=cl><span class=nb>cd</span> ~/stativo
+</span></span><span class=line><span class=cl>git pull origin main
+</span></span><span class=line><span class=cl>docker compose -f .docker/docker-compose.yml up -d --build
+</span></span><span class=line><span class=cl><span class=c1># 或如使用 SSL profile：</span>
+</span></span><span class=line><span class=cl><span class=c1># docker compose -f .docker/docker-compose.yml --profile ssl up -d --build</span>
+</span></span></code></pre></td></tr></table></div></div><p>或从本地一键触发（使用 deploy.sh）：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-powershell data-lang=powershell><span class=line><span class=cl><span class=nb>cd </span><span class=n>C:</span><span class=p>\</span><span class=n>projects</span><span class=p>\</span><span class=n>stativo</span>
+</span></span><span class=line><span class=cl><span class=n>ssh</span> <span class=n>-i</span> <span class=s2>&#34;c:\Users\chang\.ssh\sg-xiangyu.pem&#34;</span> <span class=nb>ec2-user</span><span class=nv>@52</span><span class=p>.</span><span class=py>77</span><span class=p>.</span><span class=py>230</span><span class=p>.</span><span class=py>213</span> <span class=s2>&#34;cd ~/stativo &amp;&amp; git pull origin main &amp;&amp; docker compose -f .docker/docker-compose.yml up -d --build&#34;</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=116-docker-常用运维命令>11.6 Docker 常用运维命令</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 查看容器状态</span>
+</span></span><span class=line><span class=cl>docker compose -f .docker/docker-compose.yml ps
+</span></span><span class=line><span class=cl><span class=c1># 含 SSL：docker compose -f .docker/docker-compose.yml --profile ssl ps</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 查看应用日志</span>
+</span></span><span class=line><span class=cl>docker compose -f .docker/docker-compose.yml logs -f stativo
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 重启应用容器</span>
+</span></span><span class=line><span class=cl>docker compose -f .docker/docker-compose.yml restart stativo
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 停止全部容器</span>
+</span></span><span class=line><span class=cl>docker compose -f .docker/docker-compose.yml down
+</span></span><span class=line><span class=cl><span class=c1># 含 SSL：docker compose -f .docker/docker-compose.yml --profile ssl down</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 重建（无缓存，解决构建缓存问题）</span>
+</span></span><span class=line><span class=cl>docker compose -f .docker/docker-compose.yml build --no-cache
+</span></span><span class=line><span class=cl>docker compose -f .docker/docker-compose.yml up -d
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 进入容器调试</span>
+</span></span><span class=line><span class=cl>docker <span class=nb>exec</span> -it stativo-web sh
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 查看容器资源使用</span>
+</span></span><span class=line><span class=cl>docker stats stativo-web
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 清理构建缓存（释放磁盘）</span>
+</span></span><span class=line><span class=cl>docker builder prune -f
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 清理悬空镜像</span>
+</span></span><span class=line><span class=cl>docker image prune -f
+</span></span></code></pre></td></tr></table></div></div><h3 id=117-docker-与-pm2-方案对比>11.7 Docker 与 PM2 方案对比</h3><div class=table-wrapper><table><thead><tr><th>维度</th><th style=text-align:center>PM2（当前）</th><th style=text-align:center>Docker</th></tr></thead><tbody><tr><td>服务器依赖</td><td style=text-align:center>pnpm + node + pm2 + curl</td><td style=text-align:center>Docker + Docker Compose</td></tr><tr><td>环境一致性</td><td style=text-align:center>服务器直接构建</td><td style=text-align:center>✅ 容器隔离，多环境一致</td></tr><tr><td>多实例</td><td style=text-align:center>✅ 4 实例集群</td><td style=text-align:center>❌ 单实例（需配 replicas 或 nginx upstream）</td></tr><tr><td>部署命令</td><td style=text-align:center>git archive + scp + ssh</td><td style=text-align:center>git pull + docker compose up</td></tr><tr><td>构建速度</td><td style=text-align:center>服务器全量 build</td><td style=text-align:center>BuildKit 缓存，增量快</td></tr><tr><td>资源限制</td><td style=text-align:center>PM2 max_memory_restart</td><td style=text-align:center>✅ 内存/CPU 硬限制</td></tr><tr><td>日志管理</td><td style=text-align:center>pm2 logs</td><td style=text-align:center>docker logs（自动轮转）</td></tr><tr><td>回滚</td><td style=text-align:center>previous 软链，秒级回滚</td><td style=text-align:center>切镜像 tag</td></tr><tr><td>SSL 管理</td><td style=text-align:center>手动配置系统 Nginx</td><td style=text-align:center>✅ Certbot 自动签发续期</td></tr><tr><td>部署方式</td><td style=text-align:center>打包上传（不依赖服务器 git）</td><td style=text-align:center>服务器 git pull（需仓库访问权限）</td></tr></tbody></table></div><h3 id=118-docker-部署注意事项>11.8 Docker 部署注意事项</h3><ol><li><p><strong>端口冲突</strong>：模式 A 和 B 不能同时使用。模式 B 的 Nginx 容器会占用 80/443 端口，与系统 Nginx 冲突。</p></li><li><p><strong>env.docker 不提交 Git</strong>：<code>.dockerignore</code> 已排除 <code>env.docker</code> 和 <code>.docker/env.docker</code>，需要在服务器上手动创建。</p></li><li><p><strong>git pull 部署 vs git archive 部署</strong>：Docker 的 deploy.sh 使用 <code>git pull</code>，需要服务器有仓库访问权限（部署密钥或 HTTPS 认证）。PM2 方案用 <code>git archive</code> 打包上传，不需要服务器访问 Git 仓库。</p></li><li><p><strong>数据卷</strong>：SSL 证书存在 <code>.docker/certbot/conf/</code> 目录，Docker 容器重建不会丢失证书。但 <code>docker compose down</code> 删除容器后，目录文件仍在。</p></li><li><p><strong>内存限制</strong>：docker-compose.yml 配置了 512M 内存上限。如应用 OOM，调整 <code>deploy.resources.limits.memory</code>。</p></li><li><p><strong>从 PM2 迁移到 Docker</strong>：必须先 <code>pm2 delete stativo</code> 释放端口 3000，否则 Docker 容器端口映射会失败。</p></li></ol></section><footer class=article-footer><section class=article-tags><a href=/tags/docker/>Docker</a></section><section class=article-copyright><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg><span>Licensed under CC BY-NC-SA 4.0</span></section><section class=article-lastmod><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg><span>最后更新于 Sep 20, 2026 00:00 UTC</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article><a href=/p/windows-11-%E4%B8%8A%E9%85%8D%E7%BD%AE-docker/><div class=article-details><h2 class=article-title>Windows 11 上配置 Docker</h2></div></a></article><article><a href=/p/docker%E5%AE%B9%E5%99%A8%E5%8D%A0%E7%94%A8%E5%A4%A7%E9%87%8F%E5%AD%98%E5%82%A8/><div class=article-details><h2 class=article-title>Docker容器占用大量存储</h2></div></a></article></div></div></aside><div class=disqus-container><div id=disqus_thread></div><script type=application/javascript>window.disqus_config=function(){},function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById("disqus_thread").innerHTML="Disqus comments not available by default when the website is previewed locally.";return}var t=document,e=t.createElement("script");e.async=!0,e.src="//hugo-theme-stack.disqus.com/embed.js",e.setAttribute("data-timestamp",+new Date),(t.head||t.body).appendChild(e)}()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></div><style>.disqus-container{background-color:var(--card-background);border-radius:var(--card-border-radius);box-shadow:var(--shadow-l1);padding:var(--card-padding)}</style><script>window.addEventListener("onColorSchemeChange",e=>{typeof DISQUS=="object"&&DISQUS.reset({reload:!0})})</script><footer class=site-footer><section class=copyright>&copy;
+2020 -
+2026 我的空间</section><section class=powerby>Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a><br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.13.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计<br><a href=https://beian.miit.gov.cn/ target=_blank>粤ICP备19123935号</a></section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#一基础设施>一、基础设施</a></li><li><a href=#二运行架构>二、运行架构</a></li><li><a href=#三服务器目录结构>三、服务器目录结构</a></li><li><a href=#四关键配置文件>四、关键配置文件</a><ol><li><a href=#41-deploy-remotesh部署脚本>4.1 deploy-remote.sh（部署脚本）</a></li><li><a href=#42-ecosystemconfigjspm2-配置>4.2 ecosystem.config.js（PM2 配置）</a></li><li><a href=#43-nextconfigts构建配置>4.3 next.config.ts（构建配置）</a></li><li><a href=#44-nginx-配置>4.4 Nginx 配置</a></li><li><a href=#45-envproduction环境变量>4.5 .env.production（环境变量）</a></li></ol></li><li><a href=#五更新部署流程>五、更新部署流程</a><ol><li><a href=#51-前置条件>5.1 前置条件</a></li><li><a href=#52-方式一说更新部署发布>5.2 方式一：说"更新部署发布"</a></li><li><a href=#53-方式二手动部署>5.3 方式二：手动部署</a></li><li><a href=#54-部署成功标志>5.4 部署成功标志</a></li><li><a href=#55-部署失败处理>5.5 部署失败处理</a></li></ol></li><li><a href=#六同步环境变量单独更新-envproduction>六、同步环境变量（单独更新 .env.production）</a></li><li><a href=#七回滚到上一版本>七、回滚到上一版本</a></li><li><a href=#八常用运维命令>八、常用运维命令</a></li><li><a href=#九注意事项>九、注意事项</a></li><li><a href=#十已踩过的坑>十、已踩过的坑</a></li><li><a href=#十一docker-配置备用>十一、Docker 配置（备用）</a><ol><li><a href=#111-文件清单>11.1 文件清单</a></li><li><a href=#112-dockerfile-多阶段构建说明>11.2 Dockerfile 多阶段构建说明</a></li><li><a href=#113-两种-docker-部署模式>11.3 两种 Docker 部署模式</a><ol><li><a href=#模式-a纯容器复用系统-nginx--ssl>模式 A：纯容器（复用系统 Nginx + SSL）</a></li><li><a href=#模式-b全容器docker-nginx--certbot-自动-ssl>模式 B：全容器（Docker Nginx + Certbot 自动 SSL）</a></li></ol></li><li><a href=#114-切换到-docker-部署的完整步骤>11.4 切换到 Docker 部署的完整步骤</a><ol><li><a href=#前置准备>前置准备</a></li><li><a href=#创建环境变量>创建环境变量</a></li><li><a href=#停止-pm2如从-pm2-方案切换>停止 PM2（如从 PM2 方案切换）</a></li><li><a href=#模式-a纯容器部署>模式 A：纯容器部署</a></li><li><a href=#模式-b全容器部署含-ssl>模式 B：全容器部署（含 SSL）</a></li></ol></li><li><a href=#115-docker-日常更新部署>11.5 Docker 日常更新部署</a></li><li><a href=#116-docker-常用运维命令>11.6 Docker 常用运维命令</a></li><li><a href=#117-docker-与-pm2-方案对比>11.7 Docker 与 PM2 方案对比</a></li><li><a href=#118-docker-部署注意事项>11.8 Docker 部署注意事项</a></li></ol></li></ol></nav></div></section></aside></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.js defer></script>
+<script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>
